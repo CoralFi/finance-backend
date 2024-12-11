@@ -1,49 +1,35 @@
 import bcrypt from "bcrypt";
-import { createClient } from "@supabase/supabase-js";
-
-// Configuración de Supabase
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_KEY;
-const supabase = createClient(supabaseUrl, supabaseKey);
+import UserService from '../../services/UserService.js'
+import UserBO from '../../models/user.js'
+import WalletService from "../../services/utila/WalletService.js";
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
         return res.status(405).json({ message: "Método no permitido" });
     }
 
-    const { email, password, firstName, lastName, userType } = req.body;
+    const { email, password, nombre, apellido, userType } = req.body;
+    const userService = new UserService();
+    const walletService = new WalletService();
 
-    if (!email || !password || !firstName || !lastName || !userType) {
+    if (!email || !password || !nombre || !apellido || !userType) {
         return res.status(400).json({ message: "Todos los campos son obligatorios." });
     }
 
     try {
-        // Verificar si el correo ya está registrado
-        const { data: existingUser } = await supabase
-            .from("users")
-            .select("*")
-            .eq("email", email)
-            .single();
-
-        if (existingUser) {
-            return res.status(400).json({ message: "El correo ya está registrado." });
-        }
+        const verifyUser = await userService.verifyUser(email);
 
         // Encriptar la contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Insertar el nuevo usuario
-        const { data, error } = await supabase.from("users").insert([
-            {
-                email,
-                password: hashedPassword,
-                first_name: firstName,
-                last_name: lastName,
-                user_type: userType,
-            },
-        ]);
+        const user = new UserBO(email, hashedPassword, nombre, apellido, userType);
+        const createUser = await userService.createUser(user, res);
 
-        if (error) throw error;
+        // Asociar una wallet a un usuario.
+        console.log("Create user: ", createUser)
+        const createWalletForNewUser = await walletService.createWallet(createUser);
+        console.log(createWalletForNewUser.wallet.name)
 
         res.status(201).json({ message: "Usuario registrado exitosamente." });
     } catch (error) {
