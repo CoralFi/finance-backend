@@ -8,31 +8,45 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: "Método no permitido" });
     }
 
-    const { email, password, nombre, apellido, userType } = req.body;
-    const userService = new UserService();
-    const walletService = new WalletService();
+    res.setHeader('Access-Control-Allow-Origin', '*'); //todo: cambiar por la del front
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    if (!email || !password || !nombre || !apellido || !userType) {
-        return res.status(400).json({ message: "Todos los campos son obligatorios." });
+    // Manejar solicitudes OPTIONS (preflight)
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end(); // Responde con HTTP 200 OK
     }
 
-    try {
-        const verifyUser = await userService.verifyUser(email);
+    if (req.method === 'POST') {
+        const { email, password, nombre, apellido, userType } = req.body;
+        const userService = new UserService();
+        const walletService = new WalletService();
 
-        // Encriptar la contraseña
-        const hashedPassword = await bcrypt.hash(password, 10);
+        if (!email || !password || !nombre || !apellido || !userType) {
+            return res.status(400).json({ message: "Todos los campos son obligatorios." });
+        }
 
-        // Insertar el nuevo usuario
-        const user = new UserBO(email, hashedPassword, nombre, apellido, userType);
-        const createUser = await userService.createUser(user, res);
+        try {
+            const verifyUser = await userService.verifyUser(email);
 
-        // Asociar una wallet a un usuario.
-        console.log("Create user: ", createUser)
-        const createWalletForNewUser = await walletService.createWallet(createUser);
-        console.log(createWalletForNewUser.wallet.name)
+            // Encriptar la contraseña
+            const hashedPassword = await bcrypt.hash(password, 10);
 
-        res.status(201).json({ message: "Usuario registrado exitosamente." });
-    } catch (error) {
-        res.status(500).json({ message: "Error al registrar el usuario.", error: error.message });
+            // Insertar el nuevo usuario
+            const user = new UserBO(email, hashedPassword, nombre, apellido, userType);
+            const createUser = await userService.createUser(user, res);
+
+            // Asociar una wallet a un usuario.
+            console.log("Create user: ", createUser)
+            const createWalletForNewUser = await walletService.createWallet(createUser);
+            console.log(createWalletForNewUser.wallet.name)
+
+            res.status(201).json({ message: "Usuario registrado exitosamente." });
+        } catch (error) {
+            res.status(500).json({ message: "Error al registrar el usuario.", error: error.message });
+        }
+    } else {
+        res.setHeader('Allow', ['POST']);
+        res.status(405).end(`Método ${req.method} no permitido`);
     }
 }
