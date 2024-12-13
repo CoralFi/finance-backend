@@ -21,6 +21,8 @@ class WalletService {
             networks,
         };
 
+        console.log("token:", token)
+
         try {
             const response = await axios.post(url, body, {
                 headers: {

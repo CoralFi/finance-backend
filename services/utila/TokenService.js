@@ -4,9 +4,9 @@ const fs = require("fs");
 class TokenService {
     constructor() {
         // Configuración del servicio
-        this.SERVICE_ACCOUNT_EMAIL = "coraldev@vault-958c80a6cbf7.utilaserviceaccount.io";
+        this.SERVICE_ACCOUNT_EMAIL = process.env.UTILA_SERVICE_ACCOUNT;
         this.UTILIA_API_URI = "https://api.utila.io/";
-        this.PRIVATE_KEY_PATH = "private_key.pem";
+        this.PRIVATE_KEY_PATH = process.env.PRIVATE_KEY; //"private_key.pem"
 
         // Cargar clave privada
         this.privateKey = fs.readFileSync(this.PRIVATE_KEY_PATH, "utf8");

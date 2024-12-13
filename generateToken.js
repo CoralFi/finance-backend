@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const fs = require("fs");
 
 // Service account details
-const SERVICE_ACCOUNT_EMAIL = "coraldev@vault-958c80a6cbf7.utilaserviceaccount.io";
+const SERVICE_ACCOUNT_EMAIL = "coralmacu@vault-958c80a6cbf7.utilaserviceaccount.io";
 const UTILIA_API_URI = "https://api.utila.io/";
 const PRIVATE_KEY_PATH = "private_key.pem";
 
