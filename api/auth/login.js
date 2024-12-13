@@ -26,7 +26,7 @@ export default async function handler(req, res) {
         try {
             // Buscar al usuario en la base de datos por email
             const { data: user, error } = await supabase
-                .from("users")
+                .from("usuarios")
                 .select("*")
                 .eq("email", email)
                 .single();
