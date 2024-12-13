@@ -1,6 +1,4 @@
 import TokenService from "./TokenService.js";
-import axios from "axios";
-
 
 class AssetsService {
     constructor() {
@@ -12,20 +10,33 @@ class AssetsService {
         const token = this.token;
 
         try {
-            const response = await axios.get(url, {
+            // Realizar la solicitud con fetch
+            const response = await fetch(url, {
+                method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response.data)
-            const convertedValue = response.data.asset.convertedValue;
+
+            // Verificar si la respuesta es válida
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
+            }
+
+            // Convertir la respuesta a JSON
+            const data = await response.json();
+
+            console.log(data);
+
+            const convertedValue = data.asset.convertedValue;
 
             const result = convertedValue.amount;
 
-            console.log("Converted price: ", result)
+            console.log("Converted price: ", result);
             return result;
         } catch (error) {
+            console.error("Error al obtener el valor convertido:", error.message);
             throw error;
         }
     }

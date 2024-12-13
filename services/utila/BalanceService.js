@@ -1,7 +1,6 @@
-import TokenService from "./TokenService.js"
+import TokenService from "./TokenService.js";
 import SupabaseClient from "../../database/client.js";
 import AssetsService from "./AssetsService.js";
-import axios from "axios";
 
 class BalanceService {
     constructor() {
@@ -10,35 +9,47 @@ class BalanceService {
         this.asset = new AssetsService();
     }
 
-    
-
-    // Obtiene el balence de cada asset en una wallet.
+    // Obtiene el balance de cada asset en una wallet.
     async getWalletBalance(userId) {
-        console.log("Balance Service")
+        console.log("Balance Service");
         const url = 'https://api.utila.io/v1alpha2/vaults/958c80a6cbf7/wallets/5ee734117a09:queryBalances';
         const token = this.token;
         const filter = '';
         const pageSize = 4;
         const pageToken = '';
         const includeReferencedResources = true;
-        console.log("Token: ", token)
+
+        console.log("Token: ", token);
+
         const body = {
             filter,
             pageSize,
             pageToken,
             includeReferencedResources
-        }
+        };
 
         try {
-            const response = await axios.post(url, body, {
+            // Realizar la solicitud POST con fetch
+            const response = await fetch(url, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,
                 },
+                body: JSON.stringify(body),
             });
 
-            const walletBalances = response.data.walletBalances;
+            // Verificar si la respuesta es válida
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
+            }
 
+            // Convertir la respuesta a JSON
+            const data = await response.json();
+
+            const walletBalances = data.walletBalances;
+
+            // Procesar cada balance y convertirlo
             const result = await Promise.all(walletBalances.map(async item => {
                 const convertedValue = await this.asset.getAssetsConvertedValue(item.asset);
                 const valueToUSD = item.value * convertedValue;
@@ -49,16 +60,13 @@ class BalanceService {
                 };
             }));
 
-
-            console.log("Wallet balance list: ", result)
+            console.log("Wallet balance list: ", result);
             return result;
         } catch (error) {
+            console.error("Error al obtener el balance de la wallet:", error.message);
             throw error;
         }
-
     }
-
-    
 }
 
 export default BalanceService;
