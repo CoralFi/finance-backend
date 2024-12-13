@@ -6,10 +6,10 @@ class TokenService {
         // Configuración del servicio
         this.SERVICE_ACCOUNT_EMAIL = process.env.UTILA_SERVICE_ACCOUNT;
         this.UTILIA_API_URI = "https://api.utila.io/";
-        this.PRIVATE_KEY_PATH = process.env.PRIVATE_KEY.replace(/\\n/g, '\n'); //"private_key.pem"
+
 
         // Cargar clave privada
-        this.privateKey = fs.readFileSync(this.PRIVATE_KEY_PATH, "utf8");
+        this.privateKey = Buffer.from(process.env.PRIVATE_KEY_BASE64, 'base64').toString('utf8');
 
         // Almacenar token en memoria para evitar regenerarlo en cada llamada
         this.token = null;
