@@ -47,11 +47,13 @@ export default async function handler(req, res) {
             res.status(200).json({
                 message: "Inicio de sesión exitoso.",
                 user: {
-                    id: user.id,
+                    id: user.user_id,
                     email: user.email,
-                    firstName: user.first_name,
-                    lastName: user.last_name,
+                    firstName: user.nombre,
+                    lastName: user.apellido,
                     userType: user.user_type,
+                    kyc: user.estado_kyc,
+                    wallet: user.wallet_id
                 },
             });
         } catch (error) {

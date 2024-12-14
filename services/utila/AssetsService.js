@@ -26,17 +26,11 @@ class AssetsService {
 
             // Convertir la respuesta a JSON
             const data = await response.json();
-
-            console.log(data);
-
             const convertedValue = data.asset.convertedValue;
-
             const result = convertedValue.amount;
 
-            console.log("Converted price: ", result);
             return result;
         } catch (error) {
-            console.error("Error al obtener el valor convertido:", error.message);
             throw error;
         }
     }

@@ -6,13 +6,12 @@ export default async function  handler (req, res) {
     }
 
     const balanceService = new BalanceService();
-
-    const { userId } = req.body;
+    const { id, wallet } = req.query;
 
     try {
-        const getBalance = await balanceService.getWalletBalance(userId);
+        const getDashboardInfo = await balanceService.getDashboardInfo(id, wallet);
 
-        res.status(201).json({ balance: getBalance });
+        res.status(201).json({ dashboard: getDashboardInfo });
     } catch (error) {
         res.status(500).json({ message: "Error al armar el dashboard "});
     }

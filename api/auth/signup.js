@@ -37,9 +37,7 @@ export default async function handler(req, res) {
             const createUser = await userService.createUser(user, res);
 
             // Asociar una wallet a un usuario.
-            console.log("Create user: ", createUser)
             const createWalletForNewUser = await walletService.createWallet(createUser);
-            console.log(createWalletForNewUser.wallet.name)
 
             res.status(201).json({ message: "Usuario registrado exitosamente." });
         } catch (error) {

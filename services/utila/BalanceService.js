@@ -1,32 +1,32 @@
 import TokenService from "./TokenService.js";
 import SupabaseClient from "../../database/client.js";
 import AssetsService from "./AssetsService.js";
+import AddressService from "./AddressService.js";
 
 class BalanceService {
     constructor() {
         this.token = new TokenService().getToken();
         this.supabase = new SupabaseClient().getClient();
         this.asset = new AssetsService();
+        this.addressWallet = new AddressService();
     }
 
-    // Obtiene el balance de cada asset en una wallet.
-    async getWalletBalance(userId) {
-        console.log("Balance Service");
-        const url = 'https://api.utila.io/v1alpha2/vaults/958c80a6cbf7/wallets/5ee734117a09:queryBalances';
+    // Obtiene la lista de assets de una wallet.
+    async getAssetListByWallet(id, wallet) {
+        const url = `https://api.utila.io/v1alpha2/${wallet}:queryBalances`;
         const token = this.token;
         const filter = '';
         const pageSize = 4;
         const pageToken = '';
         const includeReferencedResources = true;
-
-        console.log("Token: ", token);
-
         const body = {
             filter,
             pageSize,
             pageToken,
             includeReferencedResources
         };
+
+        console.log(this.token)
 
         try {
             // Realizar la solicitud POST con fetch
@@ -60,12 +60,75 @@ class BalanceService {
                 };
             }));
 
-            console.log("Wallet balance list: ", result);
             return result;
         } catch (error) {
             console.error("Error al obtener el balance de la wallet:", error.message);
             throw error;
         }
+    }
+
+    // Obtiene el balance total de una wallet.
+    async getWalletBalance(id, wallet) {
+        const assetsList = await this.getAssetListByWallet(id, wallet);
+        const total= assetsList.reduce((sum, item) => sum + item.valueToUSD, 0);
+
+        return Math.round(total * 100) / 100;
+    }
+
+    async getTransactionList(id, wallet) {
+        const addressesWallet = await this.addressWallet.getAddressesByWallet(id, wallet);
+        const url = 'https://api.utila.io/v1alpha2/vaults/958c80a6cbf7/transactions?orderBy=create_time';
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET', 
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${this.token}`
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log("TRANSACTION LIST: ", data.transactions)
+
+            const transactionListByWallet = this.findTransactionsByAddresses(addressesWallet, data.transactions);
+
+            return transactionListByWallet.reverse();
+        } catch (error) {
+            console.error("Error al obtener las transacciones:", error.message);
+            throw error;
+        }
+        
+    }
+
+    findTransactionsByAddresses(addresses, transactions) {
+        return transactions.filter(transaction => {
+            return transaction.transfers.some(transfer => {
+                return addresses.some(address => 
+                    transfer.sourceAddress.value === address ||
+                    transfer.destinationAddress.value === address
+                );
+            });
+        });
+    }
+
+    async getDashboardInfo(id, wallet) {
+        const walletBalance = await this.getWalletBalance(id, wallet);
+        const assetsWallet = await this.getAssetListByWallet(id, wallet);
+        const transactionList = await this.getTransactionList(id, wallet);
+
+      //  const transactionList = await this.getTransactionList();
+        const dashboardInfo = {
+            walletBalance,
+            assetsWallet,
+            transactionList
+        }
+
+        return dashboardInfo;
     }
 }
 
