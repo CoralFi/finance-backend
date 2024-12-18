@@ -53,8 +53,10 @@ class BalanceService {
             const result = await Promise.all(walletBalances.map(async item => {
                 const convertedValue = await this.asset.getAssetsConvertedValue(item.asset);
                 const valueToUSD = item.value * convertedValue;
+                const assetId = await this.asset.getAssetId(item.asset);
+
                 return {
-                    asset: item.asset,
+                    asset: assetId,
                     value: item.value,
                     valueToUSD
                 };

@@ -36,6 +36,41 @@ class AddressService {
 
     }
 
+    async getAddressAndNetwork(wallet) {
+        const url = `https://api.utila.io/v1alpha2/${wallet}/addresses`;
+
+        try {
+            const response = await fetch(url, {
+                method: 'GET', 
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${this.token}`
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            console.log(data.walletAddresses)
+           
+            const addressByNetwork = data.walletAddresses.map(({ network, address }) => ({
+                network,
+                address
+              }));;
+
+
+
+            return addressByNetwork;
+
+        } catch (error) {
+            console.error("Error al obtener los addresses:", error.message);
+            throw error;
+        }
+    }
+
     // Función recursiva para encontrar todas las direcciones
     findAddresses(obj) {
         let addresses = [];

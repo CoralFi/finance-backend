@@ -23,7 +23,6 @@ class WalletService {
         console.log("token:", token);
 
         try {
-            // Realizar la solicitud POST con fetch
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
