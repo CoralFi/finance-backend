@@ -20,7 +20,9 @@ class transactionService {
               }
             },
             priority: 'LOW', //definePriority(),
-            designatedSigners: null, // designatedSigners(),
+            designatedSigners: [
+                "users/coralmacu@vault-958c80a6cbf7.utilaserviceaccount.io"
+            ],
             includeReferencedResources: true
           };
 
