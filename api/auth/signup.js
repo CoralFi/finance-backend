@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         }
 
         try {
-            const verifyUser = await userService.verifyUser(email);
+            const verifyUser = await userService.verifyUser(email, res);
 
             // Encriptar la contraseña
             const hashedPassword = await bcrypt.hash(password, 10);
@@ -41,6 +41,7 @@ export default async function handler(req, res) {
 
             res.status(201).json({ message: "Usuario registrado exitosamente." });
         } catch (error) {
+            console.log(error)
             res.status(500).json({ message: "Error al registrar el usuario.", error: error.message });
         }
     } else {

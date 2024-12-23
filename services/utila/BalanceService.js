@@ -95,17 +95,43 @@ class BalanceService {
             }
 
             const data = await response.json();
-            console.log("TRANSACTION LIST: ", data.transactions)
-
             const transactionListByWallet = this.findTransactionsByAddresses(addressesWallet, data.transactions);
 
-            return transactionListByWallet.reverse();
+            const transactionInfo = transactionListByWallet.map(originalObject => ({
+                type: originalObject.type,
+                state: originalObject.state,
+                createTime: originalObject.createTime,
+                request: originalObject.request,
+                transfers: originalObject.transfers.map(transfer => ({
+                    amount: transfer.amount,
+                    asset: transfer.asset,
+                    sourceAddress: transfer.sourceAddress.value,
+                    destinationAddress: transfer.destinationAddress.value
+                })),
+                transactionType: this.transationType(originalObject.request, addressesWallet)
+            }));
+
+            console.log("TRANSACTION INFO:", transactionInfo)
+            return transactionInfo.reverse();
+
         } catch (error) {
             console.error("Error al obtener las transacciones:", error.message);
             throw error;
         }
         
     }
+
+    transationType(sourceWallet, addressesWallet) {
+        console.log("SOURCE WALLET:", sourceWallet)
+        const isUndefined = sourceWallet === undefined;
+        const isSameWallet = isUndefined ? false :sourceWallet.sourceWallet === addressesWallet;
+
+        console.log("undefined:", isUndefined)
+        console.log("isSameAddress:", isSameWallet)
+
+
+        return isUndefined || !isSameWallet ? "deposit" : "withdraw";
+    }    
 
     findTransactionsByAddresses(addresses, transactions) {
         return transactions.filter(transaction => {
