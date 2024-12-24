@@ -41,6 +41,7 @@ class BalanceService {
 
             // Verificar si la respuesta es válida
             if (!response.ok) {
+                console.log("Response:",response)
                 throw new Error(`Error en la solicitud: ${response.status} - ${response.statusText}`);
             }
 
@@ -78,7 +79,7 @@ class BalanceService {
     }
 
     async getTransactionList(id, wallet) {
-        const addressesWallet = await this.addressWallet.getAddressesByWallet(id, wallet);
+        const addressesWallet = await this.addressWallet.getAddressesByWallet(wallet);
         const url = 'https://api.utila.io/v1alpha2/vaults/958c80a6cbf7/transactions?orderBy=create_time';
 
         try {
@@ -97,7 +98,7 @@ class BalanceService {
             const data = await response.json();
             const transactionListByWallet = this.findTransactionsByAddresses(addressesWallet, data.transactions);
 
-            const transactionInfo = transactionListByWallet.map(originalObject => ({
+            const transactionInfo = await Promise.all(transactionListByWallet.map(async originalObject => ({
                 type: originalObject.type,
                 state: originalObject.state,
                 createTime: originalObject.createTime,
@@ -108,8 +109,8 @@ class BalanceService {
                     sourceAddress: transfer.sourceAddress.value,
                     destinationAddress: transfer.destinationAddress.value
                 })),
-                transactionType: this.transationType(originalObject.request, addressesWallet)
-            }));
+                transactionType: await this.transationType(originalObject.request, addressesWallet)
+            })));
 
             console.log("TRANSACTION INFO:", transactionInfo)
             return transactionInfo.reverse();
@@ -121,16 +122,20 @@ class BalanceService {
         
     }
 
-    transationType(sourceWallet, addressesWallet) {
-        console.log("SOURCE WALLET:", sourceWallet)
+    async transationType(sourceWallet, addressesWallet) {
         const isUndefined = sourceWallet === undefined;
-        const isSameWallet = isUndefined ? false :sourceWallet.sourceWallet === addressesWallet;
+    
+        if(!isUndefined) {
+            const addressBySourceWallet = await this.addressWallet.getAddressesByWallet(sourceWallet.sourceWallet);
 
-        console.log("undefined:", isUndefined)
-        console.log("isSameAddress:", isSameWallet)
 
+            const addressList = [...addressBySourceWallet, sourceWallet.sourceWallet];
 
-        return isUndefined || !isSameWallet ? "deposit" : "withdraw";
+            const transaccion = addressList.some(address => addressesWallet.includes(address)) ? "withdraw" : "deposit";
+            return transaccion;
+        }
+
+        return "deposit";
     }    
 
     findTransactionsByAddresses(addresses, transactions) {

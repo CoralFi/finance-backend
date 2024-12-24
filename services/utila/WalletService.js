@@ -12,7 +12,8 @@ class WalletService {
         const token = this.token;
         const displayName = userId.toString();
         const networks = [
-            "networks/solana-mainnet"
+            "networks/solana-mainnet",
+            "networks/polygon-mainnet"
         ];
 
         const body = {

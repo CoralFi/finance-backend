@@ -5,7 +5,7 @@ class AddressService {
         this.token = new TokenService().getToken();
     }
 
-    async getAddressesByWallet(id, wallet) {
+    async getAddressesByWallet(wallet) {
         console.log("wallet: ", wallet)
         const url = `https://api.utila.io/v1alpha2/${wallet}`;
 
