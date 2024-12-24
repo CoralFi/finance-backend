@@ -4,17 +4,13 @@ import UserBO from '../../models/user.js'
 import WalletService from "../../services/utila/WalletService.js";
 
 export default async function handler(req, res) {
-    if (req.method !== "POST") {
-        return res.status(405).json({ message: "Método no permitido" });
-    }
-
     res.setHeader('Access-Control-Allow-Origin', '*'); //todo: cambiar por la del front
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
     // Manejar solicitudes OPTIONS (preflight)
     if (req.method === 'OPTIONS') {
-        return res.status(200).end(); // Responde con HTTP 200 OK
+        return res.status(200).end();
     }
 
     if (req.method === 'POST') {
@@ -41,7 +37,6 @@ export default async function handler(req, res) {
 
             res.status(201).json({ message: "Usuario registrado exitosamente." });
         } catch (error) {
-            console.log(error)
             res.status(500).json({ message: "Error al registrar el usuario.", error: error.message });
         }
     } else {
