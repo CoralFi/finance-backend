@@ -41,7 +41,6 @@ class AssetsService {
     }
 
     async getAssetId(asset) {
-        console.log("ASSETID", asset)
         const url = `https://api.utila.io/v1alpha2/${asset}`;
         const token = this.token;
 

@@ -25,16 +25,8 @@ export default async function handler(req, res) {
 
     try {
         const { assetToSwap, amount, source, assetToRecive } = req.body;
-
-        console.log("asset to swap", assetToSwap)
-        console.log("ammount", assetToSwap)
-
-        console.log("asset to recive", assetToRecive)
-
-
         const canSwap = await convertionService.validateSwap(assetToSwap, amount, assetToRecive);
 
-        console.log("Can swap?:", canSwap)
         if(canSwap) {
             //Se hace la del cliente a la cuenta madre.
             const coralWallet = "vaults/958c80a6cbf7/wallets/e6a86b1e533b";
@@ -48,9 +40,6 @@ export default async function handler(req, res) {
             const transactionCoralDetails = new TransactionBO(assetIdToRecive, coralWallet, source, totalTokenToSwap.totalTokenToRecive.toString());
             const coralState = await transactionService.sendTransaction(transactionCoralDetails);
 
-
-            console.log("Client state:", clientState)
-            console.log("coral state:", coralState)
             res.status(201).json({ message: "Swap exitoso" })
 
         } else {

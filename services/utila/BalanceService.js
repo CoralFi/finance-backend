@@ -2,6 +2,7 @@ import TokenService from "./TokenService.js";
 import SupabaseClient from "../../database/client.js";
 import AssetsService from "./AssetsService.js";
 import AddressService from "./AddressService.js";
+import { hash } from "bcrypt";
 
 class BalanceService {
     constructor() {
@@ -99,21 +100,23 @@ class BalanceService {
             const data = await response.json();
             const transactionListByWallet = this.findTransactionsByAddresses(addressesWallet, data.transactions);
 
+            console.log("TransactionListByWallet:", transactionListByWallet);
             const transactionInfo = await Promise.all(transactionListByWallet.map(async originalObject => ({
                 type: originalObject.type,
                 state: originalObject.state,
                 createTime: originalObject.createTime,
                 request: originalObject.request,
-                transfers: originalObject.transfers.map(transfer => ({
+                transfers: await Promise.all(originalObject.transfers.map(async transfer => ({
                     amount: transfer.amount,
                     asset: transfer.asset,
+                    assetId: await this.asset.getAssetId(transfer.asset),
                     sourceAddress: transfer.sourceAddress.value,
-                    destinationAddress: transfer.destinationAddress.value
-                })),
+                    destinationAddress: transfer.destinationAddress.value,
+                    hash: originalObject.hash
+                }))),
                 transactionType: await this.transationType(originalObject.request, addressesWallet)
             })));
 
-            console.log("TRANSACTION INFO:", transactionInfo)
             return transactionInfo.reverse();
 
         } catch (error) {
