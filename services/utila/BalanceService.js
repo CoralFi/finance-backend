@@ -57,7 +57,8 @@ class BalanceService {
                 const assetId = await this.asset.getAssetId(item.asset);
 
                 return {
-                    asset: assetId,
+                    assetForIcon: assetId,
+                    assetForSwap: item.asset,
                     value: item.value,
                     valueToUSD
                 };
@@ -163,6 +164,8 @@ class BalanceService {
 
         return dashboardInfo;
     }
+
+    
 }
 
 export default BalanceService;

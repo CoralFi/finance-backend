@@ -9,6 +9,7 @@ class transactionService {
         const url = 'https://api.utila.io/v1alpha2/vaults/958c80a6cbf7/transactions:initiate';
         const token = this.token;
 
+        console.log("Transaction details:", transactionDetails)
         const body = {
             details: {
               assetTransfer: {
@@ -21,7 +22,9 @@ class transactionService {
             },
             priority: 'LOW', //definePriority(),
             designatedSigners: [
-                "users/coralmacu@vault-958c80a6cbf7.utilaserviceaccount.io"
+                "users/coralmacu@vault-958c80a6cbf7.utilaserviceaccount.io",
+                "users/leaconti10@gmail.com",
+                "users/coraldev@vault-958c80a6cbf7.utilaserviceaccount.io"
             ],
             includeReferencedResources: true
           };
@@ -38,6 +41,8 @@ class transactionService {
             });
 
             const data = await response.json();
+
+            console.log("Transaction data:", data)
             const state = data.transaction.state;
 
             return state;

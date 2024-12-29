@@ -4,6 +4,11 @@ class AssetsService {
     constructor() {
         this.token = new TokenService().getToken();
     }
+    static cryptoEnum = {
+        SOL: "assets/native.solana-mainnet",
+        USDC: "assets/spl-token.solana-mainnet.EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+        USDT: "assets/spl-token.solana-mainnet.Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+    }
 
     async getAssetsConvertedValue(asset) {
         const url = `https://api.utila.io/v1alpha2/${asset}`;
@@ -63,6 +68,10 @@ class AssetsService {
         } catch (error) {
             throw error;
         }
+    }
+
+    getAssetById(assetId) {
+        return this.constructor.cryptoEnum[assetId] || null;
     }
 }
 
