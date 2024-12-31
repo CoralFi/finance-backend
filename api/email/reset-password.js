@@ -4,6 +4,15 @@ import { createClient } from '@supabase/supabase-js';
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 export default async function handler(req, res) {
+    res.setHeader('Access-Control-Allow-Origin', 'https://finance-front-beryl.vercel.app'); // TODO: cambiar por la del front
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+    } 
+
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
   const { token, email } = req.query;
