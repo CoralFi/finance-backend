@@ -1,14 +1,23 @@
 import bcrypt from "bcrypt";
-import UserService from '../../services/UserService.js'
-import UserBO from '../../models/user.js'
+import UserService from '../../services/UserService.js';
+import UserBO from '../../models/user.js';
 import WalletService from "../../services/utila/WalletService.js";
+import { createClient } from '@supabase/supabase-js';
+import SibApiV3Sdk from '@sendinblue/client';
+import crypto from 'crypto';
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*'); //todo: cambiar por la del front
+    res.setHeader('Access-Control-Allow-Origin', '*'); // TODO: cambiar por la del front
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Manejar solicitudes OPTIONS (preflight)
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
@@ -23,6 +32,7 @@ export default async function handler(req, res) {
         }
 
         try {
+            // Verificar si el usuario ya existe
             const verifyUser = await userService.verifyUser(email, res);
 
             // Encriptar la contraseña
@@ -32,10 +42,37 @@ export default async function handler(req, res) {
             const user = new UserBO(email, hashedPassword, nombre, apellido, userType);
             const createUser = await userService.createUser(user, res);
 
-            // Asociar una wallet a un usuario.
-            const createWalletForNewUser = await walletService.createWallet(createUser);
+            // Asociar una wallet al nuevo usuario
+            await walletService.createWallet(createUser);
 
-            res.status(201).json({ message: "Usuario registrado exitosamente." });
+            // Generar un token único para validación
+            const token = crypto.randomBytes(16).toString('hex');
+
+            // Insertar token y estado de validación en Supabase
+            const { data, error } = await supabase
+                .from('usuarios')
+                .update({ token: token, validated: false })
+                .eq('email', email);
+
+            console.log(data);
+            console.log(error);
+
+            if (error) {
+                throw new Error("Error al guardar el token de validación en la base de datos.");
+            }
+
+            // Generar el enlace de validación
+            const validationLink = `${process.env.BASE_URL}/api/email/validate-email?token=${token}&email=${email}`;
+
+            // Enviar email de validación
+            await apiInstance.sendTransacEmail({
+                to: [{ email }],
+                subject: 'Valida tu email para empezar a usar Coral Finance',
+                htmlContent: `<p>Haz click <a href="${validationLink}">aquí</a> para validar tu email y empezar a operar con Coral Finance.</p>`,
+                sender: { email: 'contact@coralfinance.io', name: 'Coral Finance' },
+            });
+
+            res.status(201).json({ message: "Usuario registrado exitosamente. Email de validación enviado." });
         } catch (error) {
             res.status(500).json({ message: "Error al registrar el usuario.", error: error.message });
         }
