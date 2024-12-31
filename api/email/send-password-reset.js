@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import SibApiV3Sdk from '@sendinblue/client';
+import * as SibApiV3Sdk from '@sendinblue/client';
 import crypto from 'crypto';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
