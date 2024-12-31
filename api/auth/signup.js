@@ -3,7 +3,7 @@ import UserService from '../../services/UserService.js';
 import UserBO from '../../models/user.js';
 import WalletService from "../../services/utila/WalletService.js";
 import { createClient } from '@supabase/supabase-js';
-import SibApiV3Sdk from '@sendinblue/client';
+import { SibApiV3Sdk } from '@sendinblue/client';
 import crypto from 'crypto';
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -18,6 +18,7 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     
+
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
