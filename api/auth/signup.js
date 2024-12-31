@@ -10,8 +10,8 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
+//const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+//apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', 'https://finance-front-beryl.vercel.app'); // TODO: cambiar por la del front
@@ -47,10 +47,10 @@ export default async function handler(req, res) {
             await walletService.createWallet(createUser);
 
             // Generar un token único para validación
-            const token = crypto.randomBytes(16).toString('hex');
+          //  const token = crypto.randomBytes(16).toString('hex');
 
             // Insertar token y estado de validación en Supabase
-            const { data, error } = await supabase
+          /*  const { data, error } = await supabase
                 .from('usuarios')
                 .update({ token: token, validated: false })
                 .eq('email', email);
@@ -71,7 +71,7 @@ export default async function handler(req, res) {
                 subject: 'Valida tu email para empezar a usar Coral Finance',
                 htmlContent: `<p>Haz click <a href="${validationLink}">aquí</a> para validar tu email y empezar a operar con Coral Finance.</p>`,
                 sender: { email: 'contact@coralfinance.io', name: 'Coral Finance' },
-            });
+            });*/
 
             res.status(201).json({ message: "Usuario registrado exitosamente. Email de validación enviado." });
         } catch (error) {
