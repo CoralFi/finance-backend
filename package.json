@@ -7,7 +7,9 @@
     "body-parser": "^1.20.3",
     "crypto": "^1.0.1",
     "express": "^4.21.2",
+    "google-auth-library": "^9.15.0",
     "jsonwebtoken": "^9.0.2",
+    "redis": "^4.7.0",
     "supabase": "^1.226.3"
   }
 }

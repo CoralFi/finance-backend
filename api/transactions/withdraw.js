@@ -22,7 +22,6 @@ export default async function handler (req, res) {
 
     try {
         const state = await transactionService.sendTransaction(transactionDetails);
-        console.log("STATE", state)
         res.status(201).json({transaction: state});
     } catch (error) {
         res.status(500).json({ message: "Error al realizar la transaccion"});
