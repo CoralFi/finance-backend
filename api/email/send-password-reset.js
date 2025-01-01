@@ -1,11 +1,8 @@
+import BrevoClient from '../../services/email/BrevoClient.js';
 import { createClient } from '@supabase/supabase-js';
-import * as SibApiV3Sdk from '@sendinblue/client';
 import crypto from 'crypto';
 
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
-
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
-apiInstance.setApiKey(SibApiV3Sdk.TransactionalEmailsApiApiKeys.apiKey, process.env.BREVO_API_KEY);
 
 export default async function handler(req, res) {
 
@@ -16,7 +13,7 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
-} 
+  } 
 
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
@@ -44,15 +41,17 @@ export default async function handler(req, res) {
 
   // Generar el enlace de restablecimiento
   const resetLink = `${process.env.BASE_URL}/api/email/reset-password.html?token=${token}&email=${email}`;
+  const brevoClient = new BrevoClient();
 
-  // Enviar email con Brevo
   try {
-    await apiInstance.sendTransacEmail({
+    const emailData = {
       to: [{ email }],
       subject: 'Resetea tu contraseña',
       htmlContent: `<p>Haz click <a href="${resetLink}">aquí</a> para resetear tu contraseña. Si no solicitaste resetear tu contraseña ignora este mensaje</p>`,
       sender: { email: 'contact@coralfinance.io', name: 'Coral Finance' },
-    });
+    }
+
+    await brevoClient.sendTransacEmail(emailData);
 
     res.status(200).send('Password reset email sent');
   } catch (error) {
