@@ -67,7 +67,7 @@ export default async function handler(req, res) {
             });
         } else {
             // Lógica de signup
-            const user = new UserBO(email, null, name, null, "user"); // Asumimos un rol predeterminado
+            const user = new UserBO(email, null, name, null, "persona");
             const createUser = await userService.createUser(user, res);
 
             // Asociar una wallet al nuevo usuario
