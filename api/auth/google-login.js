@@ -83,18 +83,7 @@ export default async function handler(req, res) {
                 throw new Error("Error al actualizar el estado del usuario en Supabase.");
             }
 
-            res.status(201).json({
-                message: "Usuario registrado exitosamente con Google.",
-                user: {
-                    id: createUser.user_id,
-                    email: createUser.email,
-                    firstName: createUser.nombre,
-                    lastName: createUser.apellido,
-                    userType: createUser.user_type,
-                    kyc: createUser.estado_kyc,
-                    wallet: createUser.wallet_id,
-                },
-            });
+            res.status(201).json({ message: "Usuario registrado exitosamente con Google." });
         }
     } catch (error) {
         console.error("Error en Google Login:", error);
