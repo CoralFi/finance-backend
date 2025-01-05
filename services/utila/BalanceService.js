@@ -49,7 +49,12 @@ class BalanceService {
             // Convertir la respuesta a JSON
             const data = await response.json();
 
-            const walletBalances = data.walletBalances;
+            const walletBalancesUpdate = data.walletBalances;
+            
+            //REmover estas lineas para cuando VCCT tenga liquidez
+            const walletBalances = walletBalancesUpdate.filter(
+                balance => balance.asset !== 'assets/spl-token.solana-mainnet.BfnaLyLpivR9LatdeE5yq9MA8ShS62yL2EsbvVVKtfvR'
+              );
 
             // Procesar cada balance y convertirlo
             const result = await Promise.all(walletBalances.map(async item => {
@@ -100,7 +105,6 @@ class BalanceService {
             const data = await response.json();
             const transactionListByWallet = this.findTransactionsByAddresses(addressesWallet, data.transactions);
 
-            console.log("TransactionListByWallet:", transactionListByWallet);
             const transactionInfo = await Promise.all(transactionListByWallet.map(async originalObject => ({
                 type: originalObject.type,
                 state: originalObject.state,

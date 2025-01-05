@@ -7,7 +7,8 @@ class AssetsService {
     static cryptoEnum = {
         SOL: "assets/native.solana-mainnet",
         USDC: "assets/spl-token.solana-mainnet.EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-        USDT: "assets/spl-token.solana-mainnet.Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB"
+        USDT: "assets/spl-token.solana-mainnet.Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+        VCCT: 'assets/spl-token.solana-mainnet.BfnaLyLpivR9LatdeE5yq9MA8ShS62yL2EsbvVVKtfvR'
     }
 
     async getAssetsConvertedValue(asset) {
