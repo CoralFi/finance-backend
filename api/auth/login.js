@@ -7,7 +7,7 @@ const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', 'https://finance-front-beryl.vercel.app'); //todo: cambiar por la del front
+    res.setHeader('Access-Control-Allow-Origin', '*'); //todo: cambiar por la del front
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
