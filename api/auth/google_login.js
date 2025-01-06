@@ -17,13 +17,11 @@ export default async function handler(req, res) {
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // Manejar solicitudes OPTIONS (preflight)
     if (req.method === "OPTIONS") {
         return res.status(200).end();
     }
 
-    if (req.method === 'POST') {
-
+    if (req.method === "POST") {
         try {
             const { token } = req.body;
 
@@ -33,24 +31,26 @@ export default async function handler(req, res) {
 
             const ticket = await client.verifyIdToken({ idToken: token, audience: CLIENT_ID });
             const payload = ticket.getPayload();
-            const { email, name, sub } = payload;
+            const { email, name } = payload;
 
             if (!email || !name) {
                 return res.status(400).json({ message: "El token no contiene información suficiente" });
             }
 
-            // Buscar si el usuario ya existe en la base de datos
             const { data: existingUser, error } = await supabase
                 .from("usuarios")
                 .select("*")
                 .eq("email", email)
                 .single();
 
+            if (error && error.message !== "Row not found") {
+                throw new Error(`Error en la consulta de Supabase: ${error.message}`);
+            }
+
             const userService = new UserService();
             const walletService = new WalletService();
 
             if (existingUser && Object.keys(existingUser).length > 0) {
-                // Lógica de login
                 res.status(200).json({
                     message: "Inicio de sesión exitoso.",
                     user: {
@@ -64,14 +64,15 @@ export default async function handler(req, res) {
                     },
                 });
             } else {
-                // Lógica de signup
                 const user = new UserBO(email, null, name, null, "persona");
                 const createUser = await userService.createUser(user, res);
 
-                // Asociar una wallet al nuevo usuario
+                if (!createUser || !createUser.user_id) {
+                    throw new Error("Error al crear el usuario.");
+                }
+
                 await walletService.createWallet(createUser);
 
-                // Actualizar Supabase con el estado de validación
                 const { error: supabaseError } = await supabase
                     .from("usuarios")
                     .update({ validated: true })
@@ -87,5 +88,7 @@ export default async function handler(req, res) {
             console.error("Error en Google Login:", error);
             res.status(500).json({ message: "Error al realizar el login con Google", error: error.message });
         }
+    } else {
+        res.status(405).json({ message: "Método no permitido" });
     }
 }
