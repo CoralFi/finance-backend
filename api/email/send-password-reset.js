@@ -40,7 +40,7 @@ export default async function handler(req, res) {
   if (updateError) return res.status(500).send('Error updating reset token');
 
   // Generar el enlace de restablecimiento
-  const resetLink = `${process.env.BASE_URL}/api/email/reset-password.html?token=${token}&email=${email}`;
+  const resetLink = `${process.env.BASE_URL_FRONTEND}/reset-password?token=${token}&email=${email}`;
   const brevoClient = new BrevoClient();
 
   try {
