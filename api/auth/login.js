@@ -53,7 +53,8 @@ export default async function handler(req, res) {
                     lastName: user.apellido,
                     userType: user.user_type,
                     kyc: user.estado_kyc,
-                    wallet: user.wallet_id
+                    wallet: user.wallet_id,
+                    google_auth: user.qr_code ? true : false,
                 },
             });
         } catch (error) {

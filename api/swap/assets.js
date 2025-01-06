@@ -20,8 +20,6 @@ export default async function handler (req, res) {
         const {id, wallet} = req.query;
 
         const clientWalletBalance = await balance.getAssetListByWallet(id, wallet);
-        console.log("ASSETS:", clientWalletBalance)
-
         const coralAssetsWallet = await balance.getAssetListByWallet(0, "vaults/958c80a6cbf7/wallets/e6a86b1e533b")
 
         const assetsToSwap = {
