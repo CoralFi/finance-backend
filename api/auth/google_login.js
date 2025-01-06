@@ -31,6 +31,11 @@ export default async function handler(req, res) {
 
             const ticket = await client.verifyIdToken({ idToken: token, audience: CLIENT_ID });
             const payload = ticket.getPayload();
+
+            if (!payload) {
+                return res.status(400).json({ message: "El token de Google no contiene datos válidos" });
+            }
+
             const { email, name } = payload;
 
             if (!email || !name) {
@@ -44,14 +49,12 @@ export default async function handler(req, res) {
                 .limit(1)
                 .maybeSingle();
 
-            if (error && error.message !== "Row not found") {
+            if (error) {
                 throw new Error(`Error en la consulta de Supabase: ${error.message}`);
             }
 
-            const userService = new UserService();
-            const walletService = new WalletService();
-
-            if (existingUser && Object.keys(existingUser).length > 0) {
+            if (existingUser) {
+                console.log("Usuario existente encontrado:", existingUser);
                 res.status(200).json({
                     message: "Inicio de sesión exitoso.",
                     user: {
@@ -65,6 +68,10 @@ export default async function handler(req, res) {
                     },
                 });
             } else {
+                console.log("El usuario no existe en la base de datos. Procediendo con el registro.");
+                const userService = new UserService();
+                const walletService = new WalletService();
+
                 const user = new UserBO(email, null, name, null, "persona");
                 const createUser = await userService.createUser(user, res);
 
@@ -93,3 +100,4 @@ export default async function handler(req, res) {
         res.status(405).json({ message: "Método no permitido" });
     }
 }
+
