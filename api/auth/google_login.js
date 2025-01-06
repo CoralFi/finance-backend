@@ -31,7 +31,7 @@ export default async function handler(req, res) {
                 return res.status(400).json({ message: "Token de Google es obligatorio" });
             }
 
-            const ticket = await client.verifyIdToken({ idToken: token });
+            const ticket = await client.verifyIdToken({ idToken: token, audience: CLIENT_ID });
             const payload = ticket.getPayload();
             const { email, name, sub } = payload;
 
