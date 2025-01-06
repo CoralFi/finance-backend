@@ -41,7 +41,8 @@ export default async function handler(req, res) {
                 .from("usuarios")
                 .select("*")
                 .eq("email", email)
-                .single();
+                .limit(1)
+                .maybeSingle();
 
             if (error && error.message !== "Row not found") {
                 throw new Error(`Error en la consulta de Supabase: ${error.message}`);
