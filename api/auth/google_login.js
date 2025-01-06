@@ -49,7 +49,7 @@ export default async function handler(req, res) {
             const userService = new UserService();
             const walletService = new WalletService();
 
-            if (existingUser) {
+            if (existingUser && Object.keys(existingUser).length > 0) {
                 // Lógica de login
                 res.status(200).json({
                     message: "Inicio de sesión exitoso.",
