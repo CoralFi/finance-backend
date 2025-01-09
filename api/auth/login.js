@@ -55,6 +55,7 @@ export default async function handler(req, res) {
                     kyc: user.estado_kyc,
                     wallet: user.wallet_id,
                     google_auth: user.qr_code ? true : false,
+                    customerFiat: user.customer_id
                 },
             });
         } catch (error) {

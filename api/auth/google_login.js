@@ -65,6 +65,8 @@ export default async function handler(req, res) {
                         userType: existingUser.user_type,
                         kyc: existingUser.estado_kyc,
                         wallet: existingUser.wallet_id,
+                        google_auth: user.qr_code ? true : false,
+                        customerFiat: user.customer_id
                     },
                 });
             } else {
