@@ -1,10 +1,1 @@
 # finance-backend
-
-
-
-
-
-
-
-
-
