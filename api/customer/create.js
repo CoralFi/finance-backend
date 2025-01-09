@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     const customerService = new CustomerService();
     const { email } = req.body;
 
-    if (req.method !== "POST") {
+    if (req.method === "POST") {
         try {
             const customerExists = await customerService.getCustomerByEmail(email);
     
