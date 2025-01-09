@@ -53,8 +53,6 @@ class AddressService {
             }
 
             const data = await response.json();
-
-            console.log(data.walletAddresses)
            
             const addressByNetwork = data.walletAddresses.map(({ network, address }) => ({
                 network,

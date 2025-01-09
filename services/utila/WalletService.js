@@ -60,6 +60,25 @@ class WalletService {
             throw error; // Lanza el error para que la clase llamadora lo maneje
         }
     }
+
+    async getWalletByCustomerId(customer) {
+    
+        try {
+            const { data: user, error } = await this.supabase
+                .from("usuarios")
+                .select("wallet_id")
+                .eq("customer_id", customer)
+                .single();
+    
+            const walletId = user.wallet_id;
+    
+            return walletId;
+    
+            
+        } catch (error) {
+            console.error('Error:', error.message);
+        }
+    }
 }
 
 export default WalletService;
