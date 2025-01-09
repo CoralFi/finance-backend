@@ -22,8 +22,9 @@ export default async function handler(req, res) {
       //  const tos = await validator.validate(customerId, "tos");
         const getStatus = await customerService.getKYCAndTOSStatus(customerId);
         const tos = getStatus.tosStatus;
+        console.log(tos)
 
-        const isIncomplete = tos === "incomplete";
+        const isIncomplete = tos === "incomplete" || tos === "pending";
 
         if(isIncomplete) {
             const tosLink = await customerService.getCustomerToSLink(customerId);
