@@ -22,14 +22,13 @@ export default async function handler(req, res) {
         const getStatus = await customerService.getKYCAndTOSStatus(customerId);
         const tos = getStatus.tosStatus;
         const kyc = getStatus.kycStatus;
-        console.log(kyc)
 
         const tosApprove = tos === "approved";
         const kycApprove = kyc === "approved";
         const kycIncomplete = kyc === "incomplete";
 
         updateKyCStatus(kyc);
-        
+
         if(!tosApprove || !kycApprove) {
             return res.status(400).json({ message: "El usuario no aceptó los términos y condiciones o no completó el proceso de KYC" });
         }
