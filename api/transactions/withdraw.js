@@ -11,19 +11,20 @@ export default async function handler (req, res) {
         return res.status(200).end(); 
     }
 
-    if (req.method !== "POST") {
-        return res.status(405).json({ message: "Método no permitido" });
+    if(req.method === "POST") {
+        const { asset, source, destination, amount } = req.body;
+
+        const transactionService = new TransactionService();
+        const transactionDetails = new TransactionBO(asset, source, destination, amount);
+    
+        try {
+            const state = await transactionService.sendTransaction(transactionDetails);
+            res.status(201).json({transaction: state});
+        } catch (error) {
+            res.status(500).json({ message: "Error al realizar la transaccion"});
+        }
+    } else {
+        return res.status(405).json({message: "Método no permitido"});
     }
-
-    const { asset, source, destination, amount } = req.body;
-
-    const transactionService = new TransactionService();
-    const transactionDetails = new TransactionBO(asset, source, destination, amount);
-
-    try {
-        const state = await transactionService.sendTransaction(transactionDetails);
-        res.status(201).json({transaction: state});
-    } catch (error) {
-        res.status(500).json({ message: "Error al realizar la transaccion"});
-    }
+    
 } 
