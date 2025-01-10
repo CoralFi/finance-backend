@@ -52,10 +52,11 @@ export default async function handler(req, res) {
                     firstName: user.nombre,
                     lastName: user.apellido,
                     userType: user.user_type,
-                    kyc: user.estado_kyc,
+                    kyc: user.estado_kyc ,
                     wallet: user.wallet_id,
                     google_auth: user.qr_code ? true : false,
-                    customerFiat: user.customer_id
+                    customerFiat: user.customer_id,
+                    tosCoral: user.tos_coral,
                 },
             });
         } catch (error) {
