@@ -14,7 +14,7 @@ class transactionService {
             details: {
               assetTransfer: {
                 asset: transactionDetails.asset, 
-                amount: transactionDetails.amount,
+                amount: String(transactionDetails.amount),
                 source: transactionDetails.source,
                 destination: transactionDetails.destination,
                 payFeeFromAmount: false //shouldPayFeedAmount() //false
