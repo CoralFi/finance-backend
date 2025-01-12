@@ -17,7 +17,7 @@ class transactionService {
                 amount: String(transactionDetails.amount),
                 source: transactionDetails.source,
                 destination: transactionDetails.destination,
-                payFeeFromAmount: false //shouldPayFeedAmount() //false
+                payFeeFromAmount: true //shouldPayFeedAmount() //false
               }
             },
             priority: 'LOW', //definePriority(),
