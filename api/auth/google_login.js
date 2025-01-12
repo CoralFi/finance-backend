@@ -30,7 +30,14 @@ export default async function handler(req, res) {
             }
 
             const ticket = await client.verifyIdToken({ idToken: token, audience: CLIENT_ID });
+            if (!ticket) {
+                return res.status(400).json({ message: "Token de Google no válido" });
+            }
+            
             const payload = ticket.getPayload();
+            if (!payload || !payload.email || !payload.name) {
+                return res.status(400).json({ message: "El token no contiene información suficiente" });
+            }
 
             if (!payload) {
                 return res.status(400).json({ message: "El token de Google no contiene datos válidos" });
@@ -48,14 +55,15 @@ export default async function handler(req, res) {
                 .eq("email", email)
                 .limit(1)
                 .maybeSingle();
-
+            
             if (error) {
-                throw new Error(`Error en la consulta de Supabase: ${error.message}`);
+                console.error("Error en la consulta de Supabase:", error);
+                return res.status(500).json({ message: "Error en la base de datos", error: error.message });
             }
 
             if (existingUser) {
                 console.log("Usuario existente encontrado:", existingUser);
-                res.status(200).json({
+                return res.status(200).json({
                     message: "Inicio de sesión exitoso.",
                     user: {
                         id: existingUser.user_id,
@@ -65,8 +73,8 @@ export default async function handler(req, res) {
                         userType: existingUser.user_type,
                         kyc: existingUser.estado_kyc,
                         wallet: existingUser.wallet_id,
-                        google_auth: user.qr_code ? true : false,
-                        customerFiat: user.customer_id
+                        google_auth: existingUser.qr_code ? true : false,
+                        customerFiat: existingUser.customer_id,
                     },
                 });
             } else {
