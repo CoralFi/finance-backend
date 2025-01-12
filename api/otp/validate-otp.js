@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     
             try {
                 const otpValidation = await validateOtpService.validateOtpService(email, otp);
-                res.status(201).json({ message: "OTP validado"});
+                res.status(201).json({ message: otpValidation.message });
             } catch (error) {
                 res.status(500).json({ message: "Error al validar el OTP"});
             }

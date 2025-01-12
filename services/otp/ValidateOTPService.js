@@ -12,7 +12,7 @@ class ValidateOTPService {
         try {
             console.log("VALIDATE SERVICES")
             const otpValidation = await this.otpService.validateOtp(email, otp);
-            return { message: "OTP validado"};
+            return { message: otpValidation.message};
         }
         catch (error) {
             throw new Error('Error al validar el OTP ' + error);

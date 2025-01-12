@@ -17,7 +17,7 @@ class transactionService {
                 amount: transactionDetails.amount,
                 source: transactionDetails.source,
                 destination: transactionDetails.destination,
-                payFeeFromAmount: false //shouldPayFeedAmount() //false
+                payFeeFromAmount: true //shouldPayFeedAmount() //false
               }
             },
             priority: 'LOW', //definePriority(),
@@ -43,7 +43,7 @@ class transactionService {
             const data = await response.json();
 
             console.log("Transaction data:", data)
-            const state = data.transaction.state;
+            const state = data?.transaction?.state;
 
             return state;
 
