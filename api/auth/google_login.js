@@ -75,6 +75,7 @@ export default async function handler(req, res) {
                         wallet: existingUser.wallet_id,
                         google_auth: existingUser.qr_code ? true : false,
                         customerFiat: existingUser.customer_id,
+                        tos: existingUser.tos_coral,
                     },
                 });
             } else {

@@ -56,7 +56,7 @@ export default async function handler(req, res) {
                     wallet: user.wallet_id,
                     google_auth: user.qr_code ? true : false,
                     customerFiat: user.customer_id,
-                    tosCoral: user.tos_coral,
+                    tos: user.tos_coral,
                 },
             });
         } catch (error) {
