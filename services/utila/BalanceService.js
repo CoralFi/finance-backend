@@ -87,7 +87,7 @@ class BalanceService {
 
     async getTransactionList(id, wallet) {
         const addressesWallet = await this.addressWallet.getAddressesByWallet(wallet);
-        const url = 'https://api.utila.io/v1alpha2/vaults/958c80a6cbf7/transactions?orderBy=create_time';
+        const url = 'https://api.utila.io/v1alpha2/vaults/958c80a6cbf7/transactions';
 
         try {
             const response = await fetch(url, {
@@ -121,7 +121,7 @@ class BalanceService {
                 transactionType: await this.transationType(originalObject.request, addressesWallet)
             })));
 
-            return transactionInfo.reverse();
+            return transactionInfo;
 
         } catch (error) {
             console.error("Error al obtener las transacciones:", error.message);
