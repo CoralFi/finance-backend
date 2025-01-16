@@ -23,5 +23,5 @@ export default async function handler(req, res) {
 
   if (updateError) return res.status(500).send('Error updating validation status');
 
-  res.send('Email validated successfully');
+  res.redirect('https://www.coralfinance.app/login');
 }
