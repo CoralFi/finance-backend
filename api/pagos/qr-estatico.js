@@ -8,19 +8,37 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*'); 
-    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS, POST');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
+    console.log(req.method);
 
-    const { email, nombre, wallet } = req.body;
-    const addressService = new AddressService();
+    if (req.method === "GET") {
+        try {
+            const { email } = req.query;
+            const { data, error } = await supabase
+                .from('usuarios')
+                .select('qr_payment')
+                .eq('email', email)
+                .single();
+
+            const qrUrl = data.qr_payment
+            res.status(200).json({ qrUrl });
+
+        } catch (error) {
+            res.status(500).json({ message: "Error al obtener el estado del QR"});
+        }
+
+    }
   
     if (req.method === "POST") {
         try {
+            const addressService = new AddressService();
 
+            const { email, nombre, wallet } = req.body;
             const { data, error } = await supabase
                 .from('usuarios')
                 .select('qr_payment')
