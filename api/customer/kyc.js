@@ -20,7 +20,7 @@ export default async function handler(req, res) {
         const kyc = getStatus.kycStatus;
 
         const tosApprove = tos === "approved";
-        const kycIncomplete = kyc === "incomplete" || kcy === "pending";
+        const kycIncomplete = kyc === "incomplete" || kyc === "pending";
 
         if(tosApprove && kycIncomplete) {
             const kycLink = await customerService.getCustomerKYCLink(customerId);
