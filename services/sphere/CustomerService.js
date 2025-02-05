@@ -167,13 +167,11 @@ class CustomerService {
       const wallet = await this.walletService.getWalletByCustomerId(customerId);
       const addressList = await this.addressService.getAddressAndNetwork(wallet);
       const polygonAddress = addressList.find(address => address.network === "networks/polygon-mainnet").address;
-
-      console.log("polygonAddress: ", polygonAddress);
       
       const body = {
         "destinationCurrency": "usdc",
         "network": "polygon",
-        "walletAddresses": addressList
+        "walletAddresses": polygonAddress
       }
 
       const response = await fetch(`${process.env.SPHERE_API_URL}/customer/${customerId}/virtualAccount`, {
@@ -200,6 +198,29 @@ class CustomerService {
     }
 
   }
+
+  async getBankAccounts(customerId) {
+    try {
+      const response = await fetch(`${process.env.SPHERE_API_URL}/customer/${customerId}`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${process.env.SPHERE_API_SECRET}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.data.customer.bankAccounts;
+
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  }
+
 
 }
 
