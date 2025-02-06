@@ -171,8 +171,10 @@ class CustomerService {
       const body = {
         "destinationCurrency": "usdc",
         "network": "polygon",
-        "walletAddresses": polygonAddress
+        "walletAddress": polygonAddress
       }
+
+      console.log(body)
 
       const response = await fetch(`${process.env.SPHERE_API_URL}/customer/${customerId}/virtualAccount`, {
         method: 'POST',
