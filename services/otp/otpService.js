@@ -10,8 +10,6 @@ class otpService {
         .from('otps')
         .insert({ email: email, otp: otp });
 
-    console.log("DATA:", data)
-
     if (error) {
         console.error('Error al guardar OTP:', error);
         throw error;

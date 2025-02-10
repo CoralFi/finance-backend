@@ -35,6 +35,7 @@ export default async function handler(req, res) {
 
         const virtualAccount = await customerService.getVirtualAccount(customerId);
 
+        console.log(virtualAccount)
         if(virtualAccount && virtualAccount.length > 0) {
             const depositInstructions = virtualAccount[0].depositInstructions;
             return res.status(200).json({ depositInstructions });

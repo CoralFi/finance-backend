@@ -129,6 +129,7 @@ class CustomerService {
 
               const customer = result.data.customer;
 
+              console.log(customer);
               return {
                   kycStatus: customer.kyc,
                   tosStatus: customer.tos,
