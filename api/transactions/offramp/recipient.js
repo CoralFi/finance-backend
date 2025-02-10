@@ -25,24 +25,6 @@ export default async function handler(req, res) {
         } catch (error) {
             res.status(500).json({ message: "Error al crear la cuenta bancaria"});
         }
-    } else if (req.method === "POST") {
-        // Dividir en usd y eur
-        const { currency } = req.body;
-    
-        if (currency === 'usd') {
-            const { accountNumber, routingNumber, accountType, accountName, bankName, accountHolderName, customer } = req.body;
-            const usdBankAccount = new UsdBankAccount(accountNumber, routingNumber, accountType, accountName, bankName, accountHolderName, customer);
-    
-            try {
-                const bankAccounts = await bankAccountsService.createUSDBankAccount(usdBankAccount, res);
-                res.status(200).json({ message: bankAccounts });
-            } catch (error) {
-                // Manejar el error específico
-                res.status(500).json({ message: error.message });
-            }
-        } else {
-            res.status(400).json({ message: "Error al crear la cuenta bancaria" });
-        }
     } else {
         return res.status(405).json({message: "Método no permitido"});
     }
