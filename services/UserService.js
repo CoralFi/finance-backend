@@ -27,6 +27,7 @@ class UserService {
                 nombre: user.nombre,
                 apellido: user.apellido,
                 user_type: user.user_type,
+                tos_coral: user.tos_coral
             },
         ]).select('user_id');
         

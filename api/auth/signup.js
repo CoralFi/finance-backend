@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { email, password, nombre, apellido, userType } = req.body;
+        const { email, password, nombre, apellido, userType, tosCoral } = req.body;
         const userService = new UserService();
         const walletService = new WalletService();
 
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
             const hashedPassword = await bcrypt.hash(password, 10);
 
             // Insertar el nuevo usuario
-            const user = new UserBO(email, hashedPassword, nombre, apellido, userType);
+            const user = new UserBO(email, hashedPassword, nombre, apellido, userType, tosCoral);
             const createUser = await userService.createUser(user, res);
 
             // Asociar una wallet al nuevo usuario
