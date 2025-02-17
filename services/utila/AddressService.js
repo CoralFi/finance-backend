@@ -69,6 +69,23 @@ class AddressService {
         }
     }
 
+    async getSourceWalletForFiatTransfer(wallet) {
+        const address = this.getPolygonAddress(wallet);
+        const currency = "usdc";
+        const network = 'polygon';
+        const sourceWallet = {
+            
+        }
+
+        return sourceWallet;
+    }
+
+    getPolygonAddress(wallet) {
+        const networks = this.getAddressAndNetwork(wallet);
+        const polygonNetwork = networks.find(net => net.network === 'networks/polygon-mainnet');
+        return polygonNetwork ? polygonNetwork.address : null;
+    }
+
     // Función recursiva para encontrar todas las direcciones
     findAddresses(obj) {
         let addresses = [];

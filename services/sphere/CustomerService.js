@@ -37,11 +37,81 @@ class CustomerService {
           .update({ customer_id: customer_id })
           .eq('email', email);
 
+        
         return customer_id;
 
       } catch (error) {
         throw new Error("Error al crear el customer: " + error.message);
       }
+  }
+
+  async createSphereWallet(customer) {
+    const addressList = await this.addressService.getAddressAndNetwork(wallet);
+    const polygonAddress = addressList.find(address => address.network === "networks/polygon-mainnet").address;
+
+    try {
+      const wallet = {
+        "network": "polygon",
+        "address": polygonAddress,
+        "customer": customer
+      }
+
+      console.log(wallet);
+
+      const response = await fetch(`${process.env.SPHERE_API_URL}/wallet`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.SPHERE_API_SECRET}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(wallet),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}: ${response.statusText}`);
+      }
+  
+      const result = await response.json();
+
+      const wallet_id = result.data.wallet.id;
+
+      return wallet_id;
+
+    } catch (error) {
+      throw new Error("Error al crear el customer: " + error.message);
+    }
+    
+  }
+
+  async getWallet(customer) {
+    try {
+      const response = await fetch(`${process.env.SPHERE_API_URL}/customer/${customer}`, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${process.env.SPHERE_API_SECRET}`,
+            'Content-Type': 'application/json',
+            }
+        });
+    
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+  
+        const result = await response.json();
+  
+        const customerBody = result.data.customer;
+        const wallet = customerBody.wallets[0];
+
+        if(wallet.length === 0) {
+          wallet = this.createSphereWallet(customer)
+        }
+
+        return wallet;
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+    
+
   }
 
   async getCustomerByEmail(email) {

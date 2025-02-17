@@ -57,6 +57,20 @@ class UserService {
         }
         return data;
     }
+
+    async getWalletByCustomer(customer) {
+        const { data, error } = await this.supabase
+        .from('usuarios')
+        .select('wallet_id')
+        .eq('customer_id', customer)
+        .single();
+
+        if (error) {
+            console.error('Error fetching wallet_id by customer:', error);
+            throw error;
+        }
+        return data.wallet_id;
+    }
 }
 
 export default UserService;
