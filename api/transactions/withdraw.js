@@ -14,6 +14,7 @@ export default async function handler (req, res) {
     if(req.method === "POST") {
         const { asset, source, destination, amount } = req.body;
 
+        console.log("Request body:", req.body);
         const transactionService = new TransactionService();
         const transactionDetails = new TransactionBO(asset, source, destination, amount);
     

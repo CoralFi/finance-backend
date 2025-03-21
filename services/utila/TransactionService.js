@@ -6,10 +6,11 @@ class transactionService {
     }
 
     async sendTransaction(transactionDetails) {
+
+        console.log("Transaction details:", transactionDetails);
         const url = 'https://api.utila.io/v1alpha2/vaults/958c80a6cbf7/transactions:initiate';
         const token = this.token;
 
-        console.log("Transaction details:", transactionDetails)
         const body = {
             details: {
               assetTransfer: {
