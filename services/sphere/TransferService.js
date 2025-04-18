@@ -9,7 +9,7 @@ class TransferService {
             "customer": customer,
             "source": wallet,
             "destination": destination,
-            "amount": amount
+            "amount": amount.toString()
         }
 
         console.log("TRANSFER", transfer)
