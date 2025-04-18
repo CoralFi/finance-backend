@@ -46,8 +46,12 @@ class CustomerService {
   }
 
   async createSphereWallet(customer) {
+    const wallet = await this.walletService.getWalletByCustomerId(customer);
     const addressList = await this.addressService.getAddressAndNetwork(wallet);
     const polygonAddress = addressList.find(address => address.network === "networks/polygon-mainnet").address;
+    console.log("Polygon address", polygonAddress)
+    console.log("Wallet", wallet)
+    console.log("Address list", addressList)
 
     try {
       const wallet = {
@@ -56,7 +60,7 @@ class CustomerService {
         "customer": customer
       }
 
-      console.log(wallet);
+      console.log("Creando wallet", wallet);
 
       const response = await fetch(`${process.env.SPHERE_API_URL}/wallet`, {
         method: 'POST',
@@ -72,7 +76,6 @@ class CustomerService {
       }
   
       const result = await response.json();
-
       const wallet_id = result.data.wallet.id;
 
       return wallet_id;
@@ -93,6 +96,7 @@ class CustomerService {
             }
         });
     
+        console.log("RESPONSE customer services", response)
         if (!response.ok) {
             throw new Error(`Error ${response.status}: ${response.statusText}`);
         }
@@ -102,8 +106,11 @@ class CustomerService {
         const customerBody = result.data.customer;
         const wallet = customerBody.wallets[0];
 
-        if(wallet.length === 0) {
-          wallet = this.createSphereWallet(customer)
+        if(wallet?.length === 0 || wallet === undefined) {
+            console.log("No hay wallet, creando una nueva")
+          wallet = await this.createSphereWallet(customer)
+
+          console.log("Wallet creada", wallet)
         }
 
         return wallet;

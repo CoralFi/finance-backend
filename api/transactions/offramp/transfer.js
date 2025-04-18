@@ -36,6 +36,7 @@ export default async function handler(req, res) {
             "currency": "usdc"
         }
 
+        console.log("wallet", wallet)
         const validateComision = esValido(comision) ? comision : "1.5";
         const comisionAmount = calcularComision(amount, validateComision);
 
