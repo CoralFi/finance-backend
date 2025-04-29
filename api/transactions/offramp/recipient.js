@@ -17,10 +17,12 @@ export default async function handler(req, res) {
 
     if(req.method === "GET") {
         console.log("GET");
-        const { customer } = req.query;
+        const { customer, currency } = req.query;
 
         try {
-            const destinatarios = await bankAccountsService.getBankAccountInfo(customer);
+            const destinatariosWithoutFilter = await bankAccountsService.getBankAccountInfo(customer);
+            const destinatarios = destinatariosWithoutFilter.filter(destinatariosWithoutFilter => destinatariosWithoutFilter.currency === currency);
+
             res.status(201).json({ destinatarios });
         } catch (error) {
             res.status(500).json({ message: "Error al crear la cuenta bancaria"});
