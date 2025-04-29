@@ -44,7 +44,7 @@ export default async function handler(req, res) {
 
         if(transfer.statusCode !== 500 && transfer.instructions !== null) {
             const sphereAddress = transfer.instructions.resource.address;
-            const asset = "assets/erc20.polygon-mainnet.0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+            const asset = "assets/erc20.polygon-mainnet.0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
             const customerWallet = await userService.getWalletByCustomer(customer);
 
             const transactionDetailsOffRamp = new TransactionBO(asset, customerWallet, sphereAddress, amount);
