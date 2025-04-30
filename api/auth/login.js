@@ -1,10 +1,12 @@
 import bcrypt from "bcrypt";
 import { createClient } from "@supabase/supabase-js";
+import CustomerService from "../../../services/sphere/CustomerService.js";  
 
 // Configuración de Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
+const customerService = new CustomerService();
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*'); //todo: cambiar por la del front
@@ -44,6 +46,10 @@ export default async function handler(req, res) {
 
             //TODO: generar logica para mantener iniciada la session
 
+            const tosEur = await customerService.getWallet(user.customer_id);
+            const updateTosEur = user.tos_eur;
+            const needTosEur = tosEur === "approved" ? "approved" : updateTosEur === "pending" ? "pending" : "incomplete";
+
             res.status(200).json({
                 message: "Inicio de sesión exitoso.",
                 user: {
@@ -58,6 +64,7 @@ export default async function handler(req, res) {
                     customerFiat: user.customer_id,
                     tos: user.tos_coral,
                     qr_payment: user.qr_payment,
+                    tos_eur: needTosEur,
                 },
             });
         } catch (error) {
