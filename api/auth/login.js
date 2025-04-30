@@ -1,12 +1,11 @@
 import bcrypt from "bcrypt";
 import { createClient } from "@supabase/supabase-js";
-import CustomerService from "../../../services/sphere/CustomerService.js";  
+import CustomerService from "../../services/sphere/CustomerService.js";  
 
 // Configuración de Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
-const customerService = new CustomerService();
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*'); //todo: cambiar por la del front
@@ -26,6 +25,8 @@ export default async function handler(req, res) {
         }
 
         try {
+            const customerService = new CustomerService();
+
             // Buscar al usuario en la base de datos por email
             const { data: user, error } = await supabase
                 .from("usuarios")
