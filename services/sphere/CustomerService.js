@@ -316,6 +316,7 @@ class CustomerService {
       }
 
       const result = await response.json();
+      console.log("eurTos", result.data.customer);
       return result.data.customer.euAccountTos;
 
     } catch (error) {

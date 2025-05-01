@@ -16,32 +16,42 @@ export default async function handler(req, res) {
     }
 
     const customerService = new CustomerService();
-    const { customerId } = req.query;
+    const { customerId, currency } = req.query;
 
     try {
-        const getStatus = await customerService.getKYCAndTOSStatus(customerId);
-        const tos = getStatus.tosStatus;
-        const kyc = getStatus.kycStatus;
 
-        const tosApprove = tos === "approved";
-        const kycApprove = kyc === "approved";
-        const kycIncomplete = kyc === "incomplete";
-
-        updateKyCStatus(kyc);
-
-        if(!tosApprove || !kycApprove) {
-            return res.status(400).json({ message: "El usuario no aceptó los términos y condiciones o no completó el proceso de KYC" });
+        if(currency === 'usd') {
+            const getStatus = await customerService.getKYCAndTOSStatus(customerId);
+            const tos = getStatus.tosStatus;
+            const kyc = getStatus.kycStatus;
+    
+            const tosApprove = tos === "approved";
+            const kycApprove = kyc === "approved";
+            const kycIncomplete = kyc === "incomplete";
+    
+            updateKyCStatus(kyc);
+    
+            if(!tosApprove || !kycApprove) {
+                return res.status(400).json({ message: "El usuario no aceptó los términos y condiciones o no completó el proceso de KYC" });
+            }
+    
+            const virtualAccount = await customerService.getVirtualAccount(customerId);
+    
+            console.log(virtualAccount)
+            if(virtualAccount && virtualAccount.length > 0) {
+                const depositInstructions = virtualAccount[0].depositInstructions;
+                return res.status(200).json({ depositInstructions });
+            }
+    
+            const newVirtualAccount = await customerService.createVirtualAccount(customerId);
+            return res.status(200).json({ newVirtualAccount });
+            
         }
 
-        const virtualAccount = await customerService.getVirtualAccount(customerId);
-
-        console.log(virtualAccount)
-        if(virtualAccount && virtualAccount.length > 0) {
-            const depositInstructions = virtualAccount[0].depositInstructions;
-            return res.status(200).json({ depositInstructions });
+        if(currency === 'eur') {
+            
         }
-
-        const newVirtualAccount = await customerService.createVirtualAccount(customerId);
+        
         return res.status(200).json({ newVirtualAccount });
         
     } catch (error) {

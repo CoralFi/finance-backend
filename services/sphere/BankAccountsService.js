@@ -5,7 +5,7 @@ class BankAccountsService {
         this.customerService = new CustomerService();
     }
 
-    async createUSDBankAccount(usdBankAccount, res) {
+    async createBankAccount(usdBankAccount, res) {
         try {
             const response = await fetch(`${process.env.SPHERE_API_URL}/bankAccount`, {
                 method: 'POST',
@@ -21,6 +21,7 @@ class BankAccountsService {
             // Parsear la respuesta JSON
             const result = await response.json();
     
+            console.log("Result for eur:", result);
             // Verificar si el statusCode es 500
             if (result.statusCode === 500) {
                 throw new Error('La cuenta bancaria ya existe. Cree una nueva o seleccione otra de su lista de contactos.');
