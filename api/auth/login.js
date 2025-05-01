@@ -47,7 +47,7 @@ export default async function handler(req, res) {
 
             //TODO: generar logica para mantener iniciada la session
 
-            const tosEur = await customerService.getWallet(user.customer_id);
+            const tosEur = await customerService.getTosEur(user.customer_id);
             const updateTosEur = user.tos_eur;
             const needTosEur = tosEur === "approved" ? "approved" : updateTosEur === "pending" ? "pending" : "incomplete";
 
