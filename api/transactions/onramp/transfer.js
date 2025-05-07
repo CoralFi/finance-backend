@@ -19,8 +19,6 @@ export default async function handler(req, res) {
     const { customerId, currency } = req.query;
 
     try {
-
-        if(currency === 'usd') {
             const getStatus = await customerService.getKYCAndTOSStatus(customerId);
             const tos = getStatus.tosStatus;
             const kyc = getStatus.kycStatus;
@@ -45,14 +43,6 @@ export default async function handler(req, res) {
     
             const newVirtualAccount = await customerService.createVirtualAccount(customerId);
             return res.status(200).json({ newVirtualAccount });
-            
-        }
-
-        if(currency === 'eur') {
-            
-        }
-        
-        return res.status(200).json({ newVirtualAccount });
         
     } catch (error) {
         res.status(500).json({ message: `${error.message}` });
