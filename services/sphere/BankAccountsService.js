@@ -35,6 +35,61 @@ class BankAccountsService {
         }
     }
 
+    async createBankAccountEur(entrada, res) {
+        try {
+            const salida = {
+                accountName: entrada.accountName,
+                bankName: entrada.bankName,
+                currency: "eur",
+                accountDetails: {
+                  bic: entrada.bic,
+                  iban: entrada.iban,
+                  country: "ARG" // Cambia esto por el país correspondiente
+                }
+              };
+
+
+                console.log("ACAAAAA");
+
+            const response = await fetch(`https://api.spherepay.co/v2/customers/${entrada.customer}/bank-account`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${process.env.SPHERE_API_SECRET}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(salida),
+            });
+    
+            // Verificar si la respuesta no es exitosa
+            if (!response.ok) {
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
+            }
+    
+            // Parsear la respuesta JSON
+            const result = await response.json();
+    
+            console.log("Result for eur:", result);
+            // Verificar si el statusCode es 500
+            if (result.statusCode === 500) {
+                console.log("ACAAAAA");
+
+                throw new Error('La cuenta bancaria ya existe. Cree una nueva o seleccione otra de su lista de contactos.');
+            }
+            // Verificar si el statusCode es 400
+            if (result.statusCode === 400) {
+                console.log("ACAAAAA");
+
+                return { error: true, message: `Error al crear la cuenta bancaria. ${result.message}` };
+            }
+    
+            // Retornar la cuenta bancaria creada
+            return result;
+        } catch (error) {
+            // Retornar el error con el mensaje específico
+            throw error;
+        }
+    }
+
     async getBankAccounts(customerId) {
         try {
         const response = await fetch(`${process.env.SPHERE_API_URL}/customer/${customerId}`, {

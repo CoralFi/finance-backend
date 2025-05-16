@@ -21,7 +21,7 @@ export default async function handler(req, res) {
             const usdBankAccount = new UsdBankAccount(accountNumber, routingNumber, accountType, accountName, bankName, accountHolderName, customer);
     
             try {
-                const bankAccounts = await bankAccountsService.createBankAccount(usdBankAccount, res);
+                const bankAccounts = await bankAccountsService.createBankAccount(usdBankAccount, res, "usd");
                 res.status(200).json({ message: bankAccounts });
             } catch (error) {
                 // Manejar el error específico
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
             console.log("eurBankAccount", eurBankAccount);
             try {
-                const bankAccounts = await bankAccountsService.createBankAccount(eurBankAccount, res);
+                const bankAccounts = await bankAccountsService.createBankAccountEur(eurBankAccount, res, "eur");
                 res.status(200).json({ message: bankAccounts });
             } catch (error) {
                 // Manejar el error específico
