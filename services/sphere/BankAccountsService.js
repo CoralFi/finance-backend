@@ -150,6 +150,8 @@ class BankAccountsService {
                             bankName: bankAccountsInfo.bankName,
                             accountHolderName: bankAccountsInfo.accountHolderName,
                             accountName: bankAccountsInfo.accountName,
+                            bic: bankAccountsInfo.bic,
+                            iban: bankAccountsInfo.iban
                         };
                     }
 
