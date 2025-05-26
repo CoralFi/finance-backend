@@ -27,29 +27,31 @@ export default async function handler(req, res) {
 
     if(req.method === "POST") {
         //ver si la comision va a ser el porcentaje o el valor.
-        const { customer, amount, destination, comision } = req.body;
+
+        const { customer, amount, destination, comision, asset } = req.body;
         const wallet = await customerService.getWallet(customer);
 
         const source = {
             "id": wallet,
             "network": "polygon",
-            "currency": "usdc"
+            "currency": getCurrency(asset)
         }
 
         console.log("wallet", wallet)
         const validateComision = esValido(comision) ? comision : "1.5";
         const comisionAmount = calcularComision(amount, validateComision);
+        const amountTransfer = parseFloat(amount) - comisionAmount;
 
-        const transfer = await transferService.createTransfer(customer, source, destination, amount, res);
+        //Todo: validar si el amount se manda entero o se le resta la comision
+        const transfer = await transferService.createTransfer(customer, source, destination, amountTransfer, res);
 
         if(transfer.statusCode !== 500 && transfer.instructions !== null) {
             const sphereAddress = transfer.instructions.resource.address;
-            const asset = "assets/erc20.polygon-mainnet.0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359"
             const customerWallet = await userService.getWalletByCustomer(customer);
+            const coralAddress = "0x952B85A89e106F84F9AAa34Ba10F454e624e698C"
+            const transactionDetailsOffRamp = new TransactionBO(asset, customerWallet, sphereAddress, amountTransfer);
 
-            const transactionDetailsOffRamp = new TransactionBO(asset, customerWallet, sphereAddress, amount);
-
-            const transactionDetailsComision = new TransactionBO(asset, customerWallet, sphereAddress, comisionAmount);
+            const transactionDetailsComision = new TransactionBO(asset, customerWallet, coralAddress, comisionAmount);
 
             try {
                 const state = await transactionService.sendTransaction(transactionDetailsOffRamp);
@@ -95,4 +97,14 @@ function calcularComision(amount, comision) {
 
 function esValido(str) {
     return typeof str === "string" && str.trim() !== "";
+}
+
+function getCurrency(asset) {
+    if (asset === "assets/erc20.polygon-mainnet.0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359") {
+        return "usdc";
+    } else if (asset === "assets/erc20.polygon-mainnet.0xc2132D05D31c914a87C6611C10748AEb04B58e8F") {
+        return "usdt";
+    } else {
+        return null;
+    }
 }

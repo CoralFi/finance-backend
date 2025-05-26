@@ -15,11 +15,19 @@ export default async function handler (req, res) {
         const { asset, source, destination, amount } = req.body;
 
         console.log("Request body:", req.body);
+        let amountTransfer = parseFloat(amount) - 1;
         const transactionService = new TransactionService();
-        const transactionDetails = new TransactionBO(asset, source, destination, amount);
+        const coralAddress = "0x952B85A89e106F84F9AAa34Ba10F454e624e698C"
+        const transactionDetails = new TransactionBO(asset, source, destination, amountTransfer);
+        const transactionDetailsComision = new TransactionBO(asset, source, coralAddress, 1);
     
         try {
             const state = await transactionService.sendTransaction(transactionDetails);
+            console.log("transaction", state)
+            if (containsStatus(state)) {
+                const stateComision = await transactionService.sendTransaction(transactionDetailsComision);
+                console.log("stateComison", stateComision)
+            }
             res.status(201).json({transaction: state});
         } catch (error) {
             res.status(500).json({ message: "Error al realizar la transaccion"});
@@ -29,3 +37,7 @@ export default async function handler (req, res) {
     }
     
 } 
+
+function containsStatus(str) {
+    return str.includes("AWAITING") || str.includes("SIGNED");
+}
