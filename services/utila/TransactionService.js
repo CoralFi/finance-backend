@@ -25,6 +25,7 @@ class transactionService {
             designatedSigners: [
                 "users/coralmacu@vault-958c80a6cbf7.utilaserviceaccount.io",
                 "users/leaconti10@gmail.com",
+                "users/macarenapazos33@gmail.com",
                 "users/coraldev@vault-958c80a6cbf7.utilaserviceaccount.io"
             ],
             includeReferencedResources: true
