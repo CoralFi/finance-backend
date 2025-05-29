@@ -15,11 +15,20 @@ export default async function handler (req, res) {
         const { asset, source, destination, amount } = req.body;
 
         console.log("Request body:", req.body);
-        let amountTransfer = parseFloat(amount) - 1;
+        //primero cobramos el 1.5 de comision y luego hacemos la transaccion.
+        const comisionAmount = calcularComision(amount, "1.5");
+        const amountTransfer = parseFloat(amount) - comisionAmount;
+
+        //al valor le restamos la comision de transaccion
+        const amountWithCommision = parseFloat(amountTransfer) - 1;
+
+        //comision total es 1.5% del amount, y luego le restamos 1 de comision de transaccion.
+        const commision = parseFloat(comisionAmount) + 1;
+
         const transactionService = new TransactionService();
         const coralAddress = "0x952B85A89e106F84F9AAa34Ba10F454e624e698C"
-        const transactionDetails = new TransactionBO(asset, source, destination, amountTransfer);
-        const transactionDetailsComision = new TransactionBO(asset, source, coralAddress, 1);
+        const transactionDetails = new TransactionBO(asset, source, destination, amountWithCommision);
+        const transactionDetailsComision = new TransactionBO(asset, source, coralAddress, commision);
     
         try {
             const state = await transactionService.sendTransaction(transactionDetails);
@@ -40,4 +49,17 @@ export default async function handler (req, res) {
 
 function containsStatus(str) {
     return str.includes("AWAITING") || str.includes("SIGNED");
+}
+
+function calcularComision(amount, comision) {
+   
+    const numAmount = parseFloat(amount);
+    const numPorcentaje = parseFloat(comision);
+
+    if (isNaN(numAmount) || isNaN(numPorcentaje)) {
+        throw new Error("Los valores deben ser números válidos.");
+    }
+
+    return (numAmount * numPorcentaje) / 100;
+
 }
