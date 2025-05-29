@@ -30,10 +30,10 @@ export default async function handler(req, res) {
             
             console.log(isValid);
     
-            if(authenticator.verify({ token: codigo, secret: data.qr_code })) {
-                res.json({ success: true, message: 'Código válido, transferencia permitida.' });
+            if(isValid) {
+                res.status(200).json({ success: true, message: 'Código válido, transferencia permitida.' });
             } else {
-                res.json({ success: false, message: 'Código inválido, transferencia no permitida.' });
+                res.status(401).json({ success: false, message: 'Código inválido, transferencia no permitida.' });
             }
             
         } catch (error) {

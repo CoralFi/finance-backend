@@ -3,7 +3,7 @@ import UserBO from "../../models/user.js";
 import UserService from "../../services/UserService.js";
 import WalletService from "../../services/utila/WalletService.js";
 import { createClient } from "@supabase/supabase-js";
-
+import crypto from "crypto";
 // Configuración de Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -75,21 +75,41 @@ export default async function handler(req, res) {
                         google_auth: existingUser.qr_code ? true : false,
                         customerFiat: existingUser.customer_id,
                         tos: existingUser.tos_coral,
+                        tos_eur: existingUser.tos_eur,
                     },
                 });
             } else {
                 console.log("El usuario no existe en la base de datos. Procediendo con el registro.");
+                console.log("email", email);
+                console.log("name", name);
                 const userService = new UserService();
                 const walletService = new WalletService();
 
-                const user = new UserBO(email, null, name, null, "persona");
-                const createUser = await userService.createUser(user, res);
+                const nameSplit = name.split(" ");
+                const firstName = nameSplit[0];
+                const lastName = nameSplit.slice(1).join(" ");
 
-                if (!createUser || !createUser.user_id) {
+                const randomPassword = crypto.randomBytes(16).toString('hex');
+
+                const user = new UserBO(email, randomPassword, firstName, lastName, "persona", true);
+                const userId = await userService.createUser(user);
+
+                if (!userId) {
                     throw new Error("Error al crear el usuario.");
                 }
 
-                await walletService.createWallet(createUser);
+                await walletService.createWallet(userId);
+
+                // Get the newly created user to include in the response
+                const { data: newUser, error: fetchError } = await supabase
+                    .from("usuarios")
+                    .select("*")
+                    .eq("user_id", userId)
+                    .single();
+
+                if (fetchError) {
+                    throw new Error("Error al obtener el usuario recién creado.");
+                }
 
                 const { error: supabaseError } = await supabase
                     .from("usuarios")
@@ -100,7 +120,22 @@ export default async function handler(req, res) {
                     throw new Error("Error al actualizar el estado del usuario en Supabase.");
                 }
 
-                res.status(201).json({ message: "Usuario registrado exitosamente con Google." });
+                res.status(201).json({ 
+                    message: "Usuario registrado exitosamente con Google.",
+                    user: {
+                        id: userId,
+                        email: email,
+                        firstName: firstName,
+                        lastName: lastName,
+                        userType: "persona",
+                        kyc: "incomplete",
+                        wallet: newUser.wallet_id,
+                        google_auth: newUser.qr_code ? true : false,
+                        customerFiat: newUser.customer_id,
+                        tos: newUser.tos_coral,
+                        tos_eur: newUser.tos_eur,
+                    },
+                });
             }
         } catch (error) {
             console.error("Error en Google Login:", error);
