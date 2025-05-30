@@ -20,6 +20,7 @@ class UserService {
 
     // Crear un usuario
     async createUser(user) {
+        console.log("Creating user with data:", user);
         const { data, error } = await this.supabase.from("usuarios").insert([
             {
                 email: user.email,
@@ -31,6 +32,18 @@ class UserService {
             },
         ]).select('user_id');
         
+        if (error) {
+            console.error("Error creating user:", error);
+            throw new Error(`Error al crear el usuario: ${error.message}`);
+        }
+    
+        if (!data || data.length === 0) {
+            const errorMsg = "No se pudo crear el usuario: Datos de respuesta inválidos";
+            console.error(errorMsg);
+            throw new Error(errorMsg);
+        }
+    
+        console.log("User created successfully:", data[0]);
         return data[0].user_id;
     }
 
@@ -69,7 +82,7 @@ class UserService {
             console.error('Error fetching wallet_id by customer:', error);
             throw error;
         }
-        return data.wallet_id;
+        return data?.wallet_id;
     }
 }
 
