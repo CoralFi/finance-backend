@@ -8,39 +8,36 @@ export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-    // Manejar solicitudes OPTIONS (preflight)
     if (req.method === 'OPTIONS') {
-        return res.status(200).end();
+        return res.status(405).json({ message: "Método no permitido" });
     }
 
+    if (req.method !== 'POST') {
+        return res.status(405).json({ message: "Método no permitido" });
+    }
 
-    if(req.method === "POST") {
-        try {
-            const { codigo, userId } = req.body;
-    
-            const { data, error } = await supabase
+    try {
+        const { codigo, userId } = req.body;
+
+        const { data } = await supabase
+            .from('usuarios')
+            .select('qr_code')
+            .eq('user_id', userId)
+            .single();
+
+        const isValid = authenticator.verify({ token: codigo, secret: data.qr_code });
+
+        if (isValid) {
+            await supabase
                 .from('usuarios')
-                .select('qr_code')
-                .eq('user_id', userId)
-                .single();
-    
-            console.log(data.qr_code);
-            console.log(codigo);
-            const isValid = authenticator.verify({ token: codigo, secret: data.qr_code });
+                .update({ 'google_auth': true })
+                .eq('user_id', userId);
             
-            console.log(isValid);
-    
-            if(isValid) {
-                res.status(200).json({ success: true, message: 'Código válido, transferencia permitida.' });
-            } else {
-                res.status(401).json({ success: false, message: 'Código inválido, transferencia no permitida.' });
-            }
-            
-        } catch (error) {
-            res.status(500).json({ message: "Error al validar el código de google auth"});
+            res.status(200).json({ success: true, message: 'Código válido, transferencia permitida.' });
+        } else {
+            res.status(401).json({ success: false, message: 'Código inválido, transferencia no permitida.' });
         }
-    } else {
-        return res.status(405).json({message: "Método no permitido"});
+    } catch (error) {
+        res.status(500).json({ message: "Error al validar el código de google auth", error: error.message });
     }
-   
 }
