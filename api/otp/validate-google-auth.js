@@ -28,6 +28,7 @@ export default async function handler(req, res) {
         const isValid = authenticator.verify({ token: codigo, secret: data.qr_code });
 
         if (isValid) {
+            // Update the user's google_auth status to true
             await supabase
                 .from('usuarios')
                 .update({ 'google_auth': true })
