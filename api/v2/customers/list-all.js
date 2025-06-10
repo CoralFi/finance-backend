@@ -20,7 +20,6 @@ export default async function handler(req, res) {
     let nextPageToken = null;
     let hasMore = true;
 
-    // Configuración base de la petición
     const config = {
       method: 'get',
       headers: getAuthHeaders()
