@@ -16,6 +16,7 @@ class UserService {
         if (existingUser) {
             return res.status(400).json({ message: "El correo ya está registrado." });
         }
+        return existingUser;
     }
 
     // Crear un usuario
@@ -27,10 +28,10 @@ class UserService {
                 password: user.password,
                 nombre: user.nombre,
                 apellido: user.apellido,
-                user_type: user.user_type,
-                tos_coral: user.tos_coral
+                user_type: user.userType,
+                tos_coral: user.tosCoral
             },
-        ]).select('user_id');
+        ]).select('user_id, email, nombre, apellido, user_type, tos_coral');
         
         if (error) {
             console.error("Error creating user:", error);
@@ -44,7 +45,14 @@ class UserService {
         }
     
         console.log("User created successfully:", data[0]);
-        return data[0].user_id;
+        return {
+            user_id: data[0].user_id,
+            email: data[0].email,
+            nombre: data[0].nombre,
+            apellido: data[0].apellido,
+            user_type: data[0].user_type,
+            tos_coral: data[0].tos_coral
+        };
     }
 
     // Ejemplo: Obtener todos los usuarios
