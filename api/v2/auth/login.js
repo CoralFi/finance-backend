@@ -1,5 +1,6 @@
 import supabase from "../supabase.js";
 import bcrypt from "bcrypt";
+import CustomerService from "../../../services/sphere/CustomerService.js";
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*'); // TODO: cambiar por la del front
@@ -13,6 +14,8 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
     const { email, password } = req.body;
+
+    const customerService = new CustomerService();
     
     try{
         // find user in DB without fern
@@ -45,6 +48,10 @@ export default async function handler(req, res) {
         // Success
         console.log("Inicio de sesión exitoso.", user);
 
+        const tosEur = await customerService.getTosEur(user.customer_id);
+        const updateTosEur = user.tos_eur;
+        const needTosEur = tosEur === "approved" ? "approved" : updateTosEur === "pending" ? "pending" : "incomplete";
+
         res.status(200).json({
             message: "Inicio de sesión exitoso.",
             user: {
@@ -59,7 +66,7 @@ export default async function handler(req, res) {
                 customerFiat: user.customer_id,
                 tos: user.tos_coral,
                 qr_payment: user.qr_payment,
-                tos_eur: user.tos_eur,
+                tos_eur: needTosEur,
                 fernCustomerId: user.fern?.fernCustomerId || null,
                 fernWalletId: user.fern?.fernWalletId || null,
                 KycFer: user.fern?.Kyc || null,
