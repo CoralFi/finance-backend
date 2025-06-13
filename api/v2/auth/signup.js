@@ -1,7 +1,7 @@
 import UserService from "../../../services/UserService.js";
 import { createFernCustomer } from "../../../services/fern/Customer.js";
 import bcrypt from 'bcrypt';
-import supabase from "../../v2/supabase.js";
+import supabase from "../supabase.js";
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
