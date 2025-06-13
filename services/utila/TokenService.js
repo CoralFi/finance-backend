@@ -1,6 +1,5 @@
-const jwt = require("jsonwebtoken");
-const fs = require("fs");
-
+import jwt from "jsonwebtoken";
+import fs from "fs";
 class TokenService {
     constructor() {
         // Configuración del servicio
@@ -47,4 +46,4 @@ class TokenService {
     }
 }
 
-module.exports = TokenService;
+export default TokenService;
