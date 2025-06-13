@@ -13,7 +13,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { email, password, nombre, apellido, userType, tosCoral } = req.body;
+        const { email, password, nombre, apellido, userType, tosCoral, businessName } = req.body;
         const userService = new UserService();
 
         if (!email || !password || !nombre || !apellido || !userType) {
@@ -51,6 +51,7 @@ export default async function handler(req, res) {
                     email: newUser.email,
                     firstName: newUser.nombre,
                     lastName: newUser.apellido,
+                    businessName: businessName,
                 });
         
                 await supabase.rpc('commit');
@@ -71,7 +72,6 @@ export default async function handler(req, res) {
             } catch (fernError) {
                 console.error('Error en createFernCustomer:', fernError);
                 await supabase.rpc('rollback');
-                // Eliminar el usuario si falla la creación en Fern
                 //await userService.deleteUser(newUser.user_id);
                 throw fernError;
             }

@@ -85,6 +85,7 @@ export const createFernCustomer = async (user) => {
             email: user.email,
             firstName: user.firstName,
             lastName: user.lastName,
+            businessName: user.businessName,
         };
 
         console.log('Creating Fern customer:', { email: user.email });
@@ -101,8 +102,9 @@ export const createFernCustomer = async (user) => {
         }
 
         const data = await response.json();
+        console.log('Customer created in Fern:', { data });
+
         const customerId = data.customerId;
-        console.log('Customer created in Fern:', { customerId, email: user.email });
 
         // 2. Crear billetera para el cliente
         const walletId = await createFernWallet(customerId);
@@ -114,6 +116,8 @@ export const createFernCustomer = async (user) => {
             KycLink: data.kycLink || null,
             Kyc: data.customerStatus !== 'ACTIVE' ? 'PENDING' : 'APPROVED',
             user_id: user.user_id,
+            businessName: user.businessName,
+            organizationId: data.organizationId,
         };
 
         console.log('Saving Fern record to database:', { userId: user.user_id });
@@ -133,7 +137,7 @@ export const createFernCustomer = async (user) => {
             userId: user.user_id, 
             customerId,
             walletId,
-            fernRecord
+            fernRecord,
         });
 
         return {
