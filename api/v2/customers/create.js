@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { FERN_API_BASE_URL, getAuthHeaders } from '../config.js';
+import supabase from '../supabase.js';
+import { createFernCustomer } from "../../../services/fern/Customer.js";
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,13 +15,14 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
   try {
-    const customerData = req.body;
-
-    const response = await axios.post(
-      `${FERN_API_BASE_URL}/customers`,
-      customerData,
-      { headers: getAuthHeaders() }
-    );
+    const response = await createFernCustomer({
+      user_id: req.body.user_id,
+      customerType: req.body.customerType,
+      email: req.body.email,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      businessName: req.body.businessName,
+    });
 
     res.status(200).json(response.data);
   } catch (error) {
