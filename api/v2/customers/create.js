@@ -24,7 +24,7 @@ export default async function handler(req, res) {
       businessName: req.body.businessName,
     });
 
-    res.status(200).json(response.data);
+    res.status(200).json(response);
   } catch (error) {
     console.error('Error al crear cliente en Fern:', error.response?.data || error.message);
     res.status(error.response?.status || 500).json({
