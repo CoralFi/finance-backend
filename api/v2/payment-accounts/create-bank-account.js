@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { FERN_API_BASE_URL, getAuthHeaders } from '../config.js';
+import supabase from '../supabase.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -11,6 +12,10 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+
+  supabase.rpc('begin')
+  
+
 
   try {
     const bankAccountData = req.body;
@@ -44,6 +49,12 @@ export default async function handler(req, res) {
       { headers: getAuthHeaders() }
     );
     
+    
+
+    await supabase.rpc('commit');
+    console.log('Cuenta bancaria externa creada exitosamente en Fern:', response.data);
+
+
     res.status(200).json(response.data);
   } catch (error) {
     console.error('Error al crear cuenta bancaria externa en Fern:', error.response?.data || error.message);
