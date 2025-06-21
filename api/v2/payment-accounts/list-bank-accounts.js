@@ -24,7 +24,8 @@ export default async function handler(req, res) {
       { headers: getAuthHeaders() }
     );
 
-    res.status(200).json(response.data);
+    const result = response.data.paymentAccounts.filter(account => account.isThirdParty === true);
+    res.status(200).json(result);
   } catch (error) {
     console.error('Error al listar cuentas bancarias:', error.response?.data || error.message);
     res.status(500).json({ error: 'Error al listar cuentas bancarias' });

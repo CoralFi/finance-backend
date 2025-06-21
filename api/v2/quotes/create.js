@@ -17,6 +17,7 @@ export default async function handler(req, res) {
     
     // Validación de campos requeridos
     if (!quoteData.customerId || !quoteData.source || !quoteData.destination) {
+      console.log(quoteData);
       return res.status(400).json({ 
         error: 'Faltan campos requeridos: customerId, source, destination' 
       });
@@ -27,6 +28,7 @@ export default async function handler(req, res) {
         !quoteData.source.sourceCurrency || 
         !quoteData.source.sourcePaymentMethod || 
         !quoteData.source.sourceAmount) {
+      console.log(quoteData);
       return res.status(400).json({
         error: 'Faltan campos requeridos en source: sourcePaymentAccountId, sourceCurrency, sourcePaymentMethod, sourceAmount'
       });
@@ -35,6 +37,7 @@ export default async function handler(req, res) {
     // Validar campos requeridos en destination
     if (!quoteData.destination.destinationPaymentAccountId || 
         !quoteData.destination.destinationCurrency) {
+      console.log(quoteData);
       return res.status(400).json({
         error: 'Faltan campos requeridos en destination: destinationPaymentAccountId, destinationCurrency'
       });
@@ -58,6 +61,7 @@ export default async function handler(req, res) {
 
     // Agregar developerFee si está presente
     if (quoteData.developerFee) {
+      console.log(quoteData);
       quoteRequest.developerFee = {
         developerFeeType: quoteData.developerFee.developerFeeType || 'USD',
         developerFeeAmount: quoteData.developerFee.developerFeeAmount
