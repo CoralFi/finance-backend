@@ -1,6 +1,7 @@
 import supabase from "../supabase.js";
 import bcrypt from "bcrypt";
 import CustomerService from "../../../services/sphere/CustomerService.js";
+import { FernKycStatus } from "../../../services/fern/kycStatus.js";
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*'); // TODO: cambiar por la del front
@@ -29,6 +30,13 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: "Usuario no encontrado." });
         }
 
+        // compare password
+        const isValidPassword = await bcrypt.compare(password, user.password);
+
+        if (!isValidPassword) {
+            return res.status(401).json({ message: "Contraseña incorrecta." });
+        }
+
         // find fern in DB
         const { data: fern, error: fernError } = await supabase
             .from("fern")
@@ -37,13 +45,15 @@ export default async function handler(req, res) {
             .single();
 
         user.fern = fern;
-        
-        // compare password
-        const isValidPassword = await bcrypt.compare(password, user.password);
 
-        if (!isValidPassword) {
-            return res.status(401).json({ message: "Contraseña incorrecta." });
+        let fernKycStatus = { kycStatus: null, kycLink: null };
+
+        // update the fern kyc status
+        if (user.fern?.fernCustomerId) {
+            fernKycStatus = await FernKycStatus(user.fern?.fernCustomerId, user.user_id);
         }
+        
+
 
         // Success
         console.log("Inicio de sesión exitoso.", user);
@@ -69,8 +79,8 @@ export default async function handler(req, res) {
                 tos_eur: needTosEur,
                 fernCustomerId: user.fern?.fernCustomerId || null,
                 fernWalletId: user.fern?.fernWalletId || null,
-                KycFer: user.fern?.Kyc || null,
-                KycLinkFer: user.fern?.KycLink || null,
+                KycFer: fernKycStatus.kycStatus || null,
+                KycLinkFer: fernKycStatus.kycLink || null,
             },
         });
 
