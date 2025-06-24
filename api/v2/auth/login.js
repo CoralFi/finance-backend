@@ -2,6 +2,7 @@ import supabase from "../supabase.js";
 import bcrypt from "bcrypt";
 import CustomerService from "../../../services/sphere/CustomerService.js";
 import { FernKycStatus } from "../../../services/fern/kycStatus.js";
+import { getFernWalletCryptoInfo } from "../../../services/fern/wallets.js";
 
 export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*'); // TODO: cambiar por la del front
@@ -53,7 +54,10 @@ export default async function handler(req, res) {
             fernKycStatus = await FernKycStatus(user.fern?.fernCustomerId, user.user_id);
         }
         
-
+        let fernWalletCryptoInfo = null;
+        if (user.fern?.fernWalletId) {
+            fernWalletCryptoInfo = await getFernWalletCryptoInfo(user.fern?.fernWalletId);
+        }
 
         // Success
         console.log("Inicio de sesión exitoso.", user);
@@ -79,6 +83,7 @@ export default async function handler(req, res) {
                 tos_eur: needTosEur,
                 fernCustomerId: user.fern?.fernCustomerId || null,
                 fernWalletId: user.fern?.fernWalletId || null,
+                fernWalletAddress: fernWalletCryptoInfo?.fernCryptoWallet.address || null,
                 KycFer: fernKycStatus.kycStatus || null,
                 KycLinkFer: fernKycStatus.kycLink || null,
             },

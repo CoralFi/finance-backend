@@ -1,5 +1,6 @@
 import { FERN_API_BASE_URL, getAuthHeaders } from "../../api/v2/config.js";
 import supabase from "../../api/v2/supabase.js";
+import { getFernWalletCryptoInfo } from "./wallets.js";
 
 /**
  * Valida los datos del cliente antes de crear un registro en Fern
@@ -140,6 +141,8 @@ export const createFernCustomer = async (user) => {
             fernRecord,
         });
 
+        const fernWalletCryptoInfo = await getFernWalletCryptoInfo(walletId);
+
         return {
             ...fernRecord,
             // Mantener compatibilidad con el código existente
@@ -147,7 +150,8 @@ export const createFernCustomer = async (user) => {
             kycStatus: fernRecord.Kyc,
             // También incluir los nombres originales para compatibilidad
             KycLink: fernRecord.KycLink,
-            Kyc: fernRecord.Kyc
+            Kyc: fernRecord.Kyc,
+            fernWalletAddress: fernWalletCryptoInfo.fernCryptoWallet.address,
         };
 
     } catch (error) {
@@ -194,3 +198,4 @@ export const getFernCustomer = async (customerId) => {
         throw error;
     }
 };
+
