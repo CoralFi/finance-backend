@@ -19,7 +19,14 @@ function getRampType(tx) {
     return "unknown";
 }
 
-export const FernTransactions = async (fernCustomerId) => {
+export const FernTransactions = async (fernCustomerId, status = "") => {
+        
+    const statusList = ["completed", "await", "processing", "failed", ""];
+
+    if (!statusList.includes(status)) {
+        throw new Error("Invalid status");
+    }
+
     try {
         // 1. Llamar a la API de Fern para obtener transacciones
         const response = await fetch(
@@ -39,6 +46,13 @@ export const FernTransactions = async (fernCustomerId) => {
             rampType: getRampType(tx)
         }));
 
+        if (status !== "") {
+            return withRampType.filter(tx =>
+                tx.transactionStatus &&
+                tx.transactionStatus.toLowerCase().includes(status.toLowerCase())
+            );
+        }
+
         return withRampType;
     } catch (error) {
         console.error('Error obteniendo transacciones de Fern:', error.message);
@@ -46,3 +60,4 @@ export const FernTransactions = async (fernCustomerId) => {
     }
 }
 ;
+

@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
     if (req.method !== 'GET') return res.status(405).send('Method Not Allowed');
 
-    const { fernCustomerId } = req.query;
+    const { fernCustomerId, status } = req.query;
 
     if (!fernCustomerId) {
         return res.status(400).json({
@@ -21,7 +21,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const transactions = await FernTransactions(fernCustomerId);
+        const transactions = await FernTransactions(fernCustomerId, status);
         res.status(200).json({ transactions });
     } catch (error) {
         console.error('Error al obtener transacciones de Fern:', error.message);
