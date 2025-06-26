@@ -98,15 +98,8 @@ export default async function handler(req, res) {
 
   } catch (error) {
     // Enhanced error logging
-    if (error.code === 'ECONNABORTED') {
-      console.error('Timeout al crear cuenta bancaria externa en Fern:', error.message);
-      return res.status(504).json({
-        error: 'Timeout al crear la cuenta bancaria externa',
-        details: error.message
-      });
-    }
     console.error('Error al crear cuenta bancaria externa en Fern:', error.response?.data || error.message);
-    res.status(error.response?.status || 500).json({
+    res.status(500).json({
       error: 'Error al crear la cuenta bancaria externa',
       details: error.response?.data || error.message
     });
