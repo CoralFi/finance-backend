@@ -4,6 +4,8 @@ import UserService from "../../services/UserService.js";
 import WalletService from "../../services/utila/WalletService.js";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
+import { FernKycStatus } from "../../services/fern/kycStatus.js";
+import { getFernWalletCryptoInfo } from "../../services/fern/wallets.js";
 // Configuración de Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -32,7 +34,7 @@ export default async function handler(req, res) {
             if (!ticket) {
                 return res.status(400).json({ message: "Token de Google no válido" });
             }
-            
+
             const payload = ticket.getPayload();
             if (!payload || !payload.email || !payload.name) {
                 return res.status(400).json({ message: "El token no contiene información suficiente" });
@@ -54,13 +56,37 @@ export default async function handler(req, res) {
                 .eq("email", email)
                 .limit(1)
                 .maybeSingle();
-            
+
             if (error) {
                 console.error("Error en la consulta de Supabase:", error);
                 return res.status(500).json({ message: "Error en la base de datos", error: error.message });
             }
 
+
+
             if (existingUser) {
+
+                // find fern in DB
+                const { data: fern, error: fernError } = await supabase
+                    .from("fern")
+                    .select("*")
+                    .eq("user_id", existingUser.user_id)
+                    .single();
+
+                existingUser.fern = fern;
+
+                let fernKycStatus = { kycStatus: null, kycLink: null };
+
+                // update the fern kyc status
+                if (existingUser.fern?.fernCustomerId) {
+                    fernKycStatus = await FernKycStatus(existingUser.fern?.fernCustomerId, existingUser.user_id);
+                }
+
+                let fernWalletCryptoInfo = null;
+                if (existingUser.fern?.fernWalletId) {
+                    fernWalletCryptoInfo = await getFernWalletCryptoInfo(existingUser.fern?.fernWalletId);
+                }
+
                 console.log("Usuario existente encontrado:", existingUser);
                 return res.status(200).json({
                     message: "Inicio de sesión exitoso.",
@@ -76,6 +102,11 @@ export default async function handler(req, res) {
                         customerFiat: existingUser.customer_id,
                         tos: existingUser.tos_coral,
                         tos_eur: existingUser.tos_eur,
+                        fernCustomerId: existingUser?.fern?.fernCustomerId || null,
+                        fernWalletId: existingUser?.fern?.fernWalletId || null,
+                        fernWalletAddress: fernWalletCryptoInfo?.fernCryptoWallet?.address || null,
+                        KycFer: fernKycStatus.kycStatus || null,
+                        KycLinkFer: fernKycStatus.kycLink || null,
                     },
                 });
             } else {
@@ -120,7 +151,7 @@ export default async function handler(req, res) {
                     throw new Error("Error al actualizar el estado del usuario en Supabase.");
                 }
 
-                res.status(201).json({ 
+                res.status(201).json({
                     message: "Usuario registrado exitosamente con Google.",
                     user: {
                         id: userId,
