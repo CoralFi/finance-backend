@@ -1,11 +1,12 @@
 import { OAuth2Client } from "google-auth-library";
 import UserBO from "../../models/user.js";
-import UserService from "../../services/UserService.js";
-import WalletService from "../../services/utila/WalletService.js";
+import bcrypt from 'bcrypt';
+import { createFernCustomer } from "../../services/fern/Customer.js";
 import { createClient } from "@supabase/supabase-js";
 import crypto from "crypto";
 import { FernKycStatus } from "../../services/fern/kycStatus.js";
 import { getFernWalletCryptoInfo } from "../../services/fern/wallets.js";
+import jwt from 'jsonwebtoken';
 // Configuración de Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -62,8 +63,6 @@ export default async function handler(req, res) {
                 return res.status(500).json({ message: "Error en la base de datos", error: error.message });
             }
 
-
-
             if (existingUser) {
 
                 // find fern in DB
@@ -111,62 +110,71 @@ export default async function handler(req, res) {
                 });
             } else {
                 console.log("El usuario no existe en la base de datos. Procediendo con el registro.");
-                console.log("email", email);
-                console.log("name", name);
-                const userService = new UserService();
-                const walletService = new WalletService();
+                await supabase.rpc('begin'); // Start transaction
 
-                const nameSplit = name.split(" ");
-                const firstName = nameSplit[0];
-                const lastName = nameSplit.slice(1).join(" ");
+                try {
+                    const nameSplit = name.split(" ");
+                    const firstName = nameSplit[0];
+                    const lastName = nameSplit.slice(1).join(" ");
 
-                const randomPassword = crypto.randomBytes(16).toString('hex');
+                    const randomPassword = crypto.randomBytes(16).toString('hex');
+                    const hashedPassword = await bcrypt.hash(randomPassword, 10);
 
-                const user = new UserBO(email, randomPassword, firstName, lastName, "persona", true);
-                const userId = await userService.createUser(user);
+                    // Create user directly in Supabase
+                    const { data: newUser, error: insertError } = await supabase
+                        .from('usuarios')
+                        .insert({
+                            email: email,
+                            password: hashedPassword,
+                            nombre: firstName,
+                            apellido: lastName,
+                            user_type: 'persona',
+                            tos_coral: true, // Asumir aceptado en login social
+                            google_auth_enabled: false,
+                        })
+                        .select()
+                        .single();
 
-                if (!userId) {
-                    throw new Error("Error al crear el usuario.");
+                    if (insertError) throw insertError;
+
+                    // Create Fern Customer
+                    const fernCustomer = await createFernCustomer({
+                        user_id: newUser.user_id,
+                        customerType: newUser.user_type,
+                        email: newUser.email,
+                        firstName: newUser.nombre,
+                        lastName: newUser.apellido,
+                    });
+
+                    await supabase.rpc('commit'); // Commit transaction
+
+                    return res.status(200).json({
+                        message: "Usuario creado y autenticado exitosamente.",
+                        user: {
+                            id: newUser.user_id,
+                            firstName: newUser.nombre,
+                            lastName: newUser.apellido,
+                            email: newUser.email,
+                            userType: newUser.user_type,
+                            kyc: newUser.kyc_state,
+                            wallet: newUser.wallet_id,
+                            google_auth: newUser.google_auth_enabled,
+                            customerFiat: newUser.customer_id,
+                            tos: newUser.tos_coral,
+                            tos_eur: newUser.tos_eur,
+                            fernCustomerId: fernCustomer.fernCustomerId,
+                            fernWalletId: fernCustomer.fernWalletId,
+                            fernWalletAddress: fernCustomer.fernWalletAddress,
+                            KycFer: fernCustomer.Kyc,
+                            KycLinkFer: fernCustomer.KycLink,
+                        },
+                    });
+
+                } catch (error) {
+                    await supabase.rpc('rollback');
+                    console.error("Error en el registro durante el login con Google:", error);
+                    return res.status(500).json({ message: "Error al registrar el usuario.", error: error.message });
                 }
-
-                await walletService.createWallet(userId);
-
-                // Get the newly created user to include in the response
-                const { data: newUser, error: fetchError } = await supabase
-                    .from("usuarios")
-                    .select("*")
-                    .eq("user_id", userId)
-                    .single();
-
-                if (fetchError) {
-                    throw new Error("Error al obtener el usuario recién creado.");
-                }
-
-                const { error: supabaseError } = await supabase
-                    .from("usuarios")
-                    .update({ validated: true })
-                    .eq("email", email);
-
-                if (supabaseError) {
-                    throw new Error("Error al actualizar el estado del usuario en Supabase.");
-                }
-
-                res.status(201).json({
-                    message: "Usuario registrado exitosamente con Google.",
-                    user: {
-                        id: userId,
-                        email: email,
-                        firstName: firstName,
-                        lastName: lastName,
-                        userType: "persona",
-                        kyc: "incomplete",
-                        wallet: newUser.wallet_id,
-                        google_auth: newUser.google_auth,
-                        customerFiat: newUser.customer_id,
-                        tos: newUser.tos_coral,
-                        tos_eur: newUser.tos_eur,
-                    },
-                });
             }
         } catch (error) {
             console.error("Error en Google Login:", error);
