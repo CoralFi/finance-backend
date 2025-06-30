@@ -30,7 +30,7 @@ export const FernTransactions = async (fernCustomerId, status = "") => {
     try {
         // 1. Llamar a la API de Fern para obtener transacciones
         const response = await fetch(
-            `${FERN_API_BASE_URL}/transactions?customerId=${fernCustomerId}`,
+            `${FERN_API_BASE_URL}/transactions?customerId=${fernCustomerId}&pageSize=20`,
             { headers: getAuthHeaders() }
         );
 
