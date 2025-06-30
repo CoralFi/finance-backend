@@ -130,7 +130,6 @@ export default async function handler(req, res) {
                             apellido: lastName,
                             user_type: 'persona',
                             tos_coral: true, // Asumir aceptado en login social
-                            google_auth_enabled: false,
                         })
                         .select()
                         .single();
