@@ -72,6 +72,29 @@ export default async function handler(req, res) {
         bankAccountPaymentMethod: data.externalBankAccount.bankAccountPaymentMethod,
 
       };
+    } else if (currency === 'ARS') {
+      // Validar campos requeridos para ARS
+      if (!data.externalBankAccount.accountNumber) {
+        return res.status(400).json({ error: 'accountNumber (CBU) es requerido para cuentas ARS' });
+      }
+      if (!data.externalBankAccount.taxNumber) {
+        return res.status(400).json({ error: 'taxNumber (CUIT/CUIL/CDI) es requerido para cuentas ARS' });
+      }
+      // Asegurar valores válidos para ARS
+      const bankAccountType = data.externalBankAccount.bankAccountType;
+      const bankAccountPaymentMethod = 'AR_TRANSFERS_3';
+      externalBankAccount = {
+        ...baseFields,
+        accountNumber: data.externalBankAccount.accountNumber, // CBU
+        cbu: data.externalBankAccount.accountNumber, // Alias para claridad
+        bankName: data.externalBankAccount.bankName,
+        bankAccountCurrency: currency,
+        bankAccountType,
+        bankAccountPaymentMethod,
+        bankAddress: data.externalBankAccount.bankAddress,
+        bankAccountOwner: data.externalBankAccount.bankAccountOwner,
+        taxNumber: data.externalBankAccount.taxNumber
+      };
     } else {
       return res.status(400).json({ error: `Moneda no soportada: ${currency}` });
     }

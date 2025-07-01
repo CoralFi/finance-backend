@@ -73,7 +73,6 @@ export default async function handler(req, res) {
       quoteRequest,
       { 
         headers: getAuthHeaders(),
-        timeout: 10000 // 10 segundos de timeout
       }
     );
     
