@@ -11,3 +11,7 @@ export const getAuthHeaders = () => ({
   'Content-Type': 'application/json',
   'Authorization': `Bearer ${FERN_API_KEY}`
 });
+
+export const getAuthHeaders2 = () => ({
+  'Authorization': `Bearer ${FERN_API_KEY}`
+});
