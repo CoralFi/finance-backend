@@ -38,13 +38,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'customerId y bankAccountCurrency son requeridos' });
     }
 
-    const baseFields = {
-      bankName: data.externalBankAccount.bankName,
-      bankAccountCurrency: currency,
-      bankAccountType: data.externalBankAccount.bankAccountType,
-      bankAddress: data.externalBankAccount.bankAddress,
-      bankAccountOwner: data.externalBankAccount.bankAccountOwner
-    };
+    const { bankName, bankAccountType, bankAddress, bankAccountOwner } = data.externalBankAccount;
+    if (!bankName || !bankAccountType || !bankAddress || !bankAccountOwner) {
+        return res.status(400).json({ error: 'bankName, bankAccountType, bankAddress, y bankAccountOwner son requeridos.' });
+    }
 
     let externalBankAccount;
 
@@ -52,48 +49,57 @@ export default async function handler(req, res) {
       if (!data.externalBankAccount.iban || !data.externalBankAccount.bicSwift) {
         return res.status(400).json({ error: 'iban y bicSwift son requeridos para cuentas EUR' });
       }
-
       externalBankAccount = {
-        ...baseFields,
+        bankName,
+        bankAccountCurrency: currency,
+        bankAccountType,
+        bankAddress,
+        bankAccountOwner,
         iban: data.externalBankAccount.iban,
         bicSwift: data.externalBankAccount.bicSwift,
-        bankAccountPaymentMethod: data.externalBankAccount.bankAccountPaymentMethod,
-        externalBankAccount: data.externalBankAccount.externalBankAccount
+        bankAccountPaymentMethod: 'SEPA',
       };
     } else if (currency === 'USD') {
       if (!data.externalBankAccount.accountNumber || !data.externalBankAccount.routingNumber) {
         return res.status(400).json({ error: 'accountNumber y routingNumber son requeridos para cuentas USD' });
       }
-
       externalBankAccount = {
-        ...baseFields,
-        accountNumber: data.externalBankAccount.accountNumber,
-        routingNumber: data.externalBankAccount.routingNumber,
-        bankAccountPaymentMethod: data.externalBankAccount.bankAccountPaymentMethod,
-
-      };
-    } else if (currency === 'ARS') {
-      // Validar campos requeridos para ARS
-      if (!data.externalBankAccount.accountNumber) {
-        return res.status(400).json({ error: 'accountNumber (CBU) es requerido para cuentas ARS' });
-      }
-      if (!data.externalBankAccount.taxNumber) {
-        return res.status(400).json({ error: 'taxNumber (CUIT/CUIL/CDI) es requerido para cuentas ARS' });
-      }
-      // Asegurar valores válidos para ARS
-      const bankAccountType = data.externalBankAccount.bankAccountType;
-      const bankAccountPaymentMethod = 'AR_TRANSFERS_3';
-      externalBankAccount = {
-        ...baseFields,
-        accountNumber: data.externalBankAccount.accountNumber, // CBU
-        cbu: data.externalBankAccount.accountNumber, // Alias para claridad
-        bankName: data.externalBankAccount.bankName,
+        bankName,
         bankAccountCurrency: currency,
         bankAccountType,
-        bankAccountPaymentMethod,
-        bankAddress: data.externalBankAccount.bankAddress,
-        bankAccountOwner: data.externalBankAccount.bankAccountOwner,
-        taxNumber: data.externalBankAccount.taxNumber
+        bankAddress,
+        bankAccountOwner,
+        accountNumber: data.externalBankAccount.accountNumber,
+        routingNumber: data.externalBankAccount.routingNumber,
+        bankAccountPaymentMethod: 'ACH',
+      };
+    } else if (currency === 'ARS') {
+      if (!data.externalBankAccount.accountNumber || !data.externalBankAccount.taxNumber) {
+        return res.status(400).json({ error: 'accountNumber (CBU) y taxNumber (CUIT/CUIL) son requeridos para ARS' });
+      }
+      externalBankAccount = {
+        bankName,
+        bankAccountCurrency: currency,
+        bankAccountType,
+        bankAddress,
+        bankAccountOwner,
+        accountNumber: data.externalBankAccount.accountNumber,
+        taxNumber: data.externalBankAccount.taxNumber,
+        bankAccountPaymentMethod: 'AR_TRANSFERS_3',
+      };
+    } else if (currency === 'MXN') {
+      if (!data.externalBankAccount.clabeNumber) {
+        return res.status(400).json({ error: 'clabeNumber es requerido para cuentas MXN' });
+      }
+      externalBankAccount = {
+        bankName,
+        bankAccountCurrency: currency,
+        bankAccountType: bankAccountType || 'CHECKING',
+        bankAddress,
+        bankAccountOwner,
+        clabeNumber: data.externalBankAccount.clabeNumber,
+        bankAccountPaymentMethod: 'MX_SPEI',
+        bicSwift: data.externalBankAccount.bicSwift,
       };
     } else {
       return res.status(400).json({ error: `Moneda no soportada: ${currency}` });
