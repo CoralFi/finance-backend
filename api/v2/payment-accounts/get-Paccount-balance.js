@@ -29,7 +29,27 @@ export default async function handler(req, res) {
         );
 
         const balances = await Promise.all(balancePromises);
-        const result = balances.map(balance => ({ balance }));
+
+        const result = {
+            balanceTotal: 0,
+        };
+
+        balances.forEach(balanceData => {
+            const chain = balanceData.currency.chain.toUpperCase();
+            const currency = balanceData.currency.label;
+            const usdValue = parseFloat(balanceData.usdValue);
+
+            if (isNaN(usdValue)) {
+                return;
+            }
+
+            if (!result[chain]) {
+                result[chain] = {};
+            }
+
+            result[chain][currency] = usdValue;
+            result.balanceTotal += usdValue;
+        });
 
         res.status(200).json(result);
     } catch (error) {
