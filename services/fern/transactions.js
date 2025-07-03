@@ -16,6 +16,9 @@ function getRampType(tx) {
     if (cryptoNetworks.includes(sourceMethod) && fiatMethods.includes(destMethod)) {
         return "offramp";
     }
+    if (cryptoNetworks.includes(sourceMethod) && cryptoNetworks.includes(destMethod)) {
+        return "";
+    }
     return "unknown";
 }
 
