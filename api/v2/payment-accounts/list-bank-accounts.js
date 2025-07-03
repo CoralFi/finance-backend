@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).send('Method Not Allowed');
 
   try {
-    const { customerId, currency, type } = req.query;
+    const { customerId, currency, type, chain } = req.query;
 
     if (!customerId) {
       return res.status(400).json({ error: 'Falta el customerId en la consulta' });
@@ -29,7 +29,8 @@ export default async function handler(req, res) {
           accounts = accounts.filter(acc => acc?.isThirdParty === true);
           break;
         case 'external-wallet':
-          accounts = accounts.filter(acc => acc?.paymentAccountType === 'EXTERNAL_CRYPTO_WALLET');
+          if (!chain) return res.status(400).json({ error: 'Falta el chain en la consulta' });
+          accounts = accounts.filter(acc => acc?.paymentAccountType === 'EXTERNAL_CRYPTO_WALLET' && acc?.externalCryptoWallet?.chain === chain);
           break;
         // Puedes agregar más tipos aquí si es necesario
         default:
