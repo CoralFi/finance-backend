@@ -51,12 +51,32 @@ export default async function handler(req, res) {
 
         // update the fern kyc status
         if (user.fern?.fernCustomerId) {
-            fernKycStatus = await FernKycStatus(user.fern?.fernCustomerId, user.user_id);
+            try {
+                fernKycStatus = await FernKycStatus(user.fern?.fernCustomerId, user.user_id);
+                
+                // Check if there was an error with the Fern API
+                if (fernKycStatus.error) {
+                    console.warn("Fern API error during login:", fernKycStatus.error);
+                    // Continue with login process despite Fern API error
+                }
+            } catch (fernError) {
+                console.error("Unexpected error with Fern KYC status:", fernError);
+                // Continue with login process despite Fern API error
+            }
         }
         
         let fernWalletCryptoInfo = null;
         if (user.fern?.fernWalletId) {
-            fernWalletCryptoInfo = await getFernWalletCryptoInfo(user.fern?.fernWalletId);
+            try {
+                fernWalletCryptoInfo = await getFernWalletCryptoInfo(user.fern?.fernWalletId);
+                // If the API call returns null, log a warning
+                if (fernWalletCryptoInfo === null) {
+                    console.warn("Fern wallet info not found for wallet ID:", user.fern.fernWalletId);
+                }
+            } catch (walletError) {
+                console.error("Error retrieving Fern wallet info:", walletError);
+                // Continue with login process despite wallet API error
+            }
         }
 
         // Success
@@ -91,7 +111,7 @@ export default async function handler(req, res) {
 
     }catch(error){
         console.error("Error al iniciar sesión:", error);
-        return res.status(500).json({ message: "Error al iniciar sesión." });
+        return res.status(500).json({ message: "Error al iniciar sesión." + error });
     }
 
 }

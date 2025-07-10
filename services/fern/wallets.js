@@ -23,7 +23,14 @@ export const getFernWalletCryptoInfo = async (paymentAccountId) => {
 
         return await response.json();
     } catch (error) {
-        console.error('Error fetching Fern payment account:', { paymentAccountId, error: error.message });
-        throw error;
+        console.error('Error fetching Fern payment account:', { 
+            paymentAccountId, 
+            error: error.message,
+            status: error.response?.status || 'unknown',
+            data: error.response?.data
+        });
+        
+        // Return null instead of throwing to allow the login process to continue
+        return null;
     }
 };

@@ -62,7 +62,23 @@ export const FernKycStatus = async (fernCustomerId, userId) => {
             dbResult
         };
     } catch (error) {
-        console.error("Error en FernKycStatus:", error.response?.data || error.message);
-        throw error;
+        // Log detailed error information
+        console.error("Error en FernKycStatus:", {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data,
+            customerId: fernCustomerId,
+            userId: userId
+        });
+        
+        // Return a graceful error response instead of throwing
+        return {
+            kycStatus: null,
+            kycLink: null,
+            error: {
+                message: error.response?.data?.message || error.message,
+                status: error.response?.status || 'unknown'
+            }
+        };
     }
 }
