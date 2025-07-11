@@ -41,9 +41,16 @@ export default async function handler(req, res) {
 
     // Filtrado por moneda (currency)
     if (currency) {
-      accounts = accounts.filter(acc => acc?.externalBankAccount?.bankAccountCurrency === currency);
+      accounts = accounts.filter(acc => acc?.externalBankAccount?.bankAccountCurrency.label === currency);
     }
 
+    // change bankAccountCurrency.label to bankAccountCurrency
+    accounts = accounts.map(acc => {
+      if (acc?.externalBankAccount) {
+        acc.externalBankAccount.bankAccountCurrency = acc.externalBankAccount.bankAccountCurrency.label;
+      }
+      return acc;
+    });
     return res.status(200).json(accounts);
   } catch (error) {
     console.error('Error al listar cuentas bancarias:', error?.response?.data || error.message, error.stack);
