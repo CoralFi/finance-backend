@@ -82,3 +82,100 @@ export const FernKycStatus = async (fernCustomerId, userId) => {
         };
     }
 }
+
+/**
+ * Actualiza los datos KYC de un cliente en Fern
+ * @param {string} fernCustomerId - ID del cliente en Fern
+ * @param {object} kycData - Datos KYC a actualizar
+ * @param {number|string} userId - ID local del usuario (opcional)
+ * @returns {Promise<object>} - Resultado de la actualización
+ */
+export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
+    try {
+        // Verificar que tenemos un ID de cliente válido
+        if (!fernCustomerId) {
+            throw new Error('Se requiere un ID de cliente Fern válido');
+        }
+
+        // Verificar que tenemos datos KYC para actualizar
+        if (!kycData || Object.keys(kycData).length === 0) {
+            throw new Error('Se requieren datos KYC para actualizar');
+        }
+
+        // Realizar la solicitud PATCH para actualizar los datos KYC
+        const response = await axios.patch(
+            `${FERN_API_BASE_URL}/customers/${fernCustomerId}`,
+            { kycData },
+            { headers: getAuthHeaders() }
+        );
+
+        // Obtener los datos actualizados del cliente
+        const updatedCustomer = response.data;
+        
+        // Verificar el estado del cliente después de la actualización
+        const kycStatus = updatedCustomer.customerStatus === "ACTIVE" ? "APPROVED" : "PENDING";
+        const kycLink = updatedCustomer.kycLink || null;
+        
+        // Si se proporciona userId, actualizar la información en la base de datos
+        let dbResult = null;
+        if (userId) {
+            // Busca si ya existe registro para este user_id
+            const { data: existing } = await supabase
+                .from('fern')
+                .select('*')
+                .eq('user_id', userId)
+                .single();
+
+            let upsertData = {
+                user_id: userId,
+                fernCustomerId,
+                Kyc: kycStatus,
+                KycLink: kycLink
+            };
+
+            if (existing) {
+                // Actualiza
+                const { data, error } = await supabase
+                    .from('fern')
+                    .update(upsertData)
+                    .eq('user_id', userId)
+                    .select();
+                dbResult = { data, error };
+            } else {
+                // Inserta
+                const { data, error } = await supabase
+                    .from('fern')
+                    .insert(upsertData)
+                    .select();
+                dbResult = { data, error };
+            }
+        }
+        
+        return {
+            success: true,
+            customer: updatedCustomer,
+            kycStatus,
+            kycLink,
+            dbResult
+        };
+    } catch (error) {
+        // Log detailed error information
+        console.error("Error en FernKycUpdate:", {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data,
+            customerId: fernCustomerId,
+            userId: userId
+        });
+        
+        // Return a graceful error response
+        return {
+            success: false,
+            error: {
+                message: error.response?.data?.message || error.message,
+                status: error.response?.status || 'unknown',
+                details: error.response?.data?.details || null
+            }
+        };
+    }
+}
