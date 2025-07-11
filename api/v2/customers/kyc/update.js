@@ -1,4 +1,5 @@
 import { FernKycUpdate } from "../../../../services/fern/kycStatus.js";
+import supabase from "../../supabase.js";
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -12,15 +13,29 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
   try {
-    const { fernCustomerId, kycData, userId } = req.body;
+    const { kycData, userId } = req.body;
 
-    if (!fernCustomerId || !kycData) {
+    //get fernCustomerId from fern
+    const { data: fernData, error: fernError } = await supabase
+    .from('fern')
+    .select(`fernCustomerId`)
+    .eq('user_id', userId)
+    .single();
+
+if (!fernData) {
+    console.error("Error getting fern data:", fernError);
+    return res.status(500).json(
+        { message: "Error getting fern data" }
+    );
+}
+
+    if (!kycData) {
       return res.status(400).json({
         error: 'Faltan campos obligatorios'
       });
     }
 
-    const response = await FernKycUpdate(fernCustomerId, kycData, userId);
+    const response = await FernKycUpdate(fernData.fernCustomerId, kycData, userId);
 
     res.status(200).json(response);
     return;

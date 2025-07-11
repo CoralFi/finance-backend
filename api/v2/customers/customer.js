@@ -28,12 +28,19 @@ export default async function handler(req, res) {
                 employment_situation,
                 source_fund (en_label),
                 account_purposes (en_label),
-                amount_to_moved
+                amount_to_moved,
+                usuarios (
+                    email
+                )
             `)
             .eq('user_id', customerId)
             .single();
 
-
+            const {data: fernData, error: fernError} = await supabase
+            .from('fern')
+            .select(`fernCustomerId`)
+            .eq('user_id', customerId)
+            .single();
         
         if (customerError) {
             return res.status(404).json({
@@ -51,9 +58,11 @@ export default async function handler(req, res) {
             sourceOfFunds: customer?.source_fund?.en_label,
             accountPurpose: customer?.account_purposes?.en_label,
             expectedMonthlyPaymentsUsd: customer?.amount_to_moved,
-            isIntermediary: false
+            isIntermediary: false,
+            fernCustomerId: fernData?.fernCustomerId,
+            email: customer?.usuarios?.email,
+            message: 'Cliente obtenido exitosamente'
         });
-
 
     } catch (error) {
         console.error('Error al obtener información del cliente:', error.message);
