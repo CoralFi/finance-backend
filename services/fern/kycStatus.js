@@ -109,7 +109,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
         // La API espera un objeto con la propiedad kycData
         const response = await axios.patch(
             `${FERN_API_BASE_URL}/customers/${fernCustomerId}`,
-            requestBody,
+            { body : requestBody },
             { headers: getAuthHeaders() }
         );
 
