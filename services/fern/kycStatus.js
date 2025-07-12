@@ -111,6 +111,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
 
         // Obtener los datos actualizados del cliente
         const updatedCustomer = response.data;
+        if (response.ok) console.log("Customer updated successfully");
         
         // Verificar el estado del cliente después de la actualización
         const kycStatus = updatedCustomer.customerStatus === "ACTIVE" ? "APPROVED" : "PENDING";
