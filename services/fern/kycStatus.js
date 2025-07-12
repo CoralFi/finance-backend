@@ -103,12 +103,13 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
         }
 
         // Realizar la solicitud PATCH para actualizar los datos KYC
-        console.log("Sending data to Fern:", JSON.stringify(kycData, null, 2));
+        const requestBody = { kycData };
+        console.log("Sending data to Fern:", JSON.stringify(requestBody, null, 2));
         
-        // Enviar directamente los datos KYC sin envolverlos en un objeto adicional
+        // La API espera un objeto con la propiedad kycData
         const response = await axios.patch(
             `${FERN_API_BASE_URL}/customers/${fernCustomerId}`,
-            kycData,
+            requestBody,
             { headers: getAuthHeaders() }
         );
 
