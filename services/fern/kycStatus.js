@@ -28,6 +28,8 @@ export const FernKycStatus = async (fernCustomerId, userId) => {
             .eq('user_id', userId)
             .single();
 
+        console.log("Existing data:", existing);
+
         let upsertData = {
             user_id: userId,
             fernCustomerId,
@@ -44,6 +46,7 @@ export const FernKycStatus = async (fernCustomerId, userId) => {
                 .eq('user_id', userId)
                 .select();
             dbResult = { data, error };
+            console.log("Updated data:", dbResult);
         } else {
             // Inserta
             const { data, error } = await supabase
@@ -51,6 +54,7 @@ export const FernKycStatus = async (fernCustomerId, userId) => {
                 .insert(upsertData)
                 .select();
             dbResult = { data, error };
+            console.log("Inserted data:", dbResult);
         }
 
         console.log("Fern data updated:", dbResult);
@@ -102,84 +106,167 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
             throw new Error('Se requieren datos KYC para actualizar');
         }
 
-        // Realizar la solicitud PATCH para actualizar los datos KYC
-        const requestBody = { kycData };
-        console.log("Sending data to Fern:", JSON.stringify(requestBody, null, 2));
-        
-        // La API espera un objeto con la propiedad kycData
-        const response = await axios.patch(
-            `${FERN_API_BASE_URL}/customers/${fernCustomerId}`,
-            { body : requestBody },
-            { headers: getAuthHeaders() }
-        );
-
-        // Obtener los datos actualizados del cliente
-        const updatedCustomer = response.data;
-        console.log("Response from Fern:", JSON.stringify(updatedCustomer, null, 2));
-        
-        // Verificar el estado del cliente después de la actualización
-        const kycStatus = updatedCustomer.customerStatus === "ACTIVE" ? "APPROVED" : "PENDING";
-        const kycLink = updatedCustomer.kycLink || null;
-        
-        // Si se proporciona userId, actualizar la información en la base de datos
-        let dbResult = null;
-        if (userId) {
-            // Busca si ya existe registro para este user_id
-            const { data: existing } = await supabase
-                .from('fern')
-                .select('*')
-                .eq('user_id', userId)
-                .single();
-
-            let upsertData = {
-                user_id: userId,
-                fernCustomerId,
-                Kyc: kycStatus,
-                KycLink: kycLink
-            };
-
-            if (existing) {
-                // Actualiza
-                const { data, error } = await supabase
-                    .from('fern')
-                    .update(upsertData)
-                    .eq('user_id', userId)
-                    .select();
-                dbResult = { data, error };
-            } else {
-                // Inserta
-                const { data, error } = await supabase
-                    .from('fern')
-                    .insert(upsertData)
-                    .select();
-                dbResult = { data, error };
+        // Preparar los datos para enviar
+        const requestBody = {
+            kycData: {
+                legalFirstName: kycData.legalFirstName,
+                legalLastName: kycData.legalLastName,
+                phoneNumber: kycData.phoneNumber,
+                dateOfBirth: kycData.dateOfBirth,
+                address: {
+                    streetLine1: kycData.address.streetLine1,
+                    city: kycData.address.city,
+                    stateRegionProvince: kycData.address.stateRegionProvince,
+                    postalCode: kycData.address.postalCode,
+                    countryCode: kycData.address.countryCode,
+                },
+                taxIdNumber: kycData.taxIdNumber,
+                documents: [{
+                    type: kycData.documents[0].type,
+                    subtype: kycData.documents[0].subtype,
+                    countryCode: kycData.documents[0].countryCode,
+                    documentIdNumber: kycData.documents[0].documentIdNumber,
+                    issuanceDate: kycData.documents[0].issuanceDate,
+                    expirationDate: kycData.documents[0].expirationDate,
+                    frontIdImage: kycData.documents[0].frontIdImage,
+                    backIdImage: kycData.documents[0].backIdImage,
+                },
+                {
+                    type: kycData.documents[1].type,
+                    subtype: kycData.documents[1].subtype,
+                    description: kycData.documents[1].description,
+                    proofOfAddressImage: kycData.documents[1].proofOfAddressImage,
+                },
+                ],
+                employmentStatus: kycData.employmentStatus,
+                mostRecentOccupation: kycData.mostRecentOccupation,
+                sourceOfFunds: kycData.sourceOfFunds,
+                accountPurpose: kycData.accountPurpose,
+                expectedMonthlyPaymentsUsd: kycData.expectedMonthlyPaymentsUsd,
+                isIntermediary: kycData.isIntermediary,
             }
-        }
-        
-        return {
-            success: true,
-            customer: updatedCustomer,
-            kycStatus,
-            kycLink,
-            dbResult
         };
-    } catch (error) {
-        // Log detailed error information
-        console.error("Error en FernKycUpdate:", {
-            message: error.message,
-            status: error.response?.status,
-            data: error.response?.data,
-            customerId: fernCustomerId,
-            userId: userId
-        });
-        
-        // Return a graceful error response
+
+        // Intentar hacer la solicitud con fetch primero para poder ver la respuesta completa
+        try {
+            console.log("Enviando solicitud a Fern API...");
+            
+            // Usar fetch para poder ver la respuesta completa
+            const response = await fetch(`${FERN_API_BASE_URL}/customers/${fernCustomerId}`, {
+                method: 'PATCH',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(requestBody)
+            });
+            
+            // Mostrar el estado de la respuesta
+            console.log(`Estado de la respuesta HTTP: ${response.status} ${response.statusText}`);
+            
+            // Obtener el texto completo de la respuesta
+            const responseText = await response.text();
+            console.log("Respuesta completa de Fern (texto):", responseText);
+            
+            // Intentar parsear la respuesta como JSON
+            let responseData = null;
+            try {
+                if (responseText && responseText.trim()) {
+                    responseData = JSON.parse(responseText);
+                    console.log("Respuesta de Fern (JSON):", JSON.stringify(responseData, null, 2));
+                }
+            } catch (parseError) {
+                console.error("Error al parsear la respuesta como JSON:", parseError.message);
+                console.log("La respuesta no es un JSON válido");
+            }
+            
+            // Verificar si la respuesta fue exitosa
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+            }
+            
+            // Si llegamos aquí, la solicitud fue exitosa
+            const updatedCustomer = responseData;
+            
+            // Verificar el estado del cliente después de la actualización
+            const kycStatus = updatedCustomer && updatedCustomer.customerStatus;
+            const kycLink = updatedCustomer && updatedCustomer.kycLink ? updatedCustomer.kycLink : null;
+            
+            // Si se proporciona userId, actualizar la información en la base de datos
+            let dbResult = null;
+            if (userId) {
+                // Busca si ya existe registro para este user_id
+                const { data: existing } = await supabase
+                    .from('fern')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .single();
+
+                let upsertData = {
+                    user_id: userId,
+                    fernCustomerId,
+                    Kyc: kycStatus,
+                    KycLink: kycLink
+                };
+
+                if (existing) {
+                    // Actualiza
+                    const { data, error } = await supabase
+                        .from('fern')
+                        .update(upsertData)
+                        .eq('user_id', userId)
+                        .select();
+                    dbResult = { data, error };
+                } else {
+                    // Inserta
+                    const { data, error } = await supabase
+                        .from('fern')
+                        .insert(upsertData)
+                        .select();
+                    dbResult = { data, error };
+                }
+            }
+            console.log("DB result:", dbResult);
+            
+            return {
+                success: true,
+                customer: updatedCustomer,
+                kycStatus,
+                kycLink,
+                dbResult,
+                responseText: responseText // Incluir el texto completo de la respuesta
+            };
+            
+        } catch (error) {
+            // Mostrar información detallada del error
+            console.error("Error en la solicitud a Fern API:", {
+                message: error.message,
+                status: error.response?.status,
+                statusText: error.response?.statusText,
+                data: error.response?.data,
+                customerId: fernCustomerId,
+                userId: userId
+            });
+            
+            // Devolver una respuesta de error estructurada con toda la información disponible
+            return {
+                success: false,
+                error: {
+                    message: error.response?.data?.message || error.message,
+                    status: error.response?.status || 'unknown',
+                    details: error.response?.data?.details || null,
+                    kycData: requestBody,
+                    fullError: error.toString(),
+                    stack: error.stack
+                }
+            };
+        }
+    } catch (outerError) {
+        // Capturar cualquier error no manejado en el bloque try principal
+        console.error("Error no manejado en FernKycUpdate:", outerError);
         return {
             success: false,
             error: {
-                message: error.response?.data?.message || error.message,
-                status: error.response?.status || 'unknown',
-                details: error.response?.data?.details || null
+                message: outerError.message,
+                stack: outerError.stack,
+                kycData: requestBody
             }
         };
     }

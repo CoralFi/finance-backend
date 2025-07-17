@@ -14,9 +14,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
         try {
-            const { data, error } = await supabase
-                .from('occupations')
-                .select('*');
+            const { data, error } = await supabase.rpc('get_active_occupations');
 
             if (error) {
                 return res.status(500).json({ error: error.message });

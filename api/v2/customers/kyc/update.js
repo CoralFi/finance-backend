@@ -22,12 +22,13 @@ export default async function handler(req, res) {
     .eq('user_id', userId)
     .single();
 
-if (!fernData) {
+if (!fernData.fernCustomerId) {
     console.error("Error getting fern data:", fernError);
     return res.status(500).json(
         { message: "Error getting fern data" }
     );
-}
+} 
+console.log("Fern data:", fernData.fernCustomerId);
 
     if (!kycData) {
       return res.status(400).json({
@@ -37,13 +38,21 @@ if (!fernData) {
 
     const response = await FernKycUpdate(fernData.fernCustomerId, kycData, userId);
 
-    res.status(200).json(response);
+    if (response.success) {
+      res.status(200).json(response);
+    } else {
+      res.status(500).json(response);
+    }
     return;
   } catch (error) {
     console.error('Error al actualizar cliente en Fern:', error.response?.data || error.message);
     res.status(error.response?.status || 500).json({
-      error: 'Error al actualizar el cliente',
-      details: error.response?.data || error.message
+      success: false,
+      error: {
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status || 'unknown',
+        details: error.response?.data?.details || null
+      }
     });
     return;
   }
