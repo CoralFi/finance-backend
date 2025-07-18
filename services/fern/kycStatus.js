@@ -18,7 +18,7 @@ export const FernKycStatus = async (fernCustomerId, userId) => {
         );
         const fernData = response.data;
         //console.log("Fern data:", fernData);
-        const kycStatus = fernData.customerStatus === "ACTIVE" ? "APPROVED" : "PENDING";
+        const kycStatus = fernData.customerStatus === "ACTIVE" ? "APPROVED" : fernData.customerStatus;
         const kycLink = fernData.kycLink || fernData.kyc?.kycLink || null;
 
         // Busca si ya existe registro para este user_id
