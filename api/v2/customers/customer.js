@@ -21,20 +21,9 @@ export default async function handler(req, res) {
         }
 
         const { data: customer, error: customerError } = await supabase
-            .from('user_info')
-            .select(`
-                phone_number,
-                occupations (en_label),
-                employment_situation,
-                source_fund (en_label),
-                account_purposes (en_label),
-                amount_to_moved,
-                usuarios (
-                    email
-                )
-            `)
-            .eq('user_id', customerId)
-            .single();
+            .rpc('get_user_info', {
+                p_user_id: customerId
+            });
 
             const {data: fernData, error: fernError} = await supabase
             .from('fern')
@@ -42,6 +31,10 @@ export default async function handler(req, res) {
             .eq('user_id', customerId)
             .single();
         
+        
+        console.log("Customer data:", customer);
+        
+
         if (customerError) {
             return res.status(404).json({
                 error: 'Cliente no encontrado',
@@ -52,12 +45,12 @@ export default async function handler(req, res) {
 
         //TODO: bring fern data among others
         res.status(200).json({
-            phoneNumber: customer?.phone_number,
-            employmentStatus: customer?.employment_situation,
-            mostRecentOccupation: customer?.occupations?.en_label,
-            sourceOfFunds: customer?.source_fund?.en_label,
-            accountPurpose: customer?.account_purposes?.en_label,
-            expectedMonthlyPaymentsUsd: customer?.amount_to_moved,
+            phoneNumber: customer?.[0]?.phone_number,
+            employmentStatus: customer?.[0]?.employment_situation,
+            mostRecentOccupation: customer?.[0]?.occupations,
+            sourceOfFunds: customer?.[0]?.source_fund?.en_label,
+            accountPurpose: customer?.[0]?.account_purposes?.en_label,
+            expectedMonthlyPaymentsUsd: customer?.[0]?.amount_to_moved,
             isIntermediary: false,
             fernCustomerId: fernData?.fernCustomerId,
             email: customer?.usuarios?.email,
