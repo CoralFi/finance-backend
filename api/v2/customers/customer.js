@@ -25,12 +25,6 @@ export default async function handler(req, res) {
                 p_user_id: customerId
             });
 
-            const {data: fernData, error: fernError} = await supabase
-            .from('fern')
-            .select(`fernCustomerId`)
-            .eq('user_id', customerId)
-            .single();
-        
         
         console.log("Customer data:", customer);
         
@@ -43,18 +37,30 @@ export default async function handler(req, res) {
         }
         
 
-        //TODO: bring fern data among others
+        //TODO: bring more information
         res.status(200).json({
-            phoneNumber: customer?.[0]?.phone_number,
+            message: 'Cliente obtenido exitosamente',
+            user: {
+                firstName: customer?.[0]?.name,
+                lastName: customer?.[0]?.last_name,
+                email: customer?.[0]?.email,
+                phoneNumber: customer?.[0]?.phone_number,
+            },
             employmentStatus: customer?.[0]?.employment_situation,
-            mostRecentOccupation: customer?.[0]?.occupations,
-            sourceOfFunds: customer?.[0]?.source_fund?.en_label,
-            accountPurpose: customer?.[0]?.account_purposes?.en_label,
+            mostRecentOccupation: {
+                occupationCode: customer?.[0]?.occupation_code,
+                occupationName: customer?.[0]?.occupations,
+            },
+            sourceOfFunds: customer?.[0]?.source_fund,
+            accountPurpose: customer?.[0]?.account_purposes,
             expectedMonthlyPaymentsUsd: customer?.[0]?.amount_to_moved,
             isIntermediary: false,
-            fernCustomerId: fernData?.fernCustomerId,
-            email: customer?.usuarios?.email,
-            message: 'Cliente obtenido exitosamente'
+            fern: {
+                fernCustomerId: customer?.[0]?.fernCustomerId,
+                fernWalletId: customer?.[0]?.fernWalletId,
+                kyc: customer?.[0]?.Kyc,
+                kycLink: customer?.[0]?.KycLink,
+            }
         });
 
     } catch (error) {
