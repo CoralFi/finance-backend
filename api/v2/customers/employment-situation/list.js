@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
     if (req.method === 'GET') {
 
-        const {lenguage} = req.query;
+        const {language} = req.query;
 
         try {
             const { data, error } = await supabase.rpc('get_active_employment_situations');
@@ -22,10 +22,10 @@ export default async function handler(req, res) {
                 return res.status(500).json({ error: error.message });
             }
 
-            //order data alphabetically by lenguage
-            if (lenguage === 'es') {
+            //order data alphabetically by language
+            if (language === 'es') {
                 data.sort((a, b) => a.es_label.localeCompare(b.es_label));
-            } else if (lenguage === 'en') {
+            } else if (language === 'en') {
                 data.sort((a, b) => a.en_label.localeCompare(b.en_label));
             } else {
                 return res.status(200).json(data);

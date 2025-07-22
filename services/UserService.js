@@ -53,12 +53,12 @@ class UserService {
                     phone_number: user.phoneNumber,
                     birthdate: user.birthDate,
                     occupation_id: user.recentOccupation,
-                    employment_situation: user.employmentStatus,
+                    employment_situation_id: user.employmentStatus,
                     account_purposes_id: user.accountPurpose,
                     source_fund_id: user.fundsOrigin,
-                    amount_to_moved: user.expectedAmount,
+                    amount_to_moved_id: user.expectedAmount,
                 })
-                .select('user_id, phone_number, birthdate, occupation_id, employment_situation, account_purposes_id, source_fund_id, amount_to_moved')
+                .select('user_id, phone_number, birthdate, occupation_id, employment_situation_id, account_purposes_id, source_fund_id, amount_to_moved')
                 .single();
 
             if (userInfoError) {

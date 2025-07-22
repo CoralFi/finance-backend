@@ -64,7 +64,18 @@ export default async function handler(req, res) {
                 // Continue with login process despite Fern API error
             }
         }
+
+
+        const { data: user_info_data, error: user_info_error } = await supabase
+            .rpc("user_info_exists", {
+                p_user_id: user.user_id
+            })
         
+        if (user_info_error) {
+            console.error("Error checking user info:", user_info_error);
+            return res.status(500).json({ message: "Error al iniciar sesión." + user_info_error });
+        }
+            
         let fernWalletCryptoInfo = null;
         if (user.fern?.fernWalletId) {
             try {
@@ -106,6 +117,7 @@ export default async function handler(req, res) {
                 fernWalletAddress: fernWalletCryptoInfo?.fernCryptoWallet.address || null,
                 KycFer: fernKycStatus.kycStatus || null,
                 KycLinkFer: fernKycStatus.kycLink || null,
+                user_info: user_info_data || false,
             },
         });
 
