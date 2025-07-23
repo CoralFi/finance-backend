@@ -135,6 +135,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
                     type: kycData.documents[1].type,
                     subtype: kycData.documents[1].subtype,
                     description: kycData.documents[1].description,
+                    countryCode: kycData.documents[1].countryCode,
                     proofOfAddressImage: kycData.documents[1].proofOfAddressImage,
                 },
                 ],
