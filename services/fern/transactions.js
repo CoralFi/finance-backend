@@ -6,7 +6,7 @@ import { FERN_API_BASE_URL, getAuthHeaders } from "../../api/v2/config.js";
  * @returns {Promise<Array>} - List of transactions
  */
 function getRampType(tx) {
-    const fiatMethods = ["ACH", "WIRE", "SEPA", "SWIFT", "BANK_TRANSFER"];
+    const fiatMethods = ["ACH", "WIRE", "SEPA", "SWIFT", "AR_TRANSFERS_3"];
     const cryptoNetworks = ["BASE", "POLYGON", "ETHEREUM", "ARBITRUM", "OP_MAINNET", "SOLANA", "TRON", "BITCOIN"];
     const sourceMethod = tx.source?.sourcePaymentMethod;
     const destMethod = tx.destination?.destinationPaymentMethod;
