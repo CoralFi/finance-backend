@@ -31,8 +31,9 @@ export default async function handler(req, res) {
 
         // Crear una URL para Google Authenticator
         const issuerName = 'CoralFinance';
-        console.log(`Email: ${email}`);
-        const otpauthUrl = authenticator.keyuri(email, issuerName, secret);
+        const encodedEmail = encodeURIComponent(email);
+        console.log(`Email: ${email}, Encoded Email: ${encodedEmail}`);
+        const otpauthUrl = authenticator.keyuri(encodedEmail, issuerName, secret);
 
         console.log(`URL de Google Authenticator: ${otpauthUrl}`);
 
