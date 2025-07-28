@@ -18,6 +18,7 @@ export default async function handler(req, res) {
     }
 
     const { email } = req.query;
+    const decodedEmail = decodeURIComponent(email);
 
     try {
         // Generar una clave secreta única
@@ -31,9 +32,8 @@ export default async function handler(req, res) {
 
         // Crear una URL para Google Authenticator
         const issuerName = 'CoralFinance';
-        const encodedEmail = encodeURIComponent(email);
-        console.log(`Email: ${email}, Encoded Email: ${encodedEmail}`);
-        const otpauthUrl = authenticator.keyuri(encodedEmail, issuerName, secret);
+        console.log(`Email recibido: ${email}, decodificado: ${decodedEmail}`);
+        const otpauthUrl = authenticator.keyuri(decodedEmail, issuerName, secret);
 
         console.log(`URL de Google Authenticator: ${otpauthUrl}`);
 
