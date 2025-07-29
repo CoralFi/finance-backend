@@ -115,7 +115,7 @@ export const createFernCustomer = async (user) => {
             fernCustomerId: customerId,
             fernWalletId: walletId,
             KycLink: data.kycLink || null,
-            Kyc: data.customerStatus !== 'ACTIVE' ? 'PENDING' : 'APPROVED',
+            Kyc: data.customerStatus !== 'ACTIVE' ? data.customerStatus : 'APPROVED',
             user_id: user.user_id,
             businessName: user.businessName,
             organizationId: data.organizationId,
