@@ -14,7 +14,7 @@ const getCodeEmailBody = (email, code) => {
         <p style="font-size: 15px; line-height: 1.6; color: #ffffff !important;">Para continuar con tu proceso, introduce el siguiente código de verificación. El código expira en 15&nbsp;minutos.</p>
 
         <div style="text-align: center; margin: 30px 0;">
-          <span style="display: inline-block; padding: 14px 28px; font-size: 28px; font-weight: bold; letter-spacing: 4px; border-radius: 8px; background-color: #ffffff; color: #16a34a; font-family: 'Courier New', monospace;">
+          <span style="display: inline-block; padding: 14px 28px; font-size: 28px; font-weight: bold; letter-spacing: 4px; border-radius: 8px; background-color: #ffffff !important; color: #16a34a !important; font-family: 'Courier New', monospace;">
             ${code}
           </span>
         </div>
@@ -23,7 +23,7 @@ const getCodeEmailBody = (email, code) => {
       </div>
 
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center;">
-        <p style="font-size: 14px; color: #ffffff !important; margin: 0 !important;">
+        <p style="font-size: 14px; color: black !important; margin: 0 !important;">
           Este email fue enviado automáticamente desde el sistema CoralFinance.<br>
           <strong>No responder a este correo.</strong>
         </p>
