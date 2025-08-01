@@ -34,6 +34,7 @@ export default async function handler(req, res) {
         message: 'Invalid token or email'
     });
 
+    const fullName = data.nombre + ' ' + data.apellido;
     // Actualizar la contraseña y eliminar el token
     const { error: updateError } = await supabase
         .from('usuarios')
@@ -46,7 +47,7 @@ export default async function handler(req, res) {
     });
 
 
-    await resendService.sendConfirmResetPasswordEmail(email, 'Confirmación de Cambio de Contraseña');
+    await resendService.sendConfirmResetPasswordEmail(email, fullName, 'Confirmación de Cambio de Contraseña');
     
     res.status(200).send({
         success: true,

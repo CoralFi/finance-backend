@@ -30,13 +30,13 @@ class ResendService {
         });
     }
 
-    async sendConfirmResetPasswordEmail(email, subject) {
+    async sendConfirmResetPasswordEmail(email, name, subject) {
         const resend = new Resend(this.apiKey);
         await resend.emails.send({
             from: 'noreply@coralfinance.io',
             to: email,
             subject: subject,
-            html: getConfirmResetPasswordEmailBody(email),
+            html: getConfirmResetPasswordEmailBody(name),
         });
     }
 }

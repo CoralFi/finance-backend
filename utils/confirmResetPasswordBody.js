@@ -1,4 +1,4 @@
-const getConfirmResetPasswordEmailBody = (email) => {
+const getConfirmResetPasswordEmailBody = (name) => {
   return `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
       <div style="text-align: center; margin-bottom: 30px; background-color: #16a34a; padding: 20px; border-radius: 8px;">
@@ -7,7 +7,7 @@ const getConfirmResetPasswordEmailBody = (email) => {
       </div>
 
       <div style="background-color: #262626; padding: 25px; border-radius: 12px; border-left: 4px solid #16a34a; color: #ffffff;">
-        <h2 style="color: #ffffff !important; margin-top: 0; margin-bottom: 20px;">Hola ${email},</h2>
+        <h2 style="color: #ffffff !important; margin-top: 0; margin-bottom: 20px;">Hola ${name},</h2>
         <p style="font-size: 15px; line-height: 1.6; color: #ffffff !important;">Te confirmamos que tu contraseña ha sido cambiada exitosamente.</p>
 
         <div style="text-align: center; margin: 30px 0;">
