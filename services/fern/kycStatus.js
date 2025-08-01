@@ -62,8 +62,7 @@ export const FernKycStatus = async (fernCustomerId, userId) => {
         return {
             fern: fernData,
             kycStatus,
-            kycLink,
-            dbResult
+            kycLink
         };
     } catch (error) {
         // Log detailed error information
