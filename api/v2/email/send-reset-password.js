@@ -30,6 +30,8 @@ export default async function handler(req, res) {
         });
     }
 
+    const fullName = data.nombre + ' ' + data.apellido;
+
     // Generar un token de restablecimiento
     const token = crypto.randomBytes(16).toString('hex');
 
@@ -49,7 +51,7 @@ export default async function handler(req, res) {
 
     try {
         
-        await resendService.sendResetPasswordEmail(email, 'Resetea tu contraseña', resetLink);
+        await resendService.sendResetPasswordEmail(email, fullName, 'Resetea tu contraseña', resetLink);
 
         res.status(200).send({
             success: true,

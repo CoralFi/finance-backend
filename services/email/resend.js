@@ -20,13 +20,13 @@ class ResendService {
         });
     }
 
-    async sendResetPasswordEmail(email, subject, resetLink) {
+    async sendResetPasswordEmail(email, name, subject, resetLink) {
         const resend = new Resend(this.apiKey);
         await resend.emails.send({
             from: 'noreply@coralfinance.io',
             to: email,
             subject: subject,
-            html: getResetPasswordEmailBody(email, resetLink),
+            html: getResetPasswordEmailBody(name, resetLink),
         });
     }
 
