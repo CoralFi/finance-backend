@@ -1,5 +1,7 @@
 import supabase from '../supabase.js';
 import ResendService from '../../../services/email/resend.js';
+import bcrypt from 'bcrypt';
+
 const resendService = new ResendService();
 
 export default async function handler(req, res) {
