@@ -34,6 +34,17 @@ export default async function handler(req, res) {
     // Generar un token de restablecimiento
     const token = crypto.randomBytes(16).toString('hex');
 
+    // Actualizar el token en Supabase
+    const { error: updateError } = await supabase
+        .from('usuarios')
+        .update({ reset_token: token })
+        .eq('email', email);
+
+    if (updateError) return res.status(500).send({
+        success: false,
+        message: 'Error updating reset token'
+    });
+
     const resetLink = `${process.env.BASE_URL_FRONTEND}/confirm-email?token=${token}&email=${email}`;
 
     try {
