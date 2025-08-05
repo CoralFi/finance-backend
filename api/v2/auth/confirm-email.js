@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
 
-    const { token, email } = req.body;
+    const { token, email } = req.query;
 
     try {
         // Buscar al usuario y validar el token
