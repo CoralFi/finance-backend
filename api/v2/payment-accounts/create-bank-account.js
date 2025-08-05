@@ -5,8 +5,9 @@ import supabase from '../supabase.js';
 /**
  * API handler to create an external bank account for a customer.
  * 
- * Handles CORS, validates input, and supports EUR and USD bank accounts.
+ * Handles CORS, validates input, and supports EUR, USD, ARS, MXN, and BRL bank accounts.
  * For EUR accounts, requires IBAN and BIC/SWIFT; for USD accounts, requires account and routing numbers.
+ * For BRL accounts, requires PIX code.
  * Calls an external API to create the account and manages transaction state with Supabase.
  * 
  * @async
@@ -71,7 +72,8 @@ export default async function handler(req, res) {
         bankAccountOwner,
         accountNumber: data.externalBankAccount.accountNumber,
         routingNumber: data.externalBankAccount.routingNumber,
-        bankAccountPaymentMethod: 'ACH',
+        bankAccountPaymentMethod: data.externalBankAccount.bankAccountPaymentMethod,
+        bicSwift: data?.externalBankAccount?.bicSwift || null,
       };
     } else if (currency === 'ARS') {
       if (!data.externalBankAccount.accountNumber || !data.externalBankAccount.taxNumber) {
@@ -100,6 +102,20 @@ export default async function handler(req, res) {
         clabeNumber: data.externalBankAccount.clabeNumber,
         bankAccountPaymentMethod: 'MX_SPEI',
         bicSwift: data.externalBankAccount.bicSwift,
+      };
+    } else if (currency === 'BRL') {
+      if (!data.externalBankAccount.pixCode) {
+        return res.status(400).json({ error: 'pixCode es requerido para cuentas BRL' });
+      }
+      externalBankAccount = {
+        bankName,
+        bankAccountCurrency: currency,
+        bankAccountType: bankAccountType || 'CHECKING',
+        bankAddress,
+        bankAccountOwner,
+        pixCode: data.externalBankAccount.pixCode,
+        bankAccountPaymentMethod: data.externalBankAccount.bankAccountPaymentMethod,
+        taxNumber: data.externalBankAccount.taxNumber, // CPF/CNPJ if provided
       };
     } else {
       return res.status(400).json({ error: `Moneda no soportada: ${currency}` });
