@@ -107,6 +107,7 @@ export default async function handler(req, res) {
                 userType: user.user_type,
                 kyc: user.estado_kyc ,
                 wallet: user.wallet_id,
+                verificado_email: user.verificado_email,
                 google_auth: user.google_auth,
                 customerFiat: user.customer_id,
                 tos: user.tos_coral,
