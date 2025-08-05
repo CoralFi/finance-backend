@@ -3,6 +3,7 @@ import getCodeEmailBody from '../../utils/sendCodeBody.js';
 import getResetPasswordEmailBody from '../../utils/sendResetPasswordBody.js';
 import getConfirmResetPasswordEmailBody from '../../utils/confirmResetPasswordBody.js';
 import getSendConfirmEmailBody from '../../utils/sendConfirmEmailBody.js';
+import getSendConfirmedEmailBody from '../../utils/SendConfirmedEmailBody.js';
 class ResendService {
     constructor() {
         if (!process.env.RESEND_API_KEY) {
@@ -48,6 +49,16 @@ class ResendService {
             to: email,
             subject: subject,
             html: getSendConfirmEmailBody(name, resetLink),
+        });
+    }
+
+    async sendConfirmedEmail(email, name, subject) {
+        const resend = new Resend(this.apiKey);
+        await resend.emails.send({
+            from: 'noreply@coralfinance.io',
+            to: email,
+            subject: subject,
+            html: getSendConfirmedEmailBody(name),
         });
     }
 }
