@@ -25,7 +25,7 @@ export const handleDeleteBankAccount = async (paymentAccountId) => {
         if (response.status === 204 || response.status === 200) {
             return { success: true, message: 'Payment account deleted successfully.' };
         }
-        
+
         return await response.json();
 
     } catch (error) {
@@ -60,3 +60,63 @@ export const getFernBankAccountBalance = async (paymentAccountId, chain, currenc
         throw error;
     }
 };
+
+export const createFernBankAccount = async (data) => {
+
+    if (!data) {
+        throw new Error('Data is required for creating bank account');
+    }
+
+    if (!data.customerId) {
+        throw new Error('Customer ID is required');
+    }
+
+    if (!data.paymentAccountType) {
+        throw new Error('Payment account type is required');
+    }
+
+    let accountData;
+    if (data.paymentAccountType === 'FERN_FIAT_ACCOUNT') {
+        accountData = {
+            paymentAccountType: 'FERN_FIAT_ACCOUNT',
+            customerId: data.customerId,
+            nickname: data.nickname,
+            organizationId: data?.organizationId || undefined,
+            isThirdParty: true,
+            fernFiatAccount: data.fernFiatAccount
+        };
+
+
+    } else if (data.paymentAccountType === 'FERN_AUTO_FIAT_ACCOUNT') {
+        accountData = {
+            paymentAccountType: 'FERN_AUTO_FIAT_ACCOUNT',
+            customerId: data.customerId,
+            nickname: data.nickname,
+            organizationId: data?.organizationId || undefined,
+            isThirdParty: true,
+            fernAutoFiatAccount: data.fernAutoFiatAccount
+        };
+    }
+
+    if (data.organizationId) {
+        accountData.organizationId = data.organizationId;
+    }
+    const response = await fetch(
+        `${FERN_API_BASE_URL}/payment-accounts`,
+        {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(accountData)
+        }
+    );
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        const error = new Error(`Error creating payment account in Fern: ${errorData.message}`);
+        error.status = response.status;
+        error.details = errorData;
+        throw error;
+    }
+
+    return response.json()
+}

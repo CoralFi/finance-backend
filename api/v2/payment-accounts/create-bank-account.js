@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { FERN_API_BASE_URL, getAuthHeaders } from '../config.js';
 import supabase from '../supabase.js';
-
+import { createFernBankAccount } from '../../../services/fern/bankAccounts.js';
 /**
  * API handler to create an external bank account for a customer.
  * 
@@ -32,6 +32,15 @@ export default async function handler(req, res) {
 
   try {
     const data = req.body;
+
+    if (!data) {
+      return res.status(400).json({ error: 'No se proporcionó ningún dato' });
+    }
+
+    if (data.paymentAccountType) {
+      const response = await createFernBankAccount(data);
+      return res.status(200).json(response);
+    }
 
     const currency = data.externalBankAccount?.bankAccountCurrency;
 
@@ -101,7 +110,7 @@ export default async function handler(req, res) {
         bankAccountOwner,
         clabeNumber: data.externalBankAccount.clabeNumber,
         bankAccountPaymentMethod: 'MX_SPEI',
-        bicSwift: data.externalBankAccount.bicSwift,
+        bicSwift: data?.externalBankAccount?.bicSwift || undefined,
       };
     } else if (currency === 'BRL') {
       if (!data.externalBankAccount.pixCode) {
@@ -146,7 +155,7 @@ export default async function handler(req, res) {
     console.error('Error al crear cuenta bancaria externa en Fern:', error.response?.data || error.message);
     res.status(500).json({
       error: 'Error al crear la cuenta bancaria externa',
-      details: error.response?.data || error.message
+      details: error.response?.data || error.details
     });
   }
 }
