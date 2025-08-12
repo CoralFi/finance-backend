@@ -84,13 +84,14 @@ export const createFernCustomer = async (user) => {
         const customerData = {
             customerType: user.customerType === "persona" ? "INDIVIDUAL" : "BUSINESS",
             email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            businessName: user.businessName,
+            firstName: user.customerType === "persona" ? user.firstName : undefined,
+            lastName: user.customerType === "persona" ? user.lastName : undefined,
+            businessName: user.customerType !== "persona" ? user.businessName : undefined,
         };
 
         console.log('Creating Fern customer:', { email: user.email });
         
+        console.log('Fern customer data:', customerData);
         const response = await fetch(`${FERN_API_BASE_URL}/customers`, {
             method: 'POST',
             headers: getAuthHeaders(),
