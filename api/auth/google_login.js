@@ -1,12 +1,8 @@
 import { OAuth2Client } from "google-auth-library";
-import UserBO from "../../models/user.js";
-import bcrypt from 'bcrypt';
-import { createFernCustomer } from "../../services/fern/Customer.js";
 import { createClient } from "@supabase/supabase-js";
-import crypto from "crypto";
 import { FernKycStatus } from "../../services/fern/kycStatus.js";
 import { getFernWalletCryptoInfo } from "../../services/fern/wallets.js";
-import jwt from 'jsonwebtoken';
+import CustomerService from "../../services/sphere/CustomerService.js";
 // Configuración de Supabase
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_KEY;
@@ -45,7 +41,7 @@ export default async function handler(req, res) {
                 return res.status(400).json({ message: "El token de Google no contiene datos válidos" });
             }
 
-            const { email, name } = payload;
+            const { email, name, given_name, family_name, picture, email_verified, sub } = payload;
 
             if (!email || !name) {
                 return res.status(400).json({ message: "El token no contiene información suficiente" });
@@ -66,7 +62,7 @@ export default async function handler(req, res) {
             if (existingUser) {
 
                 // find fern in DB
-                const { data: fern, error: fernError } = await supabase
+                const { data: fern } = await supabase
                     .from("fern")
                     .select("*")
                     .eq("user_id", existingUser.user_id)
@@ -75,15 +71,47 @@ export default async function handler(req, res) {
                 existingUser.fern = fern;
 
                 let fernKycStatus = { kycStatus: null, kycLink: null };
-
-                // update the fern kyc status
-                if (existingUser.fern?.fernCustomerId) {
-                    fernKycStatus = await FernKycStatus(existingUser.fern?.fernCustomerId, existingUser.user_id);
+                try {
+                    if (existingUser.fern?.fernCustomerId) {
+                        fernKycStatus = await FernKycStatus(existingUser.fern?.fernCustomerId, existingUser.user_id);
+                        if (fernKycStatus?.error) {
+                            console.warn("Fern API error during Google login:", fernKycStatus.error);
+                        }
+                    }
+                } catch (fernError) {
+                    console.error("Unexpected error with Fern KYC status:", fernError);
                 }
 
                 let fernWalletCryptoInfo = null;
                 if (existingUser.fern?.fernWalletId) {
-                    fernWalletCryptoInfo = await getFernWalletCryptoInfo(existingUser.fern?.fernWalletId);
+                    try {
+                        fernWalletCryptoInfo = await getFernWalletCryptoInfo(existingUser.fern?.fernWalletId);
+                        if (fernWalletCryptoInfo === null) {
+                            console.warn("Fern wallet info not found for wallet ID:", existingUser.fern.fernWalletId);
+                        }
+                    } catch (walletError) {
+                        console.error("Error retrieving Fern wallet info:", walletError);
+                    }
+                }
+
+                // user_info flag
+                const { data: user_info_data, error: user_info_error } = await supabase.rpc("user_info_exists", {
+                    p_user_id: existingUser.user_id,
+                });
+                if (user_info_error) {
+                    console.error("Error checking user info:", user_info_error);
+                }
+
+                // tos_eur computation
+                const customerService = new CustomerService();
+                let needTosEur = "incomplete";
+                try {
+                    const tosEur = await customerService.getTosEur(existingUser.customer_id);
+                    const updateTosEur = existingUser.tos_eur;
+                    needTosEur = tosEur === "approved" ? "approved" : updateTosEur === "pending" ? "pending" : "incomplete";
+                } catch (tosErr) {
+                    console.error("Error retrieving tos_eur status:", tosErr);
+                    needTosEur = existingUser.tos_eur || "incomplete";
                 }
 
                 console.log("Usuario existente encontrado:", existingUser);
@@ -97,83 +125,40 @@ export default async function handler(req, res) {
                         userType: existingUser.user_type,
                         kyc: existingUser.estado_kyc,
                         wallet: existingUser.wallet_id,
+                        verificado_email: existingUser.verificado_email,
                         google_auth: existingUser.google_auth,
                         customerFiat: existingUser.customer_id,
                         tos: existingUser.tos_coral,
-                        tos_eur: existingUser.tos_eur,
+                        qr_payment: existingUser.qr_payment,
+                        tos_eur: needTosEur,
                         fernCustomerId: existingUser?.fern?.fernCustomerId || null,
                         fernWalletId: existingUser?.fern?.fernWalletId || null,
                         fernWalletAddress: fernWalletCryptoInfo?.fernCryptoWallet?.address || null,
                         KycFer: fernKycStatus.kycStatus || null,
                         KycLinkFer: fernKycStatus.kycLink || null,
+                        user_info: user_info_data || false,
                     },
                 });
             } else {
-                console.log("El usuario no existe en la base de datos. Procediendo con el registro.");
-                await supabase.rpc('begin'); // Start transaction
+                console.log("Usuario no encontrado con Google. No se creará automáticamente. Devolviendo created:false.");
 
-                try {
-                    const nameSplit = name.split(" ");
-                    const firstName = nameSplit[0];
-                    const lastName = nameSplit.slice(1).join(" ");
+                // Preparar datos básicos para prellenar el registro en el front
+                const firstName = given_name || (name ? name.split(" ")[0] : "");
+                const lastName = family_name || (name ? name.split(" ").slice(1).join(" ") : "");
 
-                    const randomPassword = crypto.randomBytes(16).toString('hex');
-                    const hashedPassword = await bcrypt.hash(randomPassword, 10);
-
-                    // Create user directly in Supabase
-                    const { data: newUser, error: insertError } = await supabase
-                        .from('usuarios')
-                        .insert({
-                            email: email,
-                            password: hashedPassword,
-                            nombre: firstName,
-                            apellido: lastName,
-                            user_type: 'persona',
-                            tos_coral: true, // Asumir aceptado en login social
-                        })
-                        .select()
-                        .single();
-
-                    if (insertError) throw insertError;
-
-                    // Create Fern Customer
-                    const fernCustomer = await createFernCustomer({
-                        user_id: newUser.user_id,
-                        customerType: newUser.user_type,
-                        email: newUser.email,
-                        firstName: newUser.nombre,
-                        lastName: newUser.apellido,
-                    });
-
-                    await supabase.rpc('commit'); // Commit transaction
-
-                    return res.status(200).json({
-                        message: "Usuario creado y autenticado exitosamente.",
-                        user: {
-                            id: newUser.user_id,
-                            firstName: newUser.nombre,
-                            lastName: newUser.apellido,
-                            email: newUser.email,
-                            userType: newUser.user_type,
-                            kyc: newUser.kyc_state,
-                            wallet: newUser.wallet_id,
-                            customerFiat: newUser.customer_id,
-                            google_auth: newUser.google_auth,
-                            tos: newUser.tos_coral,
-                            tos_eur: newUser.tos_eur,
-                            fernCustomerId: fernCustomer.fernCustomerId,
-                            fernWalletId: fernCustomer.fernWalletId,
-                            fernWalletAddress: fernCustomer.fernWalletAddress,
-                            KycFer: fernCustomer.Kyc,
-                            KycLinkFer: fernCustomer.KycLink,
-                        },
-                    });
-
-                } catch (error) {
-                    await supabase.rpc('rollback');
-                    console.error("Error en el registro durante el login con Google:", error);
-                    return res.status(500).json({ message: "Error al registrar el usuario.", error: error.message });
-                }
+                return res.status(200).json({
+                    message: "Usuario no encontrado.",
+                    created: false,
+                    provider: "google",
+                    user: {
+                        email,
+                        firstName,
+                        lastName,
+                        picture: picture || null,
+                        emailVerified: Boolean(email_verified),
+                        googleId: sub || null,
+                    },
+                });
             }
         } catch (error) {
             console.error("Error en Google Login:", error);
