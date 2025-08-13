@@ -4,7 +4,7 @@ import supabase from "../../supabase.js";
  * Maneja las cabeceras CORS para el endpoint
  */
 const setCorsHeaders = (res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', 'https://app.coralfinance.io');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 };
@@ -39,6 +39,7 @@ const transformCustomerData = (customerData) => {
             firstName: customer?.name || null,
             lastName: customer?.last_name || null,
             email: customer?.email || null,
+            verificatedEmail: customer?.verificated_email,
             phoneNumber: customer?.phone_number || null,
             birthDate: customer?.birth_date || null,
         },
