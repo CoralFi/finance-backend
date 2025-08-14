@@ -109,6 +109,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
         const requestBody = {
             kycData: {
                 legalFirstName: kycData.legalFirstName,
+                middleName: kycData.middleName,
                 legalLastName: kycData.legalLastName,
                 phoneNumber: kycData.phoneNumber,
                 dateOfBirth: kycData.dateOfBirth,
