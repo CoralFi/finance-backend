@@ -115,6 +115,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
                 dateOfBirth: kycData.dateOfBirth,
                 address: {
                     streetLine1: kycData.address.streetLine1,
+                    streetLine2: kycData.address.streetLine2,
                     city: kycData.address.city,
                     stateRegionProvince: kycData.address.stateRegionProvince,
                     postalCode: kycData.address.postalCode,
