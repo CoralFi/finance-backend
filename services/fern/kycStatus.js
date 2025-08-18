@@ -108,7 +108,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
         // Preparar los datos para enviar
         const requestBody = {
             kycData: {
-                kycData
+                kycData,
             }
         };
 
@@ -122,6 +122,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
                 headers: getAuthHeaders(),
                 body: JSON.stringify(requestBody)
             });
+
             
             // Mostrar el estado de la respuesta
             console.log(`Estado de la respuesta HTTP: ${response.status} ${response.statusText}`);
