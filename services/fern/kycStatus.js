@@ -108,44 +108,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
         // Preparar los datos para enviar
         const requestBody = {
             kycData: {
-                legalFirstName: kycData.legalFirstName,
-                middleName: kycData.middleName,
-                legalLastName: kycData.legalLastName,
-                phoneNumber: kycData.phoneNumber,
-                dateOfBirth: kycData.dateOfBirth,
-                address: {
-                    streetLine1: kycData.address.streetLine1,
-                    streetLine2: kycData.address.streetLine2,
-                    city: kycData.address.city,
-                    stateRegionProvince: kycData.address.stateRegionProvince,
-                    postalCode: kycData.address.postalCode,
-                    countryCode: kycData.address.countryCode,
-                },
-                taxIdNumber: kycData.taxIdNumber,
-                documents: [{
-                    type: kycData.documents[0].type,
-                    subtype: kycData.documents[0].subtype,
-                    countryCode: kycData.documents[0].countryCode,
-                    documentIdNumber: kycData.documents[0].documentIdNumber,
-                    issuanceDate: kycData.documents[0].issuanceDate,
-                    expirationDate: kycData.documents[0].expirationDate,
-                    frontIdImage: kycData.documents[0].frontIdImage,
-                    backIdImage: kycData.documents[0].backIdImage,
-                },
-                {
-                    type: kycData.documents[1].type,
-                    subtype: kycData.documents[1].subtype,
-                    description: kycData.documents[1].description,
-                    countryCode: kycData.documents[1].countryCode,
-                    proofOfAddressImage: kycData.documents[1].proofOfAddressImage,
-                },
-                ],
-                employmentStatus: kycData.employmentStatus,
-                mostRecentOccupation: kycData.mostRecentOccupation,
-                sourceOfFunds: kycData.sourceOfFunds,
-                accountPurpose: kycData.accountPurpose,
-                expectedMonthlyPaymentsUsd: kycData.expectedMonthlyPaymentsUsd,
-                isIntermediary: kycData.isIntermediary,
+                kycData
             }
         };
 
@@ -166,7 +129,8 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
             // Obtener el texto completo de la respuesta
             const responseText = await response.text();
             console.log("Respuesta completa de Fern (texto):", responseText);
-            
+            const Data = JSON.parse(responseText);
+
             // Intentar parsear la respuesta como JSON
             let responseData = null;
             try {
@@ -181,15 +145,19 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
             
             // Verificar si la respuesta fue exitosa
             if (!response.ok) {
-                throw new Error(`Error HTTP: ${response.status} ${response.statusText}`);
+                const error = new Error(Data.message);
+                error.status = Data.code;
+                error.statusText = response.statusText;
+                error.data = responseText;
+                throw error;
             }
             
             // Si llegamos aquí, la solicitud fue exitosa
             const updatedCustomer = responseData;
             
             // Verificar el estado del cliente después de la actualización
-            const kycStatus = updatedCustomer && updatedCustomer.customerStatus === "ACTIVE" ? "APPROVED" : updatedCustomer.customerStatus;
-            const kycLink = updatedCustomer && updatedCustomer.kycLink ? updatedCustomer.kycLink : null;
+            const kycStatus = updatedCustomer?.customerStatus === "ACTIVE" ? "APPROVED" : updatedCustomer?.customerStatus;
+            const kycLink = updatedCustomer?.kycLink;
             
             // Si se proporciona userId, actualizar la información en la base de datos
             let dbResult = null;
@@ -212,7 +180,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
                     // Actualiza
                     const { data, error } = await supabase
                         .from('fern')
-                        .update(upsertData)
+                        .update({ Kyc: kycStatus, KycLink: kycLink })
                         .eq('user_id', userId)
                         .select();
                     dbResult = { data, error };
@@ -240,9 +208,9 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
             // Mostrar información detallada del error
             console.error("Error en la solicitud a Fern API:", {
                 message: error.message,
-                status: error.response?.status,
-                statusText: error.response?.statusText,
-                data: error.response?.data,
+                status: error.status,
+                statusText: error.statusText,
+                data: error.data,
                 customerId: fernCustomerId,
                 userId: userId
             });
@@ -251,9 +219,9 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
             return {
                 success: false,
                 error: {
-                    message: error.response?.data?.message || error.message,
-                    status: error.response?.status || 'unknown',
-                    details: error.response?.data?.details || null,
+                    message: error.message,
+                    status: error.status || 'unknown',
+                    details: error.data || null,
                     kycData: requestBody,
                     fullError: error.toString(),
                     stack: error.stack
