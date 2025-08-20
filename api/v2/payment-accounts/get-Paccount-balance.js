@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     if (req.method !== 'GET') return res.status(405).send('Method Not Allowed');
 
     const listCurrency = ["USDT", "USDC"];
-    const listChain = ["POLYGON", "BASE"];
+    const listChain = ["POLYGON", "BASE",  "ETHEREUM"];
 
     try {
         const { paymentAccountId } = req.query;
