@@ -108,7 +108,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
         // Preparar los datos para enviar
         const requestBody = {
             kycData: {
-                kycData,
+                ...kycData
             }
         };
 
@@ -120,7 +120,7 @@ export const FernKycUpdate = async (fernCustomerId, kycData, userId = null) => {
             const response = await fetch(`${FERN_API_BASE_URL}/customers/${fernCustomerId}`, {
                 method: 'PATCH',
                 headers: getAuthHeaders(),
-                body: JSON.stringify(requestBody)
+                body: JSON.stringify({...requestBody})
             });
 
             
