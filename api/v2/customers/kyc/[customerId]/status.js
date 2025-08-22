@@ -38,10 +38,22 @@ export default async function handler(req, res) {
 
         const response = await FernKycStatus(existing.fernCustomerId, existing.user_id);
         
+        //provitional
+        const { data: didit_data, error: didit_error} = await supabase
+            .from('kyc_didit')
+            .select('*')
+            .eq('user_id', customerId)
+            .single();
+        
+        if (didit_error) {
+            console.log("User dont have kyc_didit data")
+        }
+
+        console.log("Response:", response);
         res.status(200).json({
             success: true,
             message: 'Estado del cliente obtenido exitosamente',
-            data: response
+            data: {...response, ...didit_data}
         });
     } catch (error) {
         console.error('Error al obtener estado del cliente en Fern:', error);
