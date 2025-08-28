@@ -113,11 +113,14 @@ export default async function handler(req, res) {
                 tos: user.tos_coral,
                 qr_payment: user.qr_payment,
                 tos_eur: needTosEur,
+                // Fern
                 fernCustomerId: user.fern?.fernCustomerId || null,
                 fernWalletId: user.fern?.fernWalletId || null,
                 fernWalletAddress: fernWalletCryptoInfo?.fernCryptoWallet.address || null,
                 KycFer: fernKycStatus.kycStatus || null,
                 KycLinkFer: fernKycStatus.kycLink || null,
+                fernBusinessName: user.fern?.businessName || null,
+                // User info
                 user_info: user_info_data || false,
             },
         });
