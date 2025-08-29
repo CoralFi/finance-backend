@@ -2,45 +2,8 @@ import axios from 'axios';
 import { FERN_API_BASE_URL, getAuthHeaders } from '../config.js';
 import supabase from '../supabase.js';
 import { createFernBankAccount } from '../../../services/fern/bankAccounts.js';
+import { validateCurrencyFields, buildExternalBankAccount } from '../../../utils/bankAccountUtils.js';
 
-// Currency-specific configuration
-const CURRENCY_CONFIG = {
-  EUR: {
-    requiredFields: ['iban', 'bicSwift'],
-    paymentMethod: 'SEPA',
-    errorMessage: 'iban y bicSwift son requeridos para cuentas EUR'
-  },
-  USD: {
-    requiredFields: ['accountNumber', 'routingNumber'],
-    paymentMethod: null, // Dynamic from request
-    errorMessage: 'accountNumber y routingNumber son requeridos para cuentas USD'
-  },
-  ARS: {
-    requiredFields: ['accountNumber', 'taxNumber'],
-    paymentMethod: 'AR_TRANSFERS_3',
-    errorMessage: 'accountNumber (CBU) y taxNumber (CUIT/CUIL) son requeridos para ARS'
-  },
-  MXN: {
-    requiredFields: ['clabeNumber'],
-    paymentMethod: 'MX_SPEI',
-    errorMessage: 'clabeNumber es requerido para cuentas MXN'
-  },
-  BRL: {
-    requiredFields: ['pixCode'],
-    paymentMethod: null, // Dynamic from request
-    errorMessage: 'pixCode es requerido para cuentas BRL'
-  },
-  CNY: {
-    requiredFields: ['cnapsCode', 'accountNumber'],
-    paymentMethod: 'CN_CNAPS',
-    errorMessage: 'cnapsCode y accountNumber son requeridos para cuentas CNY'
-  },
-  CAD: {
-    requiredFields: ['accountNumber', 'institutionNumber', 'transitNumber'],
-    paymentMethod: 'CA_INTERAC', 
-    errorMessage: 'accountNumber, institutionNumber y transitNumber son requeridos para cuentas CAD'
-  }
-};
 
 // CORS headers helper
 const setCorsHeaders = (res) => {
@@ -70,99 +33,6 @@ const validateCommonFields = (externalBankAccount) => {
   }
 };
 
-const validateCurrencyFields = (currency, externalBankAccount) => {
-  const config = CURRENCY_CONFIG[currency];
-  if (!config) {
-    throw new Error(`Moneda no soportada: ${currency}`);
-  }
-  
-  for (const field of config.requiredFields) {
-    if (!externalBankAccount[field]) {
-      throw new Error(config.errorMessage);
-    }
-  }
-};
-
-// Bank account builder
-const buildExternalBankAccount = (currency, data) => {
-  const { externalBankAccount } = data;
-  const { bankName, bankAccountType, bankAddress, bankAccountOwner } = externalBankAccount;
-  
-  const baseAccount = {
-    bankName,
-    bankAccountCurrency: currency,
-    bankAccountType,
-    bankAddress,
-    bankAccountOwner
-  };
-  
-  switch (currency) {
-    case 'EUR':
-      return {
-        ...baseAccount,
-        iban: externalBankAccount.iban,
-        bicSwift: externalBankAccount.bicSwift,
-        bankAccountPaymentMethod: 'SEPA'
-      };
-      
-    case 'USD':
-      return {
-        ...baseAccount,
-        accountNumber: externalBankAccount.accountNumber,
-        routingNumber: externalBankAccount.routingNumber,
-        bankAccountPaymentMethod: externalBankAccount.bankAccountPaymentMethod,
-        bicSwift: externalBankAccount.bicSwift || null
-      };
-      
-    case 'ARS':
-      return {
-        ...baseAccount,
-        accountNumber: externalBankAccount.accountNumber,
-        taxNumber: externalBankAccount.taxNumber,
-        bankAccountPaymentMethod: 'AR_TRANSFERS_3'
-      };
-      
-    case 'MXN':
-      return {
-        ...baseAccount,
-        bankAccountType: bankAccountType || 'CHECKING',
-        clabeNumber: externalBankAccount.clabeNumber,
-        bankAccountPaymentMethod: 'MX_SPEI',
-        bicSwift: externalBankAccount.bicSwift || undefined
-      };
-      
-    case 'BRL':
-      return {
-        ...baseAccount,
-        bankAccountType: bankAccountType || 'CHECKING',
-        pixCode: externalBankAccount.pixCode,
-        bankAccountPaymentMethod: externalBankAccount.bankAccountPaymentMethod,
-        taxNumber: externalBankAccount.taxNumber // CPF/CNPJ if provided
-      };
-      
-    case 'CNY':
-      return {
-        ...baseAccount,
-        bankAccountType: bankAccountType || 'CHECKING',
-        cnapsCode: externalBankAccount.cnapsCode,
-        accountNumber: externalBankAccount.accountNumber,
-        bankAccountPaymentMethod: 'CN_CNAPS'
-      };
-      
-    case 'CAD':
-      return {
-        ...baseAccount,
-        bankAccountType: bankAccountType || 'CHECKING',
-        accountNumber: externalBankAccount.accountNumber,
-        institutionNumber: externalBankAccount.institutionNumber,
-        transitNumber: externalBankAccount.transitNumber,
-        bankAccountPaymentMethod: 'CA_INTERAC'
-      };
-      
-    default:
-      throw new Error(`Moneda no soportada: ${currency}`);
-  }
-};
 
 /**
  * API handler to create an external bank account for a customer.
