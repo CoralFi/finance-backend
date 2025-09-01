@@ -124,6 +124,7 @@ export const buildExternalBankAccount = (currency, data) => {
         bankAccountType: bankAccountType || 'CHECKING',
         cnapsCode: externalBankAccount.cnapsCode,
         accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount.bicSwift || undefined,
         bankAccountPaymentMethod: 'CN_CNAPS'
       };
       
