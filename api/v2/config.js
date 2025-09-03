@@ -15,3 +15,9 @@ export const getAuthHeaders = () => ({
 export const getAuthHeaders2 = () => ({
   'Authorization': `Bearer ${FERN_API_KEY}`
 });
+
+export const setCorsHeaders = (res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+};

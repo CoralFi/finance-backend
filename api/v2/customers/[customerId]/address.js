@@ -35,7 +35,7 @@ function transformAddressData(address) {
 export default async function handler(req, res) {
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     
     // Handle CORS preflight
@@ -139,6 +139,31 @@ export default async function handler(req, res) {
             });
             return;
 
+        } else if (req.method === 'DELETE') {
+
+            const addressId = req.body.addressId;
+            const { data, error } = await supabase
+                .from('bank_account_owner_address')
+                .delete()
+                .eq('user_id', userId)
+                .eq('bank_account_owner_address_id', addressId);
+            
+            if (error) {
+                console.error('❌ Error deleting address:', error);
+                res.status(500).json({
+                    success: false,
+                    message: 'Error al eliminar la dirección',
+                    data: null
+                });
+                return;
+            }
+            
+            res.status(200).json({
+                success: true,
+                message: 'Dirección eliminada exitosamente',
+                data: null
+            });
+            return;
         } else {
             res.status(405).json({
                 success: false,
