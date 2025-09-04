@@ -41,7 +41,10 @@ export const FernTransactions = async (fernCustomerId, status = "") => {
         );
 
         if (!response.ok) {
-            throw new Error(`Error al obtener transacciones: ${response.statusText}`);
+            const error = new Error(`HTTP ${response.status}: ${response.statusText}`);
+            error.status = response.status;
+            error.data = await response.json().catch(() => ({}));
+            throw error;
         }
 
         const { transactions = [] } = await response.json();

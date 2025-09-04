@@ -24,10 +24,12 @@ export default async function handler(req, res) {
         const transactions = await FernTransactions(fernCustomerId, status);
         res.status(200).json({ transactions });
     } catch (error) {
-        console.error('Error al obtener transacciones de Fern:', error.message);
+        console.error(error);
         res.status(500).json({
             error: 'Error al obtener transacciones de Fern',
-            details: error.message
+            details: error.message || error.toString(),
+            status: error.status,
+            data: error.data
         });
     }
 }
