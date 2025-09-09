@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
 export default async function handler(req, res) {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // TODO: cambiar por la del front
+    res.setHeader('Access-Control-Allow-Origin', '*'); 
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     
@@ -19,9 +19,6 @@ export default async function handler(req, res) {
 
   const { newPassword } = req.body;
   
-  // Encriptar la contraseña
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
   // Buscar al usuario y validar el token
   const { data, error } = await supabase
     .from('usuarios')
@@ -30,7 +27,22 @@ export default async function handler(req, res) {
     .eq('reset_token', token)
     .single();
 
-  if (error || !data) return res.status(400).send('Invalid token or email');
+  if (error || !data) return res.status(400).send({
+    success: false,
+    message: 'Invalid token or email'
+  });
+
+  // Verificar si la nueva contraseña es la misma que la actual
+  const isSamePassword = await bcrypt.compare(newPassword, data.password);
+  if (isSamePassword) {
+    return res.status(400).send({
+      success: false,
+      message: 'La nueva contraseña debe ser diferente a la contraseña actual'
+    });
+  }
+
+  // Encriptar la nueva contraseña
+  const hashedPassword = await bcrypt.hash(newPassword, 10);
 
   // Actualizar la contraseña y eliminar el token
   const { error: updateError } = await supabase
@@ -38,7 +50,13 @@ export default async function handler(req, res) {
     .update({ password: hashedPassword, reset_token: null })
     .eq('email', email);
 
-  if (updateError) return res.status(500).send('Error updating password');
+  if (updateError) return res.status(500).send({
+    success: false,
+    message: 'Error al actualizar la contraseña'
+  });
 
-  res.send('Password reset successfully');
+  res.send({
+    success: true,
+    message: 'Contraseña actualizada exitosamente'
+  });
 }
