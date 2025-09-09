@@ -20,9 +20,6 @@ export default async function handler(req, res) {
 
     const { newPassword } = req.body;
     
-    // Encriptar la contraseña
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
     // Buscar al usuario y validar el token
     const { data, error } = await supabase
         .from('usuarios')
@@ -35,6 +32,18 @@ export default async function handler(req, res) {
         success: false,
         message: 'Invalid token or email'
     });
+
+    const isSamePassword = await bcrypt.compare(newPassword, data.password);
+    
+    if (isSamePassword) {
+        return res.status(400).send({
+            success: false,
+            message: 'La nueva contraseña debe ser diferente a la contraseña actual'
+        });
+    }
+
+    // Encriptar la contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     const fullName = data.nombre + ' ' + data.apellido;
     // Actualizar la contraseña y eliminar el token
