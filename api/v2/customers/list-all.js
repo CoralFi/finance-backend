@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Solo permitimos el método GET
+  // Only allow GET method
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
       headers: getAuthHeaders()
     };
 
-    // Manejo de paginación
+    // Pagination handling
     while (hasMore) {
       let url = `${FERN_API_BASE_URL}/customers?pageSize=100`;
       
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
       hasMore = !!nextPageToken;
     }
 
-    // Formatear la respuesta
+    // Format response
     const formattedCustomers = allCustomers.map(customer => ({
       id: customer.customerId,
       name: customer.name,

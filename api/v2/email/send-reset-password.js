@@ -43,7 +43,7 @@ export default async function handler(req, res) {
 
     if (updateError) return res.status(500).send({
         success: false,
-        message: 'Error updating reset token'
+        message: 'Error al actualizar el token'
     });
 
     // Generar el enlace de restablecimiento

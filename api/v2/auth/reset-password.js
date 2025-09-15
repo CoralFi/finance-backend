@@ -30,7 +30,7 @@ export default async function handler(req, res) {
 
     if (error || !data) return res.status(400).send({
         success: false,
-        message: 'Invalid token or email'
+        message: 'Token inválido o correo electrónico'
     });
 
     const isSamePassword = await bcrypt.compare(newPassword, data.password);

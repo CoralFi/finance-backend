@@ -1,9 +1,9 @@
-// Configuración para la API de Fern
+// Configuration for the Fern API
 export const FERN_API_BASE_URL = 'https://api.fernhq.com';
-const FERN_API_KEY = process.env.FERN_API_KEY; // Asegúrate de configurar esta variable de entorno
+const FERN_API_KEY = process.env.FERN_API_KEY; // Ensure this environment variable is configured
 
 if (!FERN_API_KEY) {
-  console.error('FERN_API_KEY no está configurada en las variables de entorno');
+  console.error('FERN_API_KEY is not configured in environment variables');
   process.exit(1);
 }
 
