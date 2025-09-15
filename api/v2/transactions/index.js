@@ -1,4 +1,4 @@
-// api/v2/transactions/create.js
+// api/v2/transactions/index.js
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import { FERN_API_BASE_URL, getAuthHeaders } from '../config.js';
@@ -24,16 +24,16 @@ export default async function handler(req, res) {
       });
     }
 
-    // Generar una clave de idempotencia única
+    // Generate a unique idempotency key
     const idempotencyKey = uuidv4();
     
-    // Crear los headers con la clave de idempotencia
+    // Create headers with idempotency key
     const headers = {
       ...getAuthHeaders(),
       'x-idempotency-key': idempotencyKey
     };
 
-    console.log('Headers enviados a Fern:', headers); // Para depuración
+    console.log('Headers sent to Fern:', headers); // For debugging
 
     const response = await axios.post(
       `${FERN_API_BASE_URL}/transactions`,
@@ -43,14 +43,14 @@ export default async function handler(req, res) {
     
     res.status(200).json(response.data);
   } catch (error) {
-    console.error('Error al crear transacción en Fern:', {
+    console.error('Error creating transaction in Fern:', {
       message: error.message,
       response: error.response?.data,
       stack: error.stack
     });
     
     res.status(error.response?.status || 500).json({
-      error: 'Error al crear la transacción',
+      error: 'Error creating transaction',
       details: error.response?.data || error.message
     });
   }
