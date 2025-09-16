@@ -26,6 +26,7 @@ export default async function handler(req, res) {
             const processedAccountPurposes = data
                 .map((acc) => ({
                     value: acc.apId,
+                    ap_name: acc.ap_name,
                     label: acc.es_label || acc.en_label || '', // Fallback si es_label es undefined
                     en_label: acc.en_label
                 }))
