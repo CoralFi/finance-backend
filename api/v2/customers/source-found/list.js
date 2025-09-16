@@ -26,6 +26,7 @@ export default async function handler(req, res) {
             const processedSourcesFund = data
                 .map((src) => ({
                     value: src.sfId,
+                    sf_name: src.sf_name,
                     label: src.es_label || src.en_label || '', // Fallback si es_label es undefined
                     en_label: src.en_label
                 }))
