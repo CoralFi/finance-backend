@@ -49,11 +49,21 @@ export default async function handler(req, res) {
             console.log("User dont have kyc_didit data")
         }
 
+        const { data: user_info_data, error: user_info_error } = await supabase
+            .rpc("user_info_exists", {
+                p_user_id: customerId
+            })
+        
+        if (user_info_error) {
+            console.error("Error checking user info:", user_info_error);
+            return res.status(500).json({ message: "Error al iniciar sesión." + user_info_error });
+        }
+
         console.log("Response:", response);
         res.status(200).json({
             success: true,
             message: 'Estado del cliente obtenido exitosamente',
-            data: {...response, ...didit_data}
+            data: {...response, ...didit_data, user_info: user_info_data}
         });
     } catch (error) {
         console.error('Error al obtener estado del cliente en Fern:', error);

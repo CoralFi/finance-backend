@@ -4,7 +4,7 @@ import supabase from "../../supabase.js";
  * Maneja las cabeceras CORS para el endpoint
  */
 const setCorsHeaders = (res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'https://app.coralfinance.io');
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 };
@@ -82,7 +82,8 @@ const transformCustomerData = (customerData) => {
             customer?.occupations &&
             customer?.source_fund &&
             customer?.account_purposes &&
-            customer?.amount_to_moved
+            customer?.amount_to_moved &&
+            customer?.country 
         )
     };
 };
@@ -154,7 +155,13 @@ export default async function handler(req, res) {
                 recent_occupation,
                 account_purpose,
                 funds_origin,
-                expected_amount
+                expected_amount,
+                country,
+                state_region_province,
+                city,
+                postal_code,
+                address_line_1,
+                address_line_2,
             } = req.body;
             
             // Log de datos recibidos para debugging
@@ -165,14 +172,20 @@ export default async function handler(req, res) {
                 recent_occupation,
                 account_purpose,
                 funds_origin,
-                expected_amount
+                expected_amount,
+                country,
+                state_region_province,
+                city,
+                postal_code,
+                address_line_1,
+                address_line_2,
             });
             
             // Validar campos requeridos
-            if (!birth_date || !phone_number || !employment_status || !recent_occupation || !account_purpose || !funds_origin || !expected_amount) {
+            if (!birth_date || !phone_number || !employment_status || !recent_occupation || !account_purpose || !funds_origin || !expected_amount || !country || !state_region_province || !city || !postal_code || !address_line_1) {
                 return res.status(400).json({
                     error: 'Todos los campos son requeridos',
-                    required: ['birth_date', 'phone_number', 'employment_status', 'recent_occupation', 'account_purpose', 'funds_origin', 'expected_amount'],
+                    required: ['birth_date', 'phone_number', 'employment_status', 'recent_occupation', 'account_purpose', 'funds_origin', 'expected_amount', 'country', 'state_region_province', 'city', 'postal_code', 'address_line_1'],
                     received: {
                         birth_date: !!birth_date,
                         phone_number: !!phone_number,
@@ -180,7 +193,13 @@ export default async function handler(req, res) {
                         recent_occupation: !!recent_occupation,
                         account_purpose: !!account_purpose,
                         funds_origin: !!funds_origin,
-                        expected_amount: !!expected_amount
+                        expected_amount: !!expected_amount,
+                        country: !!country,
+                        state_region_province: !!state_region_province,
+                        city: !!city,
+                        postal_code: !!postal_code,
+                        address_line_1: !!address_line_1,
+                        address_line_2: !!address_line_2,
                     }
                 });
             }
@@ -223,7 +242,13 @@ export default async function handler(req, res) {
                         occupation_id: parseInt(recent_occupation),
                         account_purposes_id: parseInt(account_purpose),
                         source_fund_id: parseInt(funds_origin),
-                        amount_to_moved_id: parseInt(expected_amount)
+                        amount_to_moved_id: parseInt(expected_amount),
+                        country: country,
+                        state_region_province: state_region_province,
+                        city: city,
+                        postal_code: postal_code,
+                        address_line_1: address_line_1,
+                        address_line_2: address_line_2,
                     })
                     .select();
                 
@@ -259,7 +284,13 @@ export default async function handler(req, res) {
                         p_recent_occupation_id: parseInt(recent_occupation),
                         p_account_purpose_id: parseInt(account_purpose),
                         p_funds_origin_id: parseInt(funds_origin),
-                        p_expected_amount_id: parseInt(expected_amount)
+                        p_expected_amount_id: parseInt(expected_amount),
+                        p_country: country,
+                        p_state_region_province: state_region_province,
+                        p_city: city,
+                        p_postal_code: postal_code,
+                        p_address_line_1: address_line_1,
+                        p_address_line_2: address_line_2,
                     });
                 
                 console.log('Resultado de actualización RPC:', result);
