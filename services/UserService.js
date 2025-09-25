@@ -57,8 +57,14 @@ class UserService {
                     account_purposes_id: user.accountPurpose,
                     source_fund_id: user.fundsOrigin,
                     amount_to_moved_id: user.expectedAmount,
+                    country: user.country,
+                    address_line_1: user.addressLine1,
+                    address_line_2: user?.addressLine2 || null,
+                    city: user.city,
+                    state_region_province: user.stateRegionProvince,
+                    postal_code: user.postalCode,
                 })
-                .select('user_id, phone_number, birthdate, occupation_id, employment_situation_id, account_purposes_id, source_fund_id, amount_to_moved')
+                .select('user_id, phone_number, birthdate, occupation_id, employment_situation_id, account_purposes_id, source_fund_id, amount_to_moved_id, country, address_line_1, address_line_2, city, state_region_province, postal_code')
                 .single();
 
             if (userInfoError) {

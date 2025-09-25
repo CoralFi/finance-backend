@@ -13,7 +13,27 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
-        const { email, password, nombre, apellido, userType, tosCoral, businessName, phoneNumber, birthDate, recentOccupation, employmentStatus, accountPurpose, fundsOrigin, expectedAmount } = req.body;
+        const { email,
+            password,
+            nombre,
+            apellido,
+            userType,
+            tosCoral,
+            businessName,
+            phoneNumber,
+            birthDate,
+            recentOccupation,
+            employmentStatus,
+            accountPurpose,
+            fundsOrigin,
+            expectedAmount,
+            country,
+            addressLine1,
+            addressLine2,
+            city,
+            stateRegionProvince,
+            postalCode 
+        } = req.body;
         const userService = new UserService();
 
         if (!email || !password || !nombre || !apellido || !userType) {
@@ -48,6 +68,12 @@ export default async function handler(req, res) {
                 accountPurpose,
                 fundsOrigin,
                 expectedAmount,
+                country,
+                addressLine1,
+                addressLine2,
+                city,
+                stateRegionProvince,
+                postalCode 
             });
         
             // Crear cliente en Fern
