@@ -13,14 +13,14 @@ export default async function handler(req, res) {
         
         // Validación mejorada
         if (!kybData) {
-            console.log('❌ kybData faltante');
+            console.log('kybData faltante');
             return res.status(400).json({
                 error: 'kybData es requerido'
             });
         }
         
         if (!userId) {
-            console.log('❌ userId faltante');
+            console.log('userId faltante');
             return res.status(400).json({
                 error: 'userId es requerido'
             });
@@ -42,21 +42,30 @@ export default async function handler(req, res) {
         const responseData = await response.json();
 
         if (response.ok) {
-            console.log('✅ KYB actualizado exitosamente');
+            console.log({
+                message: 'KYB actualizado exitosamente',
+                data: responseData
+            });
             return res.status(200).json({
                 success: true,
                 message: 'KYB actualizado exitosamente',
                 data: responseData
             });
         } else {
-            console.log('❌ Error de Fern API:', JSON.stringify(responseData, null, 2));
+            console.log({
+                message: ' Error de Fern API:',
+                data: responseData
+            });
             return res.status(response.status).json({
                 error: responseData.message || 'Error al actualizar KYB en Fern',
                 details: responseData.details || null
             });
         }
     } catch (error) {
-        console.error('❌ Error updating KYB:', error);
+        console.error({
+            message: 'Error updating KYB:',
+            error: error
+        });
         return res.status(500).json({
             error: 'Error interno del servidor'
         });
