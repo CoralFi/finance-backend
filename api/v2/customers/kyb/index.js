@@ -1,4 +1,4 @@
-import { setCorsHeaders, getAuthHeaders } from "../../config";
+import { setCorsHeaders, getAuthHeaders } from "../../config.js";
 
 export default async function handler(req, res) {
     setCorsHeaders(res);
