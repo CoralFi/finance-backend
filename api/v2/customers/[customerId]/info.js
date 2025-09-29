@@ -146,6 +146,7 @@ export default async function handler(req, res) {
             });
             
         } else if (req.method === 'POST') {
+            // TODO: Implementar actualización de unos datos del cliente no todos
             console.log(`Actualizando información para cliente ID: ${customerId}`);
             
             const {

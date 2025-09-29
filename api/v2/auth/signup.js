@@ -36,8 +36,31 @@ export default async function handler(req, res) {
         } = req.body;
         const userService = new UserService();
 
-        if (!email || !password || !nombre || !apellido || !userType) {
-            return res.status(400).json({ message: "Todos los campos son obligatorios." });
+        if (!email || !password || !nombre || !apellido || !userType || !tosCoral  || !phoneNumber || !birthDate || !recentOccupation || !employmentStatus || !accountPurpose || !fundsOrigin || !expectedAmount || !country || !addressLine1 || !city || !stateRegionProvince || !postalCode) {
+            return res.status(400).json({ 
+                message: "Todos los campos son obligatorios.",
+                required: ['email', 'password', 'nombre', 'apellido', 'userType', 'tosCoral', 'phoneNumber', 'birthDate', 'recentOccupation', 'employmentStatus', 'accountPurpose', 'fundsOrigin', 'expectedAmount', 'country', 'addressLine1', 'city', 'stateRegionProvince', 'postalCode'],
+                    received: {
+                        email: !!email,
+                        password: !!password,
+                        nombre: !!nombre,
+                        apellido: !!apellido,
+                        userType: !!userType,
+                        tosCoral: !!tosCoral,
+                        phoneNumber: !!phoneNumber,
+                        birthDate: !!birthDate,
+                        recentOccupation: !!recentOccupation,
+                        accountPurpose: !!accountPurpose,
+                        fundsOrigin: !!fundsOrigin,
+                        expectedAmount: !!expectedAmount,
+                        country: !!country,
+                        stateRegionProvince: !!stateRegionProvince,
+                        city: !!city,
+                        postalCode: !!postalCode,
+                        addressLine1: !!addressLine1,
+                        addressLine2: !!addressLine2,
+                    }
+            });
         }
 
         try {
@@ -119,7 +142,7 @@ export default async function handler(req, res) {
             console.error("Error al crear el usuario:", error);
             return res.status(500).json({ 
                 message: "Error al crear el usuario.",
-                error: process.env.NODE_ENV === 'development' ? error.message : undefined
+                error: error.message
             });
         }
     }
