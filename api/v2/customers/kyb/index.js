@@ -1,4 +1,5 @@
-import { setCorsHeaders, getAuthHeaders } from "../../config.js";
+import { setCorsHeaders, getAuthHeaders, FERN_API_BASE_URL } from "../../config.js";
+
 
 export default async function handler(req, res) {
     setCorsHeaders(res);
@@ -6,29 +7,57 @@ export default async function handler(req, res) {
         return res.status(200).end();
     }
     if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+    
     try {
         const { kybData, userId } = req.body;
+        
+        // Validación mejorada
         if (!kybData) {
+            console.log('❌ kybData faltante');
             return res.status(400).json({
-                error: 'Faltan campos obligatorios'
+                error: 'kybData es requerido'
+            });
+        }
+        
+        if (!userId) {
+            console.log('❌ userId faltante');
+            return res.status(400).json({
+                error: 'userId es requerido'
             });
         }
 
+        console.log('📋 Datos recibidos:', { userId, kybData: Object.keys(kybData) });
+
+        const headers = {
+            ...getAuthHeaders(),
+            'Content-Type': 'application/json'
+        };
+
         const response = await fetch(`${FERN_API_BASE_URL}/customers/${userId}`, {
             method: 'PATCH',
-            headers: getAuthHeaders(),
+            headers: headers,
             body: JSON.stringify({ kybData })
         });
 
-        if (response.success) {
-            return res.status(200).json(response);
+        const responseData = await response.json();
+
+        if (response.ok) {
+            console.log('✅ KYB actualizado exitosamente');
+            return res.status(200).json({
+                success: true,
+                message: 'KYB actualizado exitosamente',
+                data: responseData
+            });
         } else {
-            return res.status(500).json(response);
+            console.log('❌ Error de Fern API:', responseData);
+            return res.status(response.status).json({
+                error: responseData.message || 'Error al actualizar KYB en Fern'
+            });
         }
     } catch (error) {
-        console.error('Error updating KYC:', error);
+        console.error('❌ Error updating KYB:', error);
         return res.status(500).json({
-            error: 'Error updating KYC'
+            error: 'Error interno del servidor'
         });
     }
 }    
