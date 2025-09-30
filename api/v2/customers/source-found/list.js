@@ -16,7 +16,8 @@ export default async function handler(req, res) {
         try {
             const { data, error } = await supabase
                 .from('source_fund')
-                .select('*');
+                .select('*')
+                .eq('active', true)
 
             if (error) {
                 return res.status(500).json({ error: error.message });
