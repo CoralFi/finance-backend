@@ -17,7 +17,6 @@ export default async function handler(req, res) {
             const { data, error } = await supabase
                 .from('source_fund')
                 .select('*')
-                .eq('active', true)
 
             if (error) {
                 return res.status(500).json({ error: error.message });
@@ -29,7 +28,8 @@ export default async function handler(req, res) {
                     value: src.sfId,
                     sf_name: src.sf_name,
                     label: src.es_label || src.en_label || '', // Fallback si es_label es undefined
-                    en_label: src.en_label
+                    en_label: src.en_label,
+                    is_bussines: src.is_bussines,
                 }))
                 .sort((a, b) => {
                     const labelA = a.label || '';
