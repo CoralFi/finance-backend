@@ -4,12 +4,12 @@ import { requireAuth } from "../../../../middleware/requireAuth.js";
  * Maneja las cabeceras CORS para el endpoint
  */
 const setCorsHeaders = (res) => {
-  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [];
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-  }
+    const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+    }
     res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -95,8 +95,17 @@ const transformCustomerData = (customerData) => {
 };
 
 export default async function handler (req, res) {
-    setCorsHeaders(res);
-
+    // setCorsHeaders(res);
+    const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [];
+    const origin = req.headers.origin;
+    if (allowedOrigins.includes(origin)) {
+        console.log(origin)
+        res.setHeader("Access-Control-Allow-Origin", origin);
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+    }
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
     // Manejar preflight OPTIONS request
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
@@ -110,7 +119,7 @@ export default async function handler (req, res) {
         });
     }
     const session = await requireAuth(req);
-
+    console.log(session)
     if (!session) {
         return res.status(401).json({ error: "Sesión inválida" });
 
