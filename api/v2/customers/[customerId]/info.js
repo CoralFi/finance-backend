@@ -1,10 +1,16 @@
 import supabase from "../../supabase.js";
-
+import { requireAuth } from "../../../../middleware/requireAuth.js";
 /**
  * Maneja las cabeceras CORS para el endpoint
  */
 const setCorsHeaders = (res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+    res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 };
@@ -16,11 +22,11 @@ const validateCustomerId = (customerId) => {
     if (!customerId) {
         throw new Error('customerId es requerido como parámetro de consulta');
     }
-    
+
     if (isNaN(parseInt(customerId))) {
         throw new Error('customerId debe ser un número válido');
     }
-    
+
     return parseInt(customerId);
 };
 
@@ -31,9 +37,9 @@ const transformCustomerData = (customerData) => {
     if (!customerData || customerData.length === 0) {
         return null;
     }
-    
+
     const customer = customerData[0];
-    
+
     return {
         user: {
             firstName: customer?.name || null,
@@ -83,12 +89,12 @@ const transformCustomerData = (customerData) => {
             customer?.source_fund &&
             customer?.account_purposes &&
             customer?.amount_to_moved &&
-            customer?.country 
+            customer?.country
         )
     };
 };
 
-export default async function handler(req, res) {
+export default async function handler (req, res) {
     setCorsHeaders(res);
 
     // Manejar preflight OPTIONS request
@@ -103,11 +109,17 @@ export default async function handler(req, res) {
             allowedMethods: ['GET', 'POST']
         });
     }
+    const session = await requireAuth(req);
+
+    if (!session) {
+        return res.status(401).json({ error: "Sesión inválida" });
+
+    }
 
     try {
         // Validar y parsear customerId
         const customerId = validateCustomerId(req.query.customerId);
-        
+
         if (req.method === 'GET') {
             console.log(`Obteniendo información para cliente ID: ${customerId}`);
 
@@ -128,7 +140,7 @@ export default async function handler(req, res) {
 
             // Transformar datos del cliente
             const transformedData = transformCustomerData(customerData);
-            
+
             if (!transformedData) {
                 return res.status(404).json({
                     error: 'Cliente no encontrado',
@@ -137,18 +149,18 @@ export default async function handler(req, res) {
             }
 
             console.log(`Cliente ${customerId} encontrado exitosamente`);
-            
+
             // Respuesta exitosa
             return res.status(200).json({
                 success: true,
                 message: 'Información del cliente obtenida exitosamente',
                 data: transformedData
             });
-            
+
         } else if (req.method === 'POST') {
             // TODO: Implementar actualización de unos datos del cliente no todos
             console.log(`Actualizando información para cliente ID: ${customerId}`);
-            
+
             const {
                 birth_date,
                 phone_number,
@@ -164,7 +176,7 @@ export default async function handler(req, res) {
                 address_line_1,
                 address_line_2,
             } = req.body;
-            
+
             // Log de datos recibidos para debugging
             console.log('Datos recibidos:', {
                 birth_date,
@@ -181,7 +193,7 @@ export default async function handler(req, res) {
                 address_line_1,
                 address_line_2,
             });
-            
+
             // Validar campos requeridos
             if (!birth_date || !phone_number || !employment_status || !recent_occupation || !account_purpose || !funds_origin || !expected_amount || !country || !state_region_province || !city || !postal_code || !address_line_1) {
                 return res.status(400).json({
@@ -204,14 +216,14 @@ export default async function handler(req, res) {
                     }
                 });
             }
-            
+
             // Verificar si el usuario existe en la tabla usuarios
             const { data: userExists, error: userCheckError } = await supabase
                 .from('usuarios')
                 .select('user_id')
                 .eq('user_id', customerId)
                 .single();
-            
+
             if (userCheckError) {
                 console.error('Error al verificar usuario:', userCheckError);
                 return res.status(404).json({
@@ -219,20 +231,20 @@ export default async function handler(req, res) {
                     customerId: customerId
                 });
             }
-            
+
             // Verificar si ya existe información en user_info
             const { data: existingInfo, error: infoCheckError } = await supabase
                 .from('user_info')
                 .select('user_id')
                 .eq('user_id', customerId)
                 .single();
-            
+
             let result;
-            
+
             if (infoCheckError && infoCheckError.code === 'PGRST116') {
                 // No existe registro, crear uno nuevo
                 console.log(`Creando nuevo registro de user_info para usuario ${customerId}`);
-                
+
                 const { data: insertResult, error: insertError } = await supabase
                     .from('user_info')
                     .insert({
@@ -252,7 +264,7 @@ export default async function handler(req, res) {
                         address_line_2: address_line_2,
                     })
                     .select();
-                
+
                 if (insertError) {
                     console.error('Error al insertar user_info:', insertError);
                     return res.status(500).json({
@@ -260,10 +272,10 @@ export default async function handler(req, res) {
                         details: insertError.message
                     });
                 }
-                
+
                 result = { data: insertResult, error: null };
                 console.log('Registro creado exitosamente:', insertResult);
-                
+
             } else if (infoCheckError) {
                 // Error inesperado
                 console.error('Error al verificar user_info existente:', infoCheckError);
@@ -271,11 +283,11 @@ export default async function handler(req, res) {
                     error: 'Error al verificar información existente',
                     details: infoCheckError.message
                 });
-                
+
             } else {
                 // Existe registro, actualizar usando RPC
                 console.log(`Actualizando registro existente para usuario ${customerId}`);
-                
+
                 result = await supabase
                     .rpc('update_user_info', {
                         p_user_id: customerId,
@@ -293,10 +305,10 @@ export default async function handler(req, res) {
                         p_address_line_1: address_line_1,
                         p_address_line_2: address_line_2,
                     });
-                
+
                 console.log('Resultado de actualización RPC:', result);
             }
-            
+
             if (result.error) {
                 console.error('Error en operación de base de datos:', result.error);
                 return res.status(500).json({
@@ -304,13 +316,13 @@ export default async function handler(req, res) {
                     details: result.error.message
                 });
             }
-            
+
             // Verificar que la operación fue exitosa consultando los datos actualizados
             const { data: verificationData, error: verifyError } = await supabase
                 .rpc('get_user_info', {
                     p_user_id: customerId
                 });
-            
+
             if (verifyError) {
                 console.warn('No se pudo verificar la actualización:', verifyError);
             } else {
@@ -318,7 +330,7 @@ export default async function handler(req, res) {
             }
 
             console.log(`Información procesada exitosamente para cliente ${customerId}`);
-            
+
             return res.status(200).json({
                 success: true,
                 message: 'Información del cliente actualizada exitosamente',
@@ -333,14 +345,14 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('Error en endpoint de información del cliente:', error);
-        
+
         // Manejar errores de validación
         if (error.message.includes('customerId')) {
             return res.status(400).json({
                 error: error.message
             });
         }
-        
+
         // Error genérico del servidor
         return res.status(500).json({
             error: 'Error interno del servidor',

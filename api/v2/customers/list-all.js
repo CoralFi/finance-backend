@@ -1,8 +1,15 @@
 import axios from 'axios';
+import { requireAuth } from "../../../middleware/requireAuth.js";
 import { FERN_API_BASE_URL, getAuthHeaders } from '../config.js';
 
-export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+export default async function handler (req, res) {
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+  // res.setHeader("Access-Control-Allow-Credentials", "true");
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -13,6 +20,12 @@ export default async function handler(req, res) {
   // Only allow GET method
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+  const session = await requireAuth(req);
+
+  if (!session) {
+    return res.status(401).json({ error: "Sesión inválida" });
+
   }
 
   try {
@@ -28,7 +41,7 @@ export default async function handler(req, res) {
     // Pagination handling
     while (hasMore) {
       let url = `${FERN_API_BASE_URL}/customers?pageSize=100`;
-      
+
       if (nextPageToken) {
         url += `&pageToken=${encodeURIComponent(nextPageToken)}`;
       }
@@ -70,7 +83,7 @@ export default async function handler(req, res) {
 
   } catch (error) {
     console.error('Error al listar clientes de Fern:', error.response?.data || error.message);
-    
+
     return res.status(error.response?.status || 500).json({
       success: false,
       error: 'Error al obtener la lista de clientes',
