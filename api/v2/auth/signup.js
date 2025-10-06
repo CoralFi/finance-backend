@@ -3,11 +3,11 @@ import { createFernCustomer } from "../../../services/fern/Customer.js";
 import bcrypt from 'bcrypt';
 import supabase from "../supabase.js";
 
-export default async function handler(req, res) {
+export default async function handler (req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
+
     if (req.method === 'OPTIONS') {
         return res.status(200).end();
     }
@@ -32,14 +32,50 @@ export default async function handler(req, res) {
             addressLine2,
             city,
             stateRegionProvince,
-            postalCode 
+            postalCode,
+            recordType
         } = req.body;
         const userService = new UserService();
+        if (recordType === undefined || recordType === null) {
+            return res.status(400).json({
+                message: "El campo 'recordType' es obligatorio.",
+                required: ['recordType'],
+                received: { recordType: !!recordType }
+            });
+        }
 
-        if (!email || !password || !nombre || !apellido || !userType || !tosCoral  || !phoneNumber || !birthDate || !recentOccupation || !employmentStatus || !accountPurpose || !fundsOrigin || !expectedAmount || !country || !addressLine1 || !city || !stateRegionProvince || !postalCode) {
-            return res.status(400).json({ 
-                message: "Todos los campos son obligatorios.",
-                required: ['email', 'password', 'nombre', 'apellido', 'userType', 'tosCoral', 'phoneNumber', 'birthDate', 'recentOccupation', 'employmentStatus', 'accountPurpose', 'fundsOrigin', 'expectedAmount', 'country', 'addressLine1', 'city', 'stateRegionProvince', 'postalCode'],
+        if (recordType === 0) {
+            if (!email || !nombre || !apellido || !userType || !tosCoral) {
+                return res.status(400).json({
+                    message: "Faltan campos obligatorios para tipo de registro rapido.",
+                    required: ['email', 'password', 'nombre', 'apellido', 'userType', 'tosCoral'],
+                    received: {
+                        email: !!email,
+                        nombre: !!nombre,
+                        apellido: !!apellido,
+                        userType: !!userType,
+                        tosCoral: !!tosCoral,
+                        password: !!password,
+                    }
+                });
+            }
+        }
+
+        else if (recordType === 1) {
+            if (
+                !email || !password || !nombre || !apellido || !userType || !tosCoral ||
+                !phoneNumber || !birthDate || !recentOccupation || !employmentStatus ||
+                !accountPurpose || !fundsOrigin || !expectedAmount || !country ||
+                !addressLine1 || !city || !stateRegionProvince || !postalCode
+            ) {
+                return res.status(400).json({
+                    message: "Todos los campos son obligatorios para tipo de registro completo.",
+                    required: [
+                        'email', 'password', 'nombre', 'apellido', 'userType', 'tosCoral',
+                        'phoneNumber', 'birthDate', 'recentOccupation', 'employmentStatus',
+                        'accountPurpose', 'fundsOrigin', 'expectedAmount', 'country',
+                        'addressLine1', 'city', 'stateRegionProvince', 'postalCode'
+                    ],
                     received: {
                         email: !!email,
                         password: !!password,
@@ -50,32 +86,68 @@ export default async function handler(req, res) {
                         phoneNumber: !!phoneNumber,
                         birthDate: !!birthDate,
                         recentOccupation: !!recentOccupation,
+                        employmentStatus: !!employmentStatus,
                         accountPurpose: !!accountPurpose,
                         fundsOrigin: !!fundsOrigin,
                         expectedAmount: !!expectedAmount,
                         country: !!country,
-                        stateRegionProvince: !!stateRegionProvince,
-                        city: !!city,
-                        postalCode: !!postalCode,
                         addressLine1: !!addressLine1,
-                        addressLine2: !!addressLine2,
+                        city: !!city,
+                        stateRegionProvince: !!stateRegionProvince,
+                        postalCode: !!postalCode
                     }
+                });
+            }
+        }
+
+        else {
+            return res.status(400).json({
+                message: "El valor de 'recordType' no es válido. Debe ser 0 o 1.",
+                received: { recordType }
             });
         }
 
+        // if (!email || !password || !nombre || !apellido || !userType || !tosCoral || !phoneNumber || !birthDate || !recentOccupation || !employmentStatus || !accountPurpose || !fundsOrigin || !expectedAmount || !country || !addressLine1 || !city || !stateRegionProvince || !postalCode) {
+        //     return res.status(400).json({
+        //         message: "Todos los campos son obligatorios.",
+        //         required: ['email', 'password', 'nombre', 'apellido', 'userType', 'tosCoral', 'phoneNumber', 'birthDate', 'recentOccupation', 'employmentStatus', 'accountPurpose', 'fundsOrigin', 'expectedAmount', 'country', 'addressLine1', 'city', 'stateRegionProvince', 'postalCode'],
+        //         received: {
+        //             email: !!email,
+        //             password: !!password,
+        //             nombre: !!nombre,
+        //             apellido: !!apellido,
+        //             userType: !!userType,
+        //             tosCoral: !!tosCoral,
+        //             phoneNumber: !!phoneNumber,
+        //             birthDate: !!birthDate,
+        //             recentOccupation: !!recentOccupation,
+        //             accountPurpose: !!accountPurpose,
+        //             fundsOrigin: !!fundsOrigin,
+        //             expectedAmount: !!expectedAmount,
+        //             country: !!country,
+        //             stateRegionProvince: !!stateRegionProvince,
+        //             city: !!city,
+        //             postalCode: !!postalCode,
+        //             addressLine1: !!addressLine1,
+        //             addressLine2: !!addressLine2,
+        //         }
+        //     });
+        // }
+
         try {
             await supabase.rpc('begin');
-        
+
             // Verificar si el usuario ya existe
             const verifyUser = await userService.verifyUser(email, res);
+            console.log(verifyUser)
             if (verifyUser) {
                 await supabase.rpc('rollback');
                 return res.status(400).json({ message: "El usuario ya existe." });
             }
-        
+
             // Encriptar la contraseña
             const hashedPassword = await bcrypt.hash(password, 10);
-        
+
             // Crear el usuario en la base de datos
             const newUser = await userService.createUser({
                 email,
@@ -96,9 +168,10 @@ export default async function handler(req, res) {
                 addressLine2,
                 city,
                 stateRegionProvince,
-                postalCode 
+                postalCode,
+                recordType
             });
-        
+
             // Crear cliente en Fern
             try {
                 const fernCustomer = await createFernCustomer({
@@ -109,10 +182,10 @@ export default async function handler(req, res) {
                     lastName: newUser.apellido,
                     businessName: businessName,
                 });
-        
+
                 await supabase.rpc('commit');
-                return res.status(200).json({ 
-                    message: "Usuario creado exitosamente.", 
+                return res.status(200).json({
+                    message: "Usuario creado exitosamente.",
                     user_id: newUser.user_id,
                     name: newUser.nombre,
                     lastName: newUser.apellido,
@@ -124,23 +197,23 @@ export default async function handler(req, res) {
                     KycLinkFern: fernCustomer.KycLink,
                     tosCoral: newUser.tos_coral,
                 });
-        
+
             } catch (fernError) {
                 console.error('Error en createFernCustomer:', fernError);
                 await supabase.rpc('rollback');
                 //await userService.deleteUser(newUser.user_id);
                 throw fernError;
             }
-        
+
         } catch (error) {
             try {
                 await supabase.rpc('rollback');
             } catch (rollbackError) {
                 console.error('Error al hacer rollback:', rollbackError);
             }
-            
+
             console.error("Error al crear el usuario:", error);
-            return res.status(500).json({ 
+            return res.status(500).json({
                 message: "Error al crear el usuario.",
                 error: error.message
             });

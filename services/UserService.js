@@ -6,7 +6,7 @@ class UserService {
     }
 
     // Verificar si el correo ya está registrado
-    async verifyUser(email, res) {
+    async verifyUser (email, res) {
         const { data: existingUser } = await this.supabase
             .from("usuarios")
             .select("*")
@@ -19,7 +19,7 @@ class UserService {
         return existingUser;
     }
 
-    async createUser(user) {
+    async createUser (user) {
         console.log("Creating user with data:", user);
         let createdUserId = null;
 
@@ -37,51 +37,60 @@ class UserService {
                     tos_coral: user.tosCoral
                 })
                 .select('user_id, email, nombre, apellido, user_type, tos_coral')
-                .single(); 
+                .single();
 
             if (userError) {
                 console.error("Error creating user:", userError);
                 throw new Error(`Error al crear el usuario: ${userError.message}`);
             }
+            console.log(userData.user_id)
+            if (user.recordType === 1) {
+                createdUserId = userData.user_id;
+                // Insertar user_info 
+                const { data: userInfoData, error: userInfoError } = await this.supabase
+                    .from("user_info")
+                    .insert({
+                        user_id: userData.user_id,
+                        phone_number: user.phoneNumber,
+                        birthdate: user.birthDate,
+                        occupation_id: user.recentOccupation,
+                        employment_situation_id: user.employmentStatus,
+                        account_purposes_id: user.accountPurpose,
+                        source_fund_id: user.fundsOrigin,
+                        amount_to_moved_id: user.expectedAmount,
+                        country: user.country,
+                        address_line_1: user.addressLine1,
+                        address_line_2: user?.addressLine2 || null,
+                        city: user.city,
+                        state_region_province: user.stateRegionProvince,
+                        postal_code: user.postalCode,
+                    })
+                    .select('user_id, phone_number, birthdate, occupation_id, employment_situation_id, account_purposes_id, source_fund_id, amount_to_moved_id, country, address_line_1, address_line_2, city, state_region_province, postal_code')
+                    .single();
 
-            createdUserId = userData.user_id;
-            // Insertar user_info 
-            const { data: userInfoData, error: userInfoError } = await this.supabase
-                .from("user_info")
-                .insert({
-                    user_id: userData.user_id,
-                    phone_number: user.phoneNumber,
-                    birthdate: user.birthDate,
-                    occupation_id: user.recentOccupation,
-                    employment_situation_id: user.employmentStatus,
-                    account_purposes_id: user.accountPurpose,
-                    source_fund_id: user.fundsOrigin,
-                    amount_to_moved_id: user.expectedAmount,
-                    country: user.country,
-                    address_line_1: user.addressLine1,
-                    address_line_2: user?.addressLine2 || null,
-                    city: user.city,
-                    state_region_province: user.stateRegionProvince,
-                    postal_code: user.postalCode,
-                })
-                .select('user_id, phone_number, birthdate, occupation_id, employment_situation_id, account_purposes_id, source_fund_id, amount_to_moved_id, country, address_line_1, address_line_2, city, state_region_province, postal_code')
-                .single();
+                if (userInfoError) {
+                    console.error("Error creating user_info:", userInfoError);
+                    await this.rollbackUser(createdUserId);
+                    throw new Error(`Error al crear la información del usuario: ${userInfoError.message}`);
+                }
 
-            if (userInfoError) {
-                console.error("Error creating user_info:", userInfoError);
-                await this.rollbackUser(createdUserId);
-                throw new Error(`Error al crear la información del usuario: ${userInfoError.message}`);
+                // Combinar los datos en un solo objeto
+                const completeUserData = {
+                    ...userData,
+                    ...userInfoData
+                };
+
+                console.log("registro completo exitoso", completeUserData);
+                return completeUserData;
             }
+            else {
+                const completeUserData = {
+                    ...userData,
+                };
 
-            // Combinar los datos en un solo objeto
-            const completeUserData = {
-                ...userData,
-                ...userInfoData
-            };
-
-            console.log("User created successfully:", completeUserData);
-            return completeUserData;
-
+                console.log("registro rapido exitoso:", completeUserData);
+                return completeUserData;
+            }
         } catch (error) {
             console.error("Error in createUser:", error);
             await this.rollbackUser(createdUserId);
@@ -90,30 +99,30 @@ class UserService {
     }
 
     // Función helper para rollback
-async rollbackUser(userId) {
-    try {
-        console.log(`Rolling back user creation for user_id: ${userId}`);
-        
-        // Eliminar user_info si existe
-        await this.supabase
-            .from("user_info")
-            .delete()
-            .eq('user_id', userId);
-        
-        // Eliminar usuario
-        await this.supabase
-            .from("usuarios")
-            .delete()
-            .eq('user_id', userId);
-            
-        console.log(`Rollback completed for user_id: ${userId}`);
-    } catch (rollbackError) {
-        console.error("Error during rollback:", rollbackError);
+    async rollbackUser (userId) {
+        try {
+            console.log(`Rolling back user creation for user_id: ${userId}`);
+
+            // Eliminar user_info si existe
+            await this.supabase
+                .from("user_info")
+                .delete()
+                .eq('user_id', userId);
+
+            // Eliminar usuario
+            await this.supabase
+                .from("usuarios")
+                .delete()
+                .eq('user_id', userId);
+
+            console.log(`Rollback completed for user_id: ${userId}`);
+        } catch (rollbackError) {
+            console.error("Error during rollback:", rollbackError);
+        }
     }
-}
 
     // Ejemplo: Obtener todos los usuarios
-    async getAllUsers() {
+    async getAllUsers () {
         const { data, error } = await this.supabase.from('usuarios').select('*');
         if (error) {
             console.error('Error fetching users:', error);
@@ -123,7 +132,7 @@ async rollbackUser(userId) {
     }
 
     // Ejemplo: Obtener un usuario por ID
-    async getUserByEmail(email) {
+    async getUserByEmail (email) {
         const { data, error } = await this.supabase
             .from('usuarios')
             .select('*')
@@ -136,7 +145,7 @@ async rollbackUser(userId) {
         return data;
     }
 
-    async getWalletByCustomer(customer) {
+    async getWalletByCustomer (customer) {
         const { data, error } = await this.supabase
             .from('usuarios')
             .select('wallet_id')
