@@ -52,10 +52,8 @@ export default async function handler(req, res) {
                 data: responseData
             });
         } else {
-            console.log({
-                message: ' Error de Fern API:',
-                data: responseData
-            });
+            console.log('Error de Fern API:');
+            console.log(JSON.stringify(responseData, null, 2));
             return res.status(response.status).json({
                 error: responseData.message || 'Error al actualizar KYB en Fern',
                 details: responseData.details || null
