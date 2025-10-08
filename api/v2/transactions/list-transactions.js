@@ -1,8 +1,7 @@
 import { FernTransactions } from "../../../services/fern/transactions.js";
 import { requireAuth } from "../../../middleware/requireAuth.js";
 export default async function handler (req, res) {
-    // res.setHeader('Access-Control-Allow-Origin', '*');
-    const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS 
+    const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [];
     const origin = req.headers.origin;
     console.log(origin)
     console.log(allowedOrigins)
@@ -10,7 +9,6 @@ export default async function handler (req, res) {
         res.setHeader("Access-Control-Allow-Origin", origin);
         res.setHeader("Access-Control-Allow-Credentials", "true");
     }
-    res.setHeader("Access-Control-Allow-Credentials", "true");
     res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
