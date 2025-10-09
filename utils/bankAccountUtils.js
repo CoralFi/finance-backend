@@ -44,6 +44,16 @@ export const CURRENCY_CONFIG = {
     requiredFields: ['accountNumber', 'bsbNumber', ],
     paymentMethod: 'AU_BECS',
     errorMessage: 'accountNumber, sortCode y iban son requeridos para cuentas GBP'
+  },
+  PEN:{
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'PE_CCE',
+    errorMessage: 'accountNumber es requerido para cuentas PEN'
+  },
+  CLP:{
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'CL_TEF',
+    errorMessage: 'accountNumber es requerido para cuentas CLP'
   }
 };
 
@@ -158,6 +168,22 @@ export const buildExternalBankAccount = (currency, data) => {
         bsbNumber: externalBankAccount.bsbNumber,
         bicSwift: externalBankAccount?.bicSwift || undefined,
         bankAccountPaymentMethod: 'AU_BECS'
+      };
+    
+    case 'PEN':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        pixCode: externalBankAccount.pixCode,
+        bankAccountPaymentMethod: 'PE_CCE'
+      };
+    
+    case 'CLP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankAccountPaymentMethod: 'CL_TEF'
       };
       
     default:

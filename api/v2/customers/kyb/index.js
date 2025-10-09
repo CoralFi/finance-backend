@@ -26,7 +26,7 @@ export default async function handler(req, res) {
             });
         }
 
-        console.log('📋 Datos recibidos:', JSON.stringify({ userId, kybData }, null, 2));
+        console.log('Datos recibidos:', JSON.stringify({ userId, kybData }, null, 2));
 
         const headers = {
             ...getAuthHeaders(),
