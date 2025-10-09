@@ -26,7 +26,7 @@ export default async function handler(req, res) {
       nickname,
       externalCryptoWallet: {
         cryptoWalletType,
-        chain: chain || 'EVM',
+        chain: chain || 'EVM', // POLYGON EHETERIUM
         address,
       },
       isThirdParty: true,

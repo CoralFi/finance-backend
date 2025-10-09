@@ -26,7 +26,7 @@ export default async function handler(req, res) {
             });
         }
 
-        console.log('📋 Datos recibidos:', JSON.stringify({ userId, kybData }, null, 2));
+        console.log('Datos recibidos:', JSON.stringify({ userId, kybData }, null, 2));
 
         const headers = {
             ...getAuthHeaders(),
@@ -54,7 +54,7 @@ export default async function handler(req, res) {
         } else {
             console.log({
                 message: ' Error de Fern API:',
-                data: responseData
+                data: JSON.stringify(responseData, null, 2)
             });
             return res.status(response.status).json({
                 error: responseData.message || 'Error al actualizar KYB en Fern',
@@ -64,7 +64,7 @@ export default async function handler(req, res) {
     } catch (error) {
         console.error({
             message: 'Error updating KYB:',
-            error: error
+            error: JSON.stringify(error, null, 2)
         });
         return res.status(500).json({
             error: 'Error interno del servidor'
