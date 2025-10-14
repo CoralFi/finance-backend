@@ -120,3 +120,68 @@ export const createFernBankAccount = async (data) => {
 
     return response.json()
 }
+
+
+export const listFernBankAccounts = async (customerId, currency, type, chain) => {
+    try {
+    if (!customerId) {
+      throw new Error('Falta el customerId en la consulta');
+    }
+
+    const response = await fetch(
+      `${FERN_API_BASE_URL}/payment-accounts?customerId=${customerId}`,
+      { 
+        method: 'GET',
+        headers: getAuthHeaders() 
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: response.statusText }));
+      const error = new Error('Failed to list payment accounts from Fern');
+      error.status = response.status;
+      error.details = errorData;
+      throw error;
+    }
+
+    const data = await response.json();
+    let accounts = data.paymentAccounts || [];
+
+    // Filtrado por tipo
+    if (type) {
+      switch (type) {
+        case 'FERN':
+          accounts = accounts.filter(acc => acc?.paymentAccountType === 'FERN_CRYPTO_WALLET');
+          break;
+        case 'THIRD_PARTY':
+          accounts = accounts.filter(acc => acc?.isThirdParty === true);
+          break;
+        case 'EXTERNAL_WALLET':
+          if (!chain) throw new Error('Falta el chain en la consulta');
+          accounts = accounts.filter(acc => acc?.paymentAccountType === 'EXTERNAL_CRYPTO_WALLET' && acc?.externalCryptoWallet?.chain === chain);
+          break;
+        // Puedes agregar más tipos aquí si es necesario
+        default:
+          // Si el tipo no es reconocido, no filtra nada extra
+          break;
+      }
+    }
+
+    // Filtrado por moneda (currency)
+    if (currency) {
+      accounts = accounts.filter(acc => acc?.externalBankAccount?.bankAccountCurrency.label === currency);
+    }
+
+    // change bankAccountCurrency.label to bankAccountCurrency
+    accounts = accounts.map(acc => {
+      if (acc?.externalBankAccount) {
+        acc.externalBankAccount.bankAccountCurrency = acc.externalBankAccount.bankAccountCurrency.label;
+      }
+      return acc;
+    });
+    return accounts;
+  } catch (error) {
+    console.error('Error al listar cuentas bancarias:', error.message, error.stack);
+    throw error;
+  }
+}
