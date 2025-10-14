@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { FERN_API_BASE_URL, getAuthHeaders } from '../config.js';
 import supabase from '../supabase.js';
-import { listFernBankAccounts } from '../../../services/fern/bankAccounts.js';
+import { listFernBankAccounts, handleDeleteBankAccount } from '../../../services/fern/bankAccounts.js';
 import { validateCurrencyFields, buildExternalBankAccount } from '../../../utils/bankAccountUtils.js';
 
 const setCorsHeaders = (res) => {
@@ -213,10 +213,31 @@ export default async function handler(req, res) {
         error: 'Error al listar las cuentas bancarias',
         details: error.response?.data || error.message
       });
-    } 
+    }
+  } else if (req.method === 'DELETE') {
+    try {
+      const { paymentAccountId } = req.query;
+
+      if (!paymentAccountId) {
+        return res.status(400).json({
+          error: 'paymentAccountId es requerido'
+        });
+      }
+
+      const response = await handleDeleteBankAccount(paymentAccountId);
+
+      res.status(200).json(response);
+    } catch (error) {
+      console.error('Error in delete-bank-account handler:', error.details || error.message);
+      res.status(error.status || 500).json({
+        error: 'Error al eliminar la cuenta bancaria',
+        details: error.details || { message: error.message }
+      });
+    }
   }
+
   else {
     return res.status(405).json({ Message: `Método no permitido: ${req.method}` });
   }
-    
+
 }
