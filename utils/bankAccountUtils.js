@@ -189,7 +189,7 @@ export const buildExternalBankAccount = (currency, data) => {
       return {
         ...baseAccount,
         bankAccountType: bankAccountType || 'CHECKING',
-        pixCode: externalBankAccount.pixCode,
+        accountNumber: externalBankAccount.accountNumber,
         bankAccountPaymentMethod: 'PE_CCE'
       };
     
