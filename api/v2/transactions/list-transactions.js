@@ -19,12 +19,12 @@ export default async function handler (req, res) {
     }
 
     if (req.method !== 'GET') return res.status(405).send('Method Not Allowed');
-    const session = await requireAuth(req);
+    // const session = await requireAuth(req);
 
-    if (!session) {
-        return res.status(401).json({ error: "Sesión inválida" });
+    // if (!session) {
+    //     return res.status(401).json({ error: "Sesión inválida" });
 
-    }
+    // }
     const { fernCustomerId, status } = req.query;
 
     if (!fernCustomerId) {
