@@ -32,7 +32,7 @@ export const CURRENCY_CONFIG = {
   },
   CAD: {
     requiredFields: ['accountNumber', 'institutionNumber', 'transitNumber'],
-    paymentMethod: 'CA_INTERAC', 
+    paymentMethod: 'CA_INTERAC',
     errorMessage: 'accountNumber, institutionNumber y transitNumber son requeridos para cuentas CAD'
   },
   GBP: {
@@ -41,10 +41,35 @@ export const CURRENCY_CONFIG = {
     errorMessage: 'accountNumber, sortCode y iban son requeridos para cuentas GBP'
   },
   AUD: {
-    requiredFields: ['accountNumber', 'bsbNumber', ],
+    requiredFields: ['accountNumber', 'bsbNumber',],
     paymentMethod: 'AU_BECS',
     errorMessage: 'accountNumber, sortCode y iban son requeridos para cuentas GBP'
-  }
+  },
+  PEN:{
+    requiredFields: ['accountNumber', 'taxNumber'],
+    paymentMethod: 'PE_CCE',
+    errorMessage: 'accountNumber y taxNumber son requeridos para cuentas PEN'
+  },
+  CLP:{
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'CL_TEF',
+    errorMessage: 'accountNumber es requerido para cuentas CLP'
+  },
+  HKD: {
+    requiredFields: ['accountNumber', 'clearingCode'],
+    paymentMethod: 'HK_HKICL_CHATS_ECG',
+    errorMessage: 'accountNumber y clearingCode son requeridos para cuentas HK_HKICL_CHATS_ECG'
+  },
+  IDR: {
+    requiredFields: ['accountNumber', 'bankCode'],
+    paymentMethod: 'ID_SKN_RTGS',
+    errorMessage: 'accountNumber y bankCode son requeridos para cuentas ID_SKN_RTGS'
+  },
+  ILS: {
+    requiredFields: ['accountNumber', 'iban'],
+    paymentMethod: 'IL_ZAHAV',
+    errorMessage: 'accountNumber y iban son requeridos para cuentas IL_ZAHAV'
+  },
 };
 
 // Validation function for currency-specific fields
@@ -53,7 +78,7 @@ export const validateCurrencyFields = (currency, externalBankAccount) => {
   if (!config) {
     throw new Error(`Moneda no soportada: ${currency}`);
   }
-  
+
   for (const field of config.requiredFields) {
     if (!externalBankAccount[field]) {
       throw new Error(config.errorMessage);
@@ -65,7 +90,7 @@ export const validateCurrencyFields = (currency, externalBankAccount) => {
 export const buildExternalBankAccount = (currency, data) => {
   const { externalBankAccount } = data;
   const { bankName, bankAccountType, bankAddress, bankAccountOwner } = externalBankAccount;
-  
+
   const baseAccount = {
     bankName,
     bankAccountCurrency: currency,
@@ -73,7 +98,7 @@ export const buildExternalBankAccount = (currency, data) => {
     bankAddress,
     bankAccountOwner
   };
-  
+
   switch (currency) {
     case 'EUR':
       return {
@@ -82,7 +107,7 @@ export const buildExternalBankAccount = (currency, data) => {
         bicSwift: externalBankAccount.bicSwift,
         bankAccountPaymentMethod: 'SEPA'
       };
-      
+
     case 'USD':
       return {
         ...baseAccount,
@@ -91,7 +116,7 @@ export const buildExternalBankAccount = (currency, data) => {
         bankAccountPaymentMethod: externalBankAccount.bankAccountPaymentMethod,
         bicSwift: externalBankAccount.bicSwift || undefined
       };
-      
+
     case 'ARS':
       return {
         ...baseAccount,
@@ -99,7 +124,7 @@ export const buildExternalBankAccount = (currency, data) => {
         taxNumber: externalBankAccount.taxNumber,
         bankAccountPaymentMethod: 'AR_TRANSFERS_3'
       };
-      
+
     case 'MXN':
       return {
         ...baseAccount,
@@ -108,7 +133,7 @@ export const buildExternalBankAccount = (currency, data) => {
         bankAccountPaymentMethod: 'MX_SPEI',
         bicSwift: externalBankAccount.bicSwift || undefined
       };
-      
+
     case 'BRL':
       return {
         ...baseAccount,
@@ -117,7 +142,7 @@ export const buildExternalBankAccount = (currency, data) => {
         bankAccountPaymentMethod: externalBankAccount.bankAccountPaymentMethod,
         taxNumber: externalBankAccount.taxNumber // CPF/CNPJ if provided
       };
-      
+
     case 'CNY':
       return {
         ...baseAccount,
@@ -127,7 +152,7 @@ export const buildExternalBankAccount = (currency, data) => {
         bicSwift: externalBankAccount.bicSwift || undefined,
         bankAccountPaymentMethod: 'CN_CNAPS'
       };
-      
+
     case 'CAD':
       return {
         ...baseAccount,
@@ -138,7 +163,7 @@ export const buildExternalBankAccount = (currency, data) => {
         bicSwift: externalBankAccount?.bicSwift || undefined,
         bankAccountPaymentMethod: 'CA_INTERAC'
       };
-      
+
     case 'GBP':
       return {
         ...baseAccount,
@@ -149,7 +174,7 @@ export const buildExternalBankAccount = (currency, data) => {
         bicSwift: externalBankAccount?.bicSwift || undefined,
         bankAccountPaymentMethod: 'GB_BACS_CHAPS_FPS'
       };
-      
+
     case 'AUD':
       return {
         ...baseAccount,
@@ -159,7 +184,47 @@ export const buildExternalBankAccount = (currency, data) => {
         bicSwift: externalBankAccount?.bicSwift || undefined,
         bankAccountPaymentMethod: 'AU_BECS'
       };
-      
+    
+    case 'PEN':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        taxNumber: externalBankAccount.taxNumber,
+        bankAccountPaymentMethod: 'PE_CCE'
+      };
+    
+    case 'CLP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankAccountPaymentMethod: 'CL_TEF'
+      };
+    case 'HKD':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        clearingCode: externalBankAccount.clearingCode,
+        bankAccountPaymentMethod: 'HK_HKICL_CHATS_ECG'
+      };
+    case 'IDR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        bankAccountPaymentMethod: 'ID_SKN_RTGS'
+      };
+    case 'ILS':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        iban: externalBankAccount.iban,
+        bankAccountPaymentMethod: 'IL_ZAHAV'
+      };
     default:
       throw new Error(`Moneda no soportada: ${currency}`);
   }
