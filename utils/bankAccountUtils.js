@@ -46,9 +46,9 @@ export const CURRENCY_CONFIG = {
     errorMessage: 'accountNumber, sortCode y iban son requeridos para cuentas GBP'
   },
   PEN:{
-    requiredFields: ['accountNumber'],
+    requiredFields: ['accountNumber', 'taxNumber'],
     paymentMethod: 'PE_CCE',
-    errorMessage: 'accountNumber es requerido para cuentas PEN'
+    errorMessage: 'accountNumber y taxNumber son requeridos para cuentas PEN'
   },
   CLP:{
     requiredFields: ['accountNumber'],
@@ -189,7 +189,8 @@ export const buildExternalBankAccount = (currency, data) => {
       return {
         ...baseAccount,
         bankAccountType: bankAccountType || 'CHECKING',
-        pixCode: externalBankAccount.pixCode,
+        accountNumber: externalBankAccount.accountNumber,
+        taxNumber: externalBankAccount.taxNumber,
         bankAccountPaymentMethod: 'PE_CCE'
       };
     
