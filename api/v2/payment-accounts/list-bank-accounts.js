@@ -3,6 +3,21 @@ import { getAuthHeaders, FERN_API_BASE_URL } from '../config.js';
 
 
 export default async function handler(req, res) {
+  // Set CORS headers
+  const allowedOrigins = process.env.CORS_ALLOWED_ORIGINS?.split(",") || [];
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+  }
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'GET') return res.status(405).send('Method Not Allowed');
 
   try {
