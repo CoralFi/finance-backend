@@ -69,7 +69,7 @@ export const FernKycStatus = async (fernCustomerId: string, userId: string) => {
 }
 
 
-export const getFernWalletCryptoInfo = async (paymentAccountId) => {
+export const getFernWalletCryptoInfo = async (paymentAccountId: string) => {
   try {
     if (!paymentAccountId) {
       throw new Error('Payment account ID is required');
