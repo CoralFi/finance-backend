@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(morganMiddleware);
-app.use("/api/v2", apiRoutes);
+app.use("/api", apiRoutes);
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`  Servidor corriendo en el puerto ${PORT}`);
