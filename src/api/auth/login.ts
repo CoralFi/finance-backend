@@ -1,25 +1,41 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import supabase from "../../db/supabase";
-import { FernKycStatus, getFernWalletCryptoInfo } from "../../services/fernServices";
+import { FernKycStatus, getFernWalletCryptoInfo } from "@/services/fern/fernServices";
+import { UserInfo, FernUser } from "@/services/types/types";
+
+
 
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
   try {
     // Buscar usuario por email
-    const { data: user, error } = await supabase
-      .from("usuarios")
-      .select("*")
-      .eq("email", email)
-      .single();
+    const { data: user_exists, error: user_exists_error } = await supabase.
+    rpc("exists_user", { p_email: email })
+    .single() as { data: UserInfo | null, error: any };
 
-    if (error || !user) {
+    console.log("Usuario encontrado:", user_exists);
+
+    if (user_exists_error || !user_exists) {
+      console.error("Error buscando usuario:", user_exists_error);
+      res.status(400).json({ message: "Usuario no encontrado." });
+      return;
+    }
+
+    //get user base info 
+    const { data: user, error: user_error } = await supabase
+      .rpc("get_user_info_2", { p_customer_id: user_exists.customer_id })
+      .single() as { data: UserInfo | null, error: any };
+
+    console.log("Usuario encontrado:", user);
+    if (user_error || !user) {
+      console.error("Error buscando datos del usuario:", user_error);
       res.status(400).json({ message: "Usuario no encontrado." });
       return;
     }
 
     // Comparar contraseñas
-    const isValidPassword = await bcrypt.compare(password, user.password);
+    const isValidPassword = await bcrypt.compare(password, user.password as string);
     if (!isValidPassword) {
       res.status(401).json({ message: "Contraseña incorrecta." });
       return;
@@ -27,22 +43,31 @@ export const loginController = async (req: Request, res: Response) => {
 
     // Buscar datos Fern asociados
     const { data: fern, error: fernError } = await supabase
-      .from("fern")
-      .select("*")
-      .eq("user_id", user.user_id)
-      .single();
+    .rpc("get_fern_user_info", { p_customer_id: user.customer_id })
+    .single() as { data: any, error: any };
+    // console.log("Datos Fern:", fern);
 
     if (fernError) {
       console.warn("Error buscando datos Fern:", fernError.message);
     }
 
-    user.fern = fern;
+    // Transform database fields to match FernUser interface
+    user.fern = fern ? {
+      customer_id: fern.customer_id,
+      fernCustomerId: fern.ferncustomerid,
+      fernWalletId: fern.fernwalletid,
+      kyc: fern.kyc,
+      kycStatus: fern.kycstatus || fern.kyc,
+      businessname: fern.businessname,
+      organizationid: fern.organizationid
+    } : undefined;
+    console.log("Datos Fern:", user.fern);
     let fernKycStatus = { kycStatus: null, kycLink: null };
 
     // Consultar estado de KYC en Fern
     if (user.fern?.fernCustomerId) {
       try {
-        fernKycStatus = await FernKycStatus(user.fern?.fernCustomerId, user.user_id);
+        fernKycStatus = await FernKycStatus(user.fern?.fernCustomerId, user.user_id.toString());
 
         if ((fernKycStatus as any)?.error) {
           console.warn("Fern API error:", (fernKycStatus as any).error);
@@ -82,19 +107,14 @@ export const loginController = async (req: Request, res: Response) => {
         firstName: user.nombre,
         lastName: user.apellido,
         userType: user.user_type,
-        kyc: user.estado_kyc,
-        wallet: user.wallet_id,
-        verificado_email: user.verificado_email,
         google_auth: user.google_auth,
-        customerFiat: user.customer_id,
         tos: user.tos_coral,
-        qr_payment: user.qr_payment,
         fernCustomerId: user.fern?.fernCustomerId || null,
         fernWalletId: user.fern?.fernWalletId || null,
         fernWalletAddress: fernWalletCryptoInfo?.fernCryptoWallet?.address || null,
         KycFer: fernKycStatus?.kycStatus || null,
         KycLinkFer: fernKycStatus?.kycLink || null,
-        fernBusinessName: user.fern?.businessName || null,
+        fernBusinessName: user.fern?.businessname || null,
         user_info: user_info_data || false,
       },
     });

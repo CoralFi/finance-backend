@@ -1,8 +1,8 @@
-import { FERN_API_BASE_URL, getAuthHeaders } from "../config/fern";
-import supabase from "../db/supabase";
+import { FERN_API_BASE_URL, getAuthHeaders } from "@/config/fern";
+import supabase from "@/db/supabase";
 import axios from "axios";
 
-export const FernKycStatus = async (fernCustomerId, userId) => {
+export const FernKycStatus = async (fernCustomerId: string, userId: string) => {
   try {
     const response = await axios.get(
       `${FERN_API_BASE_URL}/customers/${fernCustomerId}`,
