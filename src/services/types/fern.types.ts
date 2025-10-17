@@ -48,3 +48,26 @@ export interface FernWalletCryptoInfo {
   paymentAccountId: string;
   customerId: string;
 }
+
+// Payment Account Balance
+export interface BalanceParams {
+  paymentAccountId: string;
+  chain: string;
+  currency: string;
+}
+
+export interface FernBalanceResponse {
+  balance: string;
+  currency: {
+    chain: string;
+    label: string;
+  };
+  usdValue: string;
+  paymentAccountId?: string;
+  [key: string]: any;
+}
+
+export interface FernApiError extends Error {
+  status?: number;
+  details?: any;
+}
