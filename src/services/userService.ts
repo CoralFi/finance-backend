@@ -1,4 +1,5 @@
 import supabase from "../db/supabase";
+import { v4 as uuidv4 } from "uuid";
 import { CreateUserParams, UserRecord } from "../types/user.types";
 export const verifyUser = async (email: string): Promise<any> => {
   try {
@@ -16,9 +17,11 @@ export const verifyUser = async (email: string): Promise<any> => {
 
 export const createUser = async (params: CreateUserParams): Promise<UserRecord | null> => {
   try {
+     const uuid = uuidv4();
     const { data, error } = await supabase.rpc("create_user", {
       p_email: params.email,
       p_password: params.password,
+      p_uuid: uuid,
       p_nombre: params.nombre,
       p_apellido: params.apellido,
       p_user_type: params.userType,
