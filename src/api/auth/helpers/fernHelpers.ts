@@ -2,7 +2,7 @@ import supabase from "../../../db/supabase";
 import { FernKycStatus, getFernWalletCryptoInfo } from "@/services/fern/fernServices";
 import { FernUser } from "@/services/types/types";
 
-/**
+/**tiene
  * Transforms raw database Fern data to FernUser interface
  * Converts lowercase field names to camelCase
  * @param rawFernData - Raw data from database

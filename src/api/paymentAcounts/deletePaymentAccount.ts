@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { handleDeleteBankAccount } from "../../services/fernServices";
+import { handleDeleteBankAccount } from "@/services/fern/fernServices";
 
 export const deletePaymentAccountController = async (
   req: Request,

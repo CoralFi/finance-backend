@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { listFernBankAccounts } from "../../services/fernServices";
+import { listFernBankAccounts } from "@/services/fern/fernServices";
 export const listPaymentAccountsController = async (
   req: Request,
   res: Response

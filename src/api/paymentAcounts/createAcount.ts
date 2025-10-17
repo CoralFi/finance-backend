@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import supabase from "../../db/supabase";
-import { createFernPaymentAccount } from "../../services/fernServices";
+import { createFernPaymentAccount } from "@/services/fern/fernServices";
 import {
   validateBasicData,
   validateCommonFields,

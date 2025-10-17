@@ -7,8 +7,6 @@ const router = Router();
 
 // Dynamic route: /payment-accounts/:paymentAccountId/balance
 router.get("/:paymentAccountId/balance", getBalanceController);
-
-
 router.post("/", createPaymentAccountController);
 router.get("/", listPaymentAccountsController);
 router.delete("/", deletePaymentAccountController);
