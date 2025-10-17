@@ -92,6 +92,44 @@ export const getFernBankAccountBalance = async (
 };
 
 /**
+ * Get payment account information from Fern
+ */
+export const getPaymentAccountInfo = async (
+  paymentAccountId: string
+): Promise<any> => {
+  try {
+    // Validate parameter
+    if (!isValidField(paymentAccountId)) {
+      throw new Error('PAYMENT_ACCOUNT_ID_REQUIRED');
+    }
+
+    if (isDevelopment) {
+      console.log('Fetching payment account info:', { paymentAccountId });
+    }
+
+    // Make API request
+    const data = await fernApiRequest<any>(
+      `/payment-accounts/${paymentAccountId}`,
+      { method: 'GET' }
+    );
+
+    if (isDevelopment) {
+      console.log('Payment account info fetched:', { paymentAccountId });
+    }
+
+    return data;
+  } catch (error: any) {
+    console.error('Error getting payment account info:', {
+      paymentAccountId,
+      error: error.message,
+      status: error.status,
+      stack: isDevelopment ? error.stack : undefined
+    });
+    throw error;
+  }
+};
+
+/**
  * Export constants for external use
  */
 export { SUPPORTED_CHAINS, SUPPORTED_CURRENCIES };
