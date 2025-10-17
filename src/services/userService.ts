@@ -17,11 +17,10 @@ export const verifyUser = async (email: string): Promise<any> => {
 
 export const createUser = async (params: CreateUserParams): Promise<UserRecord | null> => {
   try {
-     const uuid = uuidv4();
-    const { data, error } = await supabase.rpc("create_user", {
+    const { data, error } = await supabase
+    .rpc("create_user", {
       p_email: params.email,
       p_password: params.password,
-      p_uuid: uuid,
       p_nombre: params.nombre,
       p_apellido: params.apellido,
       p_user_type: params.userType,
@@ -40,10 +39,12 @@ export const createUser = async (params: CreateUserParams): Promise<UserRecord |
       p_city: params.city ?? null,
       p_state_region_province: params.stateRegionProvince ?? null,
       p_postal_code: params.postalCode ?? null,
-    });
-    console.log("RPC", data)
-    if (Array.isArray(data) && data.length > 0) {
-      return data[0] as UserRecord;
+    })
+    .select()
+    .single();
+    // console.log("RPC", data)
+    if (data) {
+      return data as UserRecord;
     }
     return null;
   } catch (err) {
