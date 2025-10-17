@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/CoralFi/finance-backend#readme",
   "dependencies": {
+    "@supabase/supabase-js": "^2.75.1",
     "axios": "^1.12.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
