@@ -1,7 +1,8 @@
 import { FERN_API_BASE_URL, getAuthHeaders } from "../config/fern";
 import supabase from "../db/supabase";
 import axios from "axios";
-
+import { PaymentAccount } from "./types/fern.types";
+import { DeleteResponse } from "./types/request.types";
 export const FernKycStatus = async (fernCustomerId: any, userId: any) => {
   try {
     const response = await axios.get(
@@ -98,3 +99,182 @@ export const getFernWalletCryptoInfo = async (paymentAccountId: any) => {
   }
 };
 
+export const createFernPaymentAccount = async (payload: any) => {
+  try {
+    const response = await axios.post(
+      `${FERN_API_BASE_URL}/payment-accounts`,
+      payload,
+      {
+        headers: getAuthHeaders(),
+        timeout: 10000
+      }
+    );
+    return response;
+  } catch (error: any) {
+    console.error('Error en createFernPaymentAccount', {
+      error: error.message,
+      status: error.response?.status || 'unknown',
+      data: error.response?.data
+    });
+
+    return null;
+  }
+}
+
+export const listFernBankAccounts = async (
+  customerId: string,
+  currency?: string,
+  type?: string,
+  chain?: string
+): Promise<PaymentAccount[]> => {
+  try {
+    if (!customerId) {
+      throw new Error("El parámetro 'customerId' es obligatorio.");
+    }
+    const response = await fetch(
+      `${FERN_API_BASE_URL}/payment-accounts?customerId=${customerId}`,
+      {
+        method: "GET",
+        headers: getAuthHeaders(),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({
+        message: response.statusText,
+      }));
+
+      const error = new Error("Error al listar las cuentas desde Fern") as any;
+      error.status = response.status;
+      error.details = errorData;
+      throw error;
+    }
+
+    const data = await response.json();
+    let accounts: PaymentAccount[] = data.paymentAccounts || [];
+
+    if (type) {
+      switch (type.toUpperCase()) {
+        case "FERN":
+          accounts = accounts.filter(
+            (acc) => acc.paymentAccountType === "FERN_CRYPTO_WALLET"
+          );
+          break;
+
+        case "THIRD_PARTY":
+          accounts = accounts.filter((acc) => acc.isThirdParty === true);
+          break;
+
+        case "EXTERNAL_WALLET":
+          if (!chain) {
+            throw new Error(
+              "El parámetro 'chain' es requerido para filtrar billeteras externas."
+            );
+          }
+          accounts = accounts.filter(
+            (acc) =>
+              acc.paymentAccountType === "EXTERNAL_CRYPTO_WALLET" &&
+              acc.externalCryptoWallet?.chain === chain
+          );
+          break;
+
+        default:
+          console.warn(`Tipo de cuenta desconocido: ${type}`);
+          break;
+      }
+    }
+
+    if (currency) {
+      accounts = accounts.filter(
+        (acc) =>
+          acc.externalBankAccount?.bankAccountCurrency === currency ||
+          acc.externalBankAccount?.bankAccountCurrency ===
+          (acc.externalBankAccount?.bankAccountCurrency as any)?.label
+      );
+    }
+
+    accounts = accounts.map((acc) => {
+      if (
+        acc.externalBankAccount &&
+        typeof acc.externalBankAccount.bankAccountCurrency === "object"
+      ) {
+        acc.externalBankAccount.bankAccountCurrency =
+          (acc.externalBankAccount.bankAccountCurrency as { label: string })
+            .label;
+      }
+      return acc;
+    });
+
+    return accounts;
+  } catch (error: any) {
+    console.error(
+      "Error al listar cuentas bancarias:",
+      error.message || error,
+      error.stack
+    );
+    throw error;
+  }
+};
+
+
+
+export const handleDeleteBankAccount = async (
+  paymentAccountId: string
+): Promise<DeleteResponse> => {
+  if (!paymentAccountId) {
+    throw new Error("El parámetro 'paymentAccountId' es obligatorio.");
+  }
+
+  const url = `${FERN_API_BASE_URL}/payment-accounts/${paymentAccountId}`;
+  const headers = {
+    ...getAuthHeaders(),
+    "Content-Type": "application/json",
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "DELETE",
+      headers,
+      body: JSON.stringify({}),
+    });
+
+    if (!response.ok) {
+      const errorData = await response
+        .json()
+        .catch(() => ({ message: response.statusText }));
+
+      const error = new Error(
+        `Error al eliminar la cuenta bancaria en Fern (status: ${response.status})`
+      ) as any;
+      error.status = response.status;
+      error.details = errorData;
+      throw error;
+    }
+
+    if (response.status === 204 || response.status === 200) {
+      return {
+        success: true,
+        message: "Cuenta bancaria eliminada exitosamente.",
+      };
+    }
+
+    const data = await response.json().catch(() => null);
+    return {
+      success: true,
+      message: "Cuenta bancaria eliminada con respuesta adicional.",
+      ...(data && { details: data }),
+    };
+  } catch (error: any) {
+    console.error(
+      `❌ Error al eliminar la cuenta bancaria ${paymentAccountId}:`,
+      error.message
+    );
+
+    return {
+      success: false,
+      message: error.message || "Error al eliminar la cuenta bancaria",
+      status: error.status || 500,
+      details: error.details || null,
+    };
+  }
+};

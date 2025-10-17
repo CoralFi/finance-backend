@@ -48,3 +48,29 @@ export interface FernWalletCryptoInfo {
   paymentAccountId: string;
   customerId: string;
 }
+
+
+
+export interface ExternalBankAccount {
+  bankAccountCurrency?: string | { label: string };
+  bankName?: string;
+  bankAccountType?: string;
+  bankAddress?: string;
+  bankAccountOwner?: string;
+}
+
+export interface ExternalCryptoWallet {
+  cryptoWalletType?: string;
+  chain?: string;
+  address?: string;
+}
+
+export interface PaymentAccount {
+  id?: string;
+  paymentAccountType?: string;
+  isThirdParty?: boolean;
+  externalBankAccount?: ExternalBankAccount;
+  externalCryptoWallet?: ExternalCryptoWallet;
+  fernCryptoWallet?: any;
+}
+
