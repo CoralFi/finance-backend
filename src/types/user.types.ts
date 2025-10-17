@@ -23,11 +23,25 @@ export interface CreateUserParams {
 }
 
 export interface UserRecord {
-  user_id: string;
-  email: string;
-  nombre: string;
-  apellido: string;
-  user_type: string;
-  tos_coral: boolean;
-  [key: string]: any;
+customer_id: string;
+user_id: string;
+email: string;
+nombre: string;
+apellido: string;
+user_type: string;
+tos_coral: boolean;
+phone_number: string | null;
+birthdate: string | null;
+occupation_id: number | null;
+employment_situation_id: number | null;
+account_purposes_id: number | null;
+source_fund_id: number | null;
+amount_to_moved_id: number | null;
+country: string | null;
+address_line_1: string | null;
+address_line_2: string | null;
+city: string | null;
+state_region_province: string | null;
+postal_code: string | null;
+user_info_created: boolean | null;
 }
