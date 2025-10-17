@@ -120,12 +120,12 @@ export const createFernWallet = async (
     );
 
     if (isDevelopment) {
-      console.log('✅ Wallet created:', { walletId: data.paymentAccountId, customerId });
+      console.log('Wallet created:', { walletId: data.paymentAccountId, customerId });
     }
 
     return data.paymentAccountId;
   } catch (error: any) {
-    console.error('❌ Error creating wallet:', error.message);
+    console.error('Error creating wallet:', error.message);
     throw new Error(`WALLET_CREATION_FAILED: ${error.message}`);
   }
 };
@@ -152,7 +152,7 @@ export const createFernCustomer = async (
     };
 
     if (isDevelopment) {
-      console.log('🔄 Creating Fern customer:', { email: user.email });
+      console.log('Creating Fern customer:', { email: user.email });
     }
 
     const fernCustomerResponse = await fernApiRequest<FernCustomerResponse>(
@@ -166,7 +166,7 @@ export const createFernCustomer = async (
     const customerId = fernCustomerResponse.customerId;
 
     if (isDevelopment) {
-      console.log('✅ Customer created in Fern:', { customerId });
+      console.log('Customer created in Fern:', { customerId });
     }
 
     // 2. Create wallet for the customer
@@ -196,7 +196,7 @@ export const createFernCustomer = async (
     }
 
     if (isDevelopment) {
-      console.log('✅ Fern record saved:', { userId: user.user_id, customerId });
+      console.log('Fern record saved:', { userId: user.user_id, customerId });
     }
 
     // 4. Get wallet crypto info
@@ -210,7 +210,7 @@ export const createFernCustomer = async (
     };
 
   } catch (error: any) {
-    console.error('❌ Error in createFernCustomer:', {
+    console.error('Error in createFernCustomer:', {
       error: error.message,
       userId: user?.user_id,
       email: user?.email,
@@ -249,7 +249,7 @@ export const getFernCustomer = async (
 
     return await response.json();
   } catch (error: any) {
-    console.error('❌ Error fetching customer:', { customerId, error: error.message });
+    console.error('Error fetching customer:', { customerId, error: error.message });
     throw error;
   }
 };
