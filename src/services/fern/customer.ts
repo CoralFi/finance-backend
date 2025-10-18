@@ -5,7 +5,9 @@ import { UserRecord } from "@/types/user.types";
 import { 
   FernCustomerData, 
   FernWalletData, 
-  FernCustomerResponse, 
+  FernCustomerResponse,
+  FernCustomer,
+  FernCustomersListResponse,
   FernRecord, 
   CreateFernCustomerResult 
 } from "@/services/types/fern.types";
@@ -236,20 +238,49 @@ export const getFernCustomer = async (
     throw new Error('CUSTOMER_ID_REQUIRED');
   }
 
-  try {
-    const response = await fetch(`${FERN_API_BASE_URL}/customers/${customerId}`, {
-      headers: getAuthHeaders()
-    });
+  const { data: fernCustomer, error } = await supabase
+    .rpc('get_fern_customer_id', { p_customer_id: customerId });
+  if (error) {
+    throw new Error(`DATABASE_ERROR: ${error.message}`);
+  }
 
-    if (!response.ok) {
-      if (response.status === 404) return null;
-      const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-      throw new Error(errorData.message || `HTTP ${response.status}`);
+  try {
+    const response = await fernApiRequest<FernCustomerResponse>(
+      `/customers/${fernCustomer[0].ferncustomerid}`,
+      {
+        method: 'GET',
+        headers: getAuthHeaders()
+      }
+    );
+
+    if (isDevelopment) {
+      console.log('Fern customer fetched:', response);
     }
 
-    return await response.json();
+    return response;
   } catch (error: any) {
     console.error('Error fetching customer:', { customerId, error: error.message });
+    throw error;
+  }
+};
+
+export const getFernCustomers = async (): Promise<FernCustomersListResponse> => {
+  try {
+    const response = await fernApiRequest<FernCustomersListResponse>(
+      '/customers?pageSize=100',
+      {
+        method: 'GET',
+        headers: getAuthHeaders()
+      }
+    );
+
+    if (isDevelopment) {
+      console.log('Fern customers fetched:', response.customers?.length || 0);
+    }
+
+    return response;
+  } catch (error: any) {
+    console.error('Error fetching customers:', error.message);
     throw error;
   }
 };
