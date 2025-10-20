@@ -13,6 +13,7 @@ router.get("/:paymentAccountId/balance", getBalanceController);
 router.get("/:paymentAccountId/info", getPaymentAccountInfoController);
 
 // CRUD routes
+// /api/payment-accounts
 router.post("/", createPaymentAccountController);
 router.get("/", listPaymentAccountsController);
 router.delete("/", deletePaymentAccountController);

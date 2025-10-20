@@ -107,7 +107,9 @@ export interface FernWalletCryptoInfo {
 
 
 export interface ExternalBankAccount {
-  bankAccountCurrency?: string | { label: string };
+  bankAccountCurrency?: {
+    label: string;
+  };
   bankName?: string;
   bankAccountType?: string;
   bankAddress?: string;
