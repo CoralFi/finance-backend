@@ -7,6 +7,12 @@ import { UserInfo } from "@/services/types/types";
  * @returns UserInfo object or null if not found
  */
 export const getUserByEmail = async (email: string): Promise<UserInfo | null> => {
+  const isDevelopment = process.env.NODE_ENV === 'development';
+
+  if (isDevelopment) {
+    console.log(`🔄 Fetching user info for: ${email}`);
+  }
+
   const { data: userExists, error: existsError } = await supabase
     .rpc("exists_user", { p_email: email })
     .single() as { data: UserInfo | null, error: any };
@@ -16,9 +22,14 @@ export const getUserByEmail = async (email: string): Promise<UserInfo | null> =>
     return null;
   }
 
+
   const { data: user, error: userError } = await supabase
     .rpc("get_user_info_2", { p_customer_id: userExists.customer_id })
     .single() as { data: UserInfo | null, error: any };
+
+  if (isDevelopment) {
+    console.log(`🔄 User info: ${JSON.stringify(user)}`);
+  }
 
   if (userError || !user) {
     console.error("Error obteniendo datos del usuario:", userError);

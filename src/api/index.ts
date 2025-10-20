@@ -7,11 +7,17 @@ import customersRoutes from "./customers/index";
 import transactionsRoutes from "./transactions/index";
 const router = Router();
 
+// /api/test
 router.use("/test", testRoutes);
+// /api/auth
 router.use("/auth", loginRoutes);
+// /api/payment-accounts
 router.use("/payment-accounts", paymentAccountsRoutes);
+// /api/customers
 router.use("/customers", customersRoutes);
+// /api/transactions
 router.use("/transactions", transactionsRoutes);
+// /api/otp
 router.use("/otp", otpRoutes);
 
 export default router;
