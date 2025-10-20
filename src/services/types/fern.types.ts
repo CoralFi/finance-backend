@@ -16,11 +16,66 @@ export interface FernWalletData {
   };
 }
 
-export interface FernCustomerResponse {
+
+// Individual Customer KYCdata
+export interface FernCustomerKYC {
+  legalFirstName: string;
+  legalMiddleName?: string;
+  legalLastName: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+  address: {
+    streetLine1: string;
+    streetLine2?: string;
+    city: string;
+    stateRegionProvince: string;
+    postalCode: string;
+    countryCode: string;
+    locale?: string;
+  };
+  nationalIdIssuingCountry?: string;
+  nationalIdType: string;
+  nationalIdNumber: string;
+  nationality: string;
+  employmentStatus: string;
+  mostRecentOccupation: string;
+  sourceOfFunds: string;
+  accountPurpose: string;
+  accountPurposeOther?: string;
+  expectedMonthlyPaymentsUsd: string;
+  isIntermediary: boolean;
+  documents: [
+    {
+      type: string;
+      frontIdImage: string;
+      backIdImage: string;
+      proofOfAddressImage: string;
+      documentImage: string;
+    }
+  ];
+}
+
+// Individual customer object
+export interface FernCustomer {
   customerId: string;
+  name?: string;
+  email?: string;
   customerStatus: string;
+  customerType?: string;
+  updatedAt?: string;
   kycLink?: string;
   organizationId?: string;
+  kycData?: FernCustomerKYC;
+}
+
+// Response when creating/getting a single customer
+export interface FernCustomerResponse extends FernCustomer {
+  // Single customer response includes all FernCustomer fields
+}
+
+// Response when listing multiple customers
+export interface FernCustomersListResponse {
+  customers: FernCustomer[];
 }
 
 export interface FernRecord {
