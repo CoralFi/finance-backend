@@ -5,10 +5,14 @@ import {verifyGoogleAuthController} from "./validateGoogleAuth"
 import {validateOtpController} from "./validateOtp"
 const router = Router();
 
-// Dynamic route: /payment-accounts/:paymentAccountId/balance
+// OTP Routes
+// api/otp/generate-qr
 router.get("/generate-qr", generate2FAController);
-router.post("/send-otp", sendOtpController);
+// api/otp/email
+router.post("/email", sendOtpController);
+// api/otp/validate-google-auth
 router.post("/validate-google-auth", verifyGoogleAuthController);
-router.post('/validateOtp', validateOtpController);
+// api/otp/validate-otp
+router.post('/validate-otp', validateOtpController);
 
 export default router;
