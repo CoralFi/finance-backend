@@ -18,7 +18,7 @@
                 format: email
                 example: user@example.com
     responses:
-      '200':
+      "200":
         description: Correo enviado exitosamente.
         content:
           application/json:
@@ -31,7 +31,7 @@
                 message:
                   type: string
                   example: Confirm email sent successfully
-      '404':
+      "404":
         description: Usuario no encontrado.
         content:
           application/json:
@@ -44,7 +44,7 @@
                 message:
                   type: string
                   example: User not found
-      '500':
+      "500":
         description: Error interno al procesar el correo.
         content:
           application/json:
@@ -57,3 +57,70 @@
                 message:
                   type: string
                   example: Error sending email
+/api/email/send-code:
+  post:
+    summary: Enviar código de verificación por correo
+    description: >
+      Genera un código de verificación de 6 dígitos y lo envía por correo electrónico al usuario.
+      El código es válido por 15 minutos.
+    tags:
+      - Emails
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                format: email
+                example: user@example.com
+    responses:
+      "200":
+        description: Código enviado exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Code sent successfully to user@example.com
+                code:
+                  type: integer
+                  example: 123456
+      "404":
+        description: Usuario no encontrado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User not found
+      "500":
+        description: Error interno al enviar el código
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error sending code
+                error:
+                  type: string
+                  example: Database connection failed
