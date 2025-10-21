@@ -1,0 +1,68 @@
+/api/payment-accounts/{paymentAccountId}/balance:
+  get:
+    summary: Obtener balances agregados de una cuenta de pago
+    description: >
+      Retorna los saldos agregados en USD para una cuenta de pago en distintas cadenas (Polygon, Base, Ethereum)
+      y monedas soportadas (USDT, USDC).
+    tags:
+      - Payments
+    parameters:
+      - in: path
+        name: paymentAccountId
+        required: true
+        schema:
+          type: string
+        description: ID de la cuenta de pago en Fern.
+    responses:
+      "200":
+        description: Saldos agregados obtenidos con éxito.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                balanceTotal:
+                  type: number
+                  example: 1250.45
+                  description: Suma total en USD de todos los balances.
+                POLYGON:
+                  type: object
+                  properties:
+                    USDT:
+                      type: number
+                      example: 500.23
+                    USDC:
+                      type: number
+                      example: 250.00
+                BASE:
+                  type: object
+                  properties:
+                    USDT:
+                      type: number
+                      example: 300.00
+                    USDC:
+                      type: number
+                      example: 100.22
+      "400":
+        description: Falta el parámetro `paymentAccountId`.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Payment account ID is required"
+      "500":
+        description: Error interno del servidor al obtener los balances.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: string
+                  example: "Error getting payment account balance"
+                details:
+                  type: string
+                  example: "Connection timeout with Fern API"

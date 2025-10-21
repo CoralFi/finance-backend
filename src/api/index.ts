@@ -5,6 +5,8 @@ import paymentAccountsRoutes from "./paymentAcounts/index";
 import otpRoutes from "./otp/index";
 import customersRoutes from "./customers/index";
 import transactionsRoutes from "./transactions/index";
+import locationsRoutes from "./locations/index";
+import emailRoutes from "./email/index";
 const router = Router();
 
 // /api/test
@@ -19,5 +21,6 @@ router.use("/customers", customersRoutes);
 router.use("/transactions", transactionsRoutes);
 // /api/otp
 router.use("/otp", otpRoutes);
-
+router.use("/locations", locationsRoutes);
+router.use("/email", emailRoutes);
 export default router;
