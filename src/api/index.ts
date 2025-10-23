@@ -7,6 +7,7 @@ import customersRoutes from "./customers/index";
 import transactionsRoutes from "./transactions/index";
 import locationsRoutes from "./locations/index";
 import emailRoutes from "./email/index";
+import quotesRoutes from "./quotes/index";
 const router = Router();
 
 // /api/test
@@ -25,4 +26,6 @@ router.use("/otp", otpRoutes);
 router.use("/locations", locationsRoutes);
 // /api/email
 router.use("/email", emailRoutes);
+// /api/quotes
+router.use("/quotes", quotesRoutes);
 export default router;

@@ -16,7 +16,8 @@ export const FIAT_METHODS = [
     'CA_INTERAC', // Canadá
     'GB_BACS_CHAPS_FPS', // Reino Unido
     'AU_BECS', // Australia
-    'PE_CCE' // Perú
+    'PE_CCE', // Perú
+    'IL_ZAHAV', // Israel
 ] as const;
 
 export const CRYPTO_NETWORKS = [

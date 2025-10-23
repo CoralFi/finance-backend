@@ -154,3 +154,41 @@ export interface FernApiError extends Error {
   status?: number;
   details?: any;
 }
+
+// Quote Types
+export interface QuoteSource {
+  sourcePaymentAccountId: string;
+  sourceCurrency: string;
+  sourcePaymentMethod: string;
+  sourceAmount: string;
+}
+
+export interface QuoteDestination {
+  destinationPaymentAccountId: string;
+  destinationCurrency: string;
+  destinationPaymentMethod?: string;
+}
+
+export interface DeveloperFee {
+  developerFeeType?: string;
+  developerFeeAmount: string;
+}
+
+export interface QuoteRequestData {
+  customerId: string;
+  source: QuoteSource;
+  destination: QuoteDestination;
+  developerFee?: DeveloperFee;
+}
+
+export interface FernQuoteResponse {
+  quoteId: string;
+  customerId: string;
+  source: QuoteSource;
+  destination: QuoteDestination;
+  developerFee?: DeveloperFee;
+  exchangeRate?: string;
+  estimatedFees?: any;
+  expiresAt?: string;
+  [key: string]: any;
+}
