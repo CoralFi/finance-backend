@@ -1,6 +1,4 @@
-// ============================================================================
-// TYPES
-// ============================================================================
+
 
 export type RampType = 'onramp' | 'offramp' | 'swap' | 'transfer' | 'unknown';
 export type TransactionStatus = 'completed' | 'await' | 'processing' | 'failed' | '';
