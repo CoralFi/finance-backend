@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import supabase from '../../db/supabase';
+import supabase from '@/db/supabase';
 
 export const getCountriesController = async (req: Request, res: Response): Promise<Response> => {
   try {

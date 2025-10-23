@@ -1,8 +1,8 @@
 import { Resend } from 'resend';
-import getCodeEmailBody from '../../utils/sendCodeBody';
+import getCodeEmailBody from '@/utils/sendCodeBody';
 // import getResetPasswordEmailBody from '../../utils/sendResetPasswordBody';
-import getConfirmResetPasswordEmailBody from '../../utils/confirmResetPasswordBody';
-import getSendConfirmEmailBody from '../../utils/sendConfirmEmailBody';
+import getConfirmResetPasswordEmailBody from '@/utils/confirmResetPasswordBody';
+import getSendConfirmEmailBody from '@/utils/sendConfirmEmailBody';
 // import getSendConfirmedEmailBody from '../../utils/SendConfirmedEmailBody';
 
 export default class ResendService {

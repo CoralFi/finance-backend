@@ -21,6 +21,8 @@ router.use("/customers", customersRoutes);
 router.use("/transactions", transactionsRoutes);
 // /api/otp
 router.use("/otp", otpRoutes);
+// /api/locations
 router.use("/locations", locationsRoutes);
+// /api/email
 router.use("/email", emailRoutes);
 export default router;

@@ -180,6 +180,12 @@ export const listFernBankAccounts = async (
           );
           break;
 
+        case 'AUTO_FIAT':
+          accounts = accounts.filter(
+            (acc) => acc.paymentAccountType === "FERN_AUTO_FIAT_ACCOUNT"
+          );
+          break;
+
         default:
           console.warn(`Tipo de cuenta desconocido: ${type}`);
           break;

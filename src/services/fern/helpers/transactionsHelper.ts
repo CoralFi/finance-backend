@@ -6,16 +6,17 @@ import {
 } from "@/services/types/fernTransaction.type";
 
 export const FIAT_METHODS = [
-    'ACH',
-    'WIRE',
-    'SEPA',
-    'SWIFT',
-    'AR_TRANSFERS_3',
-    'MX_SPEI',
-    'BR_TED_DOC_PIX',
-    'CA_INTERAC',
-    'GB_BACS_CHAPS_FPS',
-    'AU_BECS'
+    'ACH', // Estados Unidos
+    'WIRE', // Transferencia bancaria internacional
+    'SEPA', // Transferencia bancaria europea
+    'SWIFT', // Transferencia bancaria internacional
+    'AR_TRANSFERS_3', // Argentina
+    'MX_SPEI', // México
+    'BR_TED_DOC_PIX', // Brasil
+    'CA_INTERAC', // Canadá
+    'GB_BACS_CHAPS_FPS', // Reino Unido
+    'AU_BECS', // Australia
+    'PE_CCE' // Perú
 ] as const;
 
 export const CRYPTO_NETWORKS = [
