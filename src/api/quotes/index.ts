@@ -1,10 +1,13 @@
+import { Router } from "express";
 import { createQuoteController } from "./quotes";
-import express from "express";
 
-export const router = express.Router();
+const router = Router();
 
-// Create quote
-// POST /api/quotes
-router.post('/', createQuoteController);
+/**
+ * @route POST /api/quotes
+ * @description Create a new quote for a transaction
+ * @access Private
+ */
+router.post("/", createQuoteController);
 
 export default router;

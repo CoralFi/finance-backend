@@ -192,3 +192,20 @@ export interface FernQuoteResponse {
   expiresAt?: string;
   [key: string]: any;
 }
+
+// Transaction Types
+export interface CreateTransactionRequest {
+  quoteId: string;
+}
+
+export interface FernTransactionResponse {
+  transactionId: string;
+  quoteId: string;
+  customerId: string;
+  status: string;
+  source?: QuoteSource;
+  destination?: QuoteDestination;
+  createdAt?: string;
+  updatedAt?: string;
+  [key: string]: any;
+}
