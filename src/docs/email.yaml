@@ -124,3 +124,67 @@
                 error:
                   type: string
                   example: Database connection failed
+/api/email/verify-code:
+  post:
+    summary: Verificar código de autenticación (OTP)
+    tags:
+      - Emails
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+              - code
+            properties:
+              user_id:
+                type: string
+                example: "1a2b3c4d-5678-90ab-cdef-1234567890gh"
+              code:
+                type: integer
+                example: 123456
+    responses:
+      "200":
+        description: Código verificado correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Code verified successfully
+      "400":
+        description: Código inválido o faltan parámetros
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Invalid code
+      "500":
+        description: Error del servidor al verificar el código
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error verifying code
+                error:
+                  type: string
+                  example: "Database connection failed"

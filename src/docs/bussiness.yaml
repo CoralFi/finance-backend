@@ -1,0 +1,135 @@
+/api/auth/business/signup:
+  post:
+    summary: Crear cliente en Conduit y guardar en base de datos
+    tags:
+      - Auth Business
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - businessLegalName
+              - country
+              - isDirectSetup
+              - email
+              - phone
+              - password
+              - recordType
+            properties:
+              businessLegalName:
+                type: string
+                example: Acme Corpaa
+              country:
+                type: string
+                example: USA
+              isDirectSetup:
+                type: boolean
+                example: true
+              email:
+                type: string
+                example: contact@acme.com
+              phone:
+                type: string
+                example: +1234567890
+              password:
+                type: string
+                example: superSecurePass123!
+              userId:
+                type: integer
+                example: 101
+              recordType:
+                type: integer
+                example: 1
+              businessInformation:
+                type: object
+                description: Información detallada del negocio requerida por Conduit
+                example:
+                  businessDescription: Provider of industrial widgets and services
+                  isSubsidiary: false
+                  entityType: Bank
+                  isOperating: true
+                  regulatorName: SEC
+                  businessEntityType: Corporation
+                  businessLegalName: Acme Corp
+                  registeredDate: 2024-01-01
+                  website: https://acme.com
+                  email: contact@acme.com
+                  phone: +1234567890
+                  industry: Technology
+                  taxIdentificationNumber: 123456789
+                  businessEntityId: BE001
+                  naicsCode: NAIS001
+                  entityTaxedAs: C-Corporation
+                  expectedAverageDailyBalance: 250000
+                  hasAdvisor: true
+                  registeredAddress:
+                    streetLine1: 123 Business St
+                    city: New York
+                    state: NY
+                    postalCode: 10001
+                    country: USA
+                  operatingAddress:
+                    streetLine1: 456 Office Ave
+                    city: New York
+                    state: NY
+                    postalCode: 10002
+                    country: USA
+    responses:
+      "201":
+        description: Cliente creado correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Cliente creado correctamente en Conduit y guardado en la base de datos
+                data:
+                  type: object
+                  properties:
+                    conduit:
+                      type: object
+                      description: Respuesta de la API de Conduit
+                    db:
+                      type: object
+                      description: Resultado del procedimiento almacenado en Supabase
+      "400":
+        description: Faltan campos requeridos
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Faltan campos obligatorios en el cuerpo de la solicitud
+                requiredFields:
+                  type: array
+                  items:
+                    type: string
+                  example: [businessLegalName, country, isDirectSetup, email, phone, password, recordType, businessInformation]
+      "500":
+        description: Error en la creación del cliente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error al crear cliente
+                error:
+                  type: string
+                  example: Error creating customer: Request failed with status code 400
