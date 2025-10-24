@@ -8,6 +8,8 @@ import transactionsRoutes from "./transactions/index";
 import locationsRoutes from "./locations/index";
 import emailRoutes from "./email/index";
 import quotesRoutes from "./quotes/index";
+import businessRoutes from "./bussiness/auth/index";
+import customersBussRoutes from "./bussiness/customers/index";
 const router = Router();
 
 // /api/test
@@ -28,4 +30,6 @@ router.use("/locations", locationsRoutes);
 router.use("/email", emailRoutes);
 // /api/quotes
 router.use("/quotes", quotesRoutes);
+router.use("/auth/business", businessRoutes);
+router.use("/business/customers", customersBussRoutes);
 export default router;

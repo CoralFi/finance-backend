@@ -1,0 +1,153 @@
+/api/business/customers:
+  get:
+    summary: Obtener todos los clientes registrados en Conduit
+    description: Retorna la lista completa de clientes (empresas o individuos) registrados en Conduit Financial.
+    tags:
+      - Conduit Financial
+    security:
+      - bearerAuth: [] # o apiKeyAuth, dependiendo de tu esquema de seguridad global
+    responses:
+      200:
+        description: Lista de clientes obtenida correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Customers retrieved successfully
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        example: cus_9lOq2YBvL4V0HnspB1Vf5FJdKqN
+                      businessLegalName:
+                        type: string
+                        example: PagoNet S.A.C.
+                      country:
+                        type: string
+                        example: PER
+                      status:
+                        type: string
+                        example: active
+                      isFinancialInstitution:
+                        type: boolean
+                        example: true
+                      createdAt:
+                        type: string
+                        format: date-time
+                        example: 2025-10-22T15:31:12Z
+      500:
+        description: Error interno al obtener clientes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve customers
+                error:
+                  type: string
+                  example: Error retrieving customers from Conduit API
+
+/api/business/customers/{id}:
+  get:
+    summary: Obtener cliente por ID en Conduit
+    description: Retorna la información detallada de un cliente específico registrado en Conduit Financial, usando su ID único.
+    tags:
+      - Conduit Financial
+    security:
+      - bearerAuth: []  
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador único del cliente en Conduit
+        schema:
+          type: string
+          example: cus_9lOq2YBvL4V0HnspB1Vf5FJdKqN
+    responses:
+      200:
+        description: Cliente obtenido exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Customer retrieved successfully
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: cus_9lOq2YBvL4V0HnspB1Vf5FJdKqN
+                    businessLegalName:
+                      type: string
+                      example: PagoNet S.A.C.
+                    industry:
+                      type: string
+                      example: Finance
+                    country:
+                      type: string
+                      example: PER
+                    email:
+                      type: string
+                      example: contacto@pagonet.pe
+                    phone:
+                      type: string
+                      example: +51987654321
+                    taxIdentificationNumber:
+                      type: string
+                      example: 20674591231
+                    status:
+                      type: string
+                      example: active
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: 2025-10-22T15:31:12Z
+      404:
+        description: Cliente no encontrado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Customer not found
+      500:
+        description: Error interno al obtener cliente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve customer
+                error:
+                  type: string
+                  example: Error retrieving customer from Conduit API
