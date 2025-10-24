@@ -107,7 +107,9 @@ export interface FernWalletCryptoInfo {
 
 
 export interface ExternalBankAccount {
-  bankAccountCurrency?: string | { label: string };
+  bankAccountCurrency?: {
+    label: string;
+  };
   bankName?: string;
   bankAccountType?: string;
   bankAddress?: string;
@@ -151,4 +153,59 @@ export interface FernBalanceResponse {
 export interface FernApiError extends Error {
   status?: number;
   details?: any;
+}
+
+// Quote Types
+export interface QuoteSource {
+  sourcePaymentAccountId: string;
+  sourceCurrency: string;
+  sourcePaymentMethod: string;
+  sourceAmount: string;
+}
+
+export interface QuoteDestination {
+  destinationPaymentAccountId: string;
+  destinationCurrency: string;
+  destinationPaymentMethod?: string;
+}
+
+export interface DeveloperFee {
+  developerFeeType?: string;
+  developerFeeAmount: string;
+}
+
+export interface QuoteRequestData {
+  customerId: string;
+  source: QuoteSource;
+  destination: QuoteDestination;
+  developerFee?: DeveloperFee;
+}
+
+export interface FernQuoteResponse {
+  quoteId: string;
+  customerId: string;
+  source: QuoteSource;
+  destination: QuoteDestination;
+  developerFee?: DeveloperFee;
+  exchangeRate?: string;
+  estimatedFees?: any;
+  expiresAt?: string;
+  [key: string]: any;
+}
+
+// Transaction Types
+export interface CreateTransactionRequest {
+  quoteId: string;
+}
+
+export interface FernTransactionResponse {
+  transactionId: string;
+  quoteId: string;
+  customerId: string;
+  status: string;
+  source?: QuoteSource;
+  destination?: QuoteDestination;
+  createdAt?: string;
+  updatedAt?: string;
+  [key: string]: any;
 }

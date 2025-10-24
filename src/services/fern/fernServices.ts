@@ -152,6 +152,7 @@ export const listFernBankAccounts = async (
     }
 
     const data = await response.json();
+    console.log("Data from Fern:", data);
     let accounts: PaymentAccount[] = data.paymentAccounts || [];
 
     if (type) {
@@ -179,6 +180,12 @@ export const listFernBankAccounts = async (
           );
           break;
 
+        case 'AUTO_FIAT':
+          accounts = accounts.filter(
+            (acc) => acc.paymentAccountType === "FERN_AUTO_FIAT_ACCOUNT"
+          );
+          break;
+
         default:
           console.warn(`Tipo de cuenta desconocido: ${type}`);
           break;
@@ -188,9 +195,7 @@ export const listFernBankAccounts = async (
     if (currency) {
       accounts = accounts.filter(
         (acc) =>
-          acc.externalBankAccount?.bankAccountCurrency === currency ||
-          acc.externalBankAccount?.bankAccountCurrency ===
-          (acc.externalBankAccount?.bankAccountCurrency as any)?.label
+          acc.externalBankAccount?.bankAccountCurrency?.label === currency.toUpperCase() 
       );
     }
 
@@ -199,7 +204,7 @@ export const listFernBankAccounts = async (
         acc.externalBankAccount &&
         typeof acc.externalBankAccount.bankAccountCurrency === "object"
       ) {
-        acc.externalBankAccount.bankAccountCurrency =
+        acc.externalBankAccount.bankAccountCurrency.label =
           (acc.externalBankAccount.bankAccountCurrency as { label: string })
             .label;
       }

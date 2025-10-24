@@ -48,7 +48,7 @@ export const loginController = async (req: Request, res: Response) => {
     return res.status(200).json({
       message: "Inicio de sesión exitoso.",
       user: {
-        id: user.user_id,
+        customer_id: user.customer_id,
         email: user.email,
         firstName: user.nombre,
         lastName: user.apellido,

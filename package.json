@@ -4,10 +4,9 @@
   "description": "CORAL BACKEND",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
-    "build": "tsc && tsc-alias",
-    "start": "node dist/index.js"
+    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/server.ts",
+    "build": "tsc && tsc-alias && cp -r src/docs dist/docs",
+    "start": "node dist/server.js"
   },
   "repository": {
     "type": "git",
@@ -31,12 +30,11 @@
     "morgan": "^1.10.1",
     "otplib": "^12.0.1",
     "resend": "^6.2.1",
+    "serverless-http": "^4.0.0",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^13.0.0",
-    "yamljs": "^0.3.0"
-  },
-  "devDependencies": {
-    "@types/bcrypt": "^6.0.0",
+    "yamljs": "^0.3.0",
+     "@types/bcrypt": "^6.0.0",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/morgan": "^1.9.10",
@@ -47,5 +45,8 @@
     "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+   
   }
 }

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { authenticator } from "otplib";
-import supabase from "../../db/supabase";
+import supabase from "@/db/supabase";
 
 interface Generate2FAQuery {
   email?: string;
@@ -29,6 +29,7 @@ export const generate2FAController = async (
       console.error("Error al actualizar Supabase:", updateError);
       return res.status(500).json({ message: "Error al guardar el secreto en la base de datos." });
     }
+    
     const issuerName = "CoralFinance";
     const otpauthUrl = authenticator.keyuri(decodedEmail, issuerName, secret);
 
@@ -40,6 +41,7 @@ export const generate2FAController = async (
       secret,
       qrCode: otpauthUrl,
     });
+
   } catch (error: any) {
     console.error("Error al generar el QR:", error.message);
     return res.status(500).json({
