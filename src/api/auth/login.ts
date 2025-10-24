@@ -7,6 +7,8 @@ import { getFernData, fetchFernRelatedData } from './helpers/fernHelpers';
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
+  const isDeveloment = process.env.NODE_ENV === "development";
+
   // Validate input
   if (!email || !password) {
     return res.status(400).json({ message: "Email y contraseña son requeridos." });
@@ -42,7 +44,9 @@ export const loginController = async (req: Request, res: Response) => {
         })
     ]);
 
-    console.log("Inicio de sesión exitoso:", user.email);
+    if (isDeveloment) {
+      console.log("Inicio de sesión exitoso:", user.email);
+    }
 
     // 5. Return success response
     return res.status(200).json({
