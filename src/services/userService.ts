@@ -8,7 +8,8 @@ export const verifyUser = async (email: string): Promise<any> => {
       console.error("Error en RPC:", error.message);
       return null;
     }
-    return (data);
+    const result = data[0];
+    return (result);
   } catch (err) {
     console.error("Error al verificar usuario:", err);
     return null;

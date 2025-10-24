@@ -6,6 +6,9 @@ import { createFernCustomer } from "@/services/fern/customer";
 import { SignUpRequestBody, ApiResponse } from "@/services/types/request.types";
 
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+ 
+
 // required fields
 const REQUIRED_FIELDS = {
   QUICK: ['email', 'password', 'nombre', 'apellido', 'userType', 'tosCoral'],
@@ -92,6 +95,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
   // Validate recordType is required
   if (body.recordType === undefined || body.recordType === null) {
+
     res.status(400).json({
       success: false,
       message: "El campo 'recordType' es obligatorio.",
@@ -105,6 +109,9 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
   // Validate recordType is 0 or 1
   if (body.recordType !== 0 && body.recordType !== 1) {
+    if (isDevelopment) {
+      console.log(`🔄 RecordType is not 0 or 1: ${body.recordType}`);
+    }
     res.status(400).json({
       success: false,
       message: "El valor de 'recordType' no es válido. Debe ser 0 o 1.",
@@ -118,6 +125,9 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
   const validation = validateRequiredFields(body, requiredFields);
   
   if (!validation.isValid) {
+    if (isDevelopment) {
+      console.log(`🔄 Validation failed for recordType ${body.recordType}: ${JSON.stringify(validation)}`);
+    }
     const message = body.recordType === 0
       ? "Faltan campos obligatorios para tipo de registro rápido."
       : "Todos los campos son obligatorios para tipo de registro completo.";
@@ -131,7 +141,8 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     const result = await executeInTransaction(async () => {
       // Verify if the user already exists
       const userExists = await verifyUser(body.email);
-      if (!userExists) {
+      console.log("userExists", userExists);
+      if (userExists !== undefined) {
         throw new Error("USER_EXISTS");
       }
 
@@ -186,7 +197,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         email: result.newUser.email,
         userType: result.newUser.user_type,
         fernCustomerId: result.fernCustomer.fernCustomerId,
-        fernWalletId: result.fernCustomer.fernCustomerId,
+        fernWalletId: result.fernCustomer.fernWalletAddress,
         kycFern: result.fernCustomer.Kyc,
         kycLinkFern: result.fernCustomer.KycLink,
         tosCoral: result.newUser.tos_coral,
