@@ -1,0 +1,10 @@
+import { Router } from "express";
+import { createBankAccountController } from "./createBankAccount";
+import { getBankAccountsByCustomerIdController } from "./getBankAccounts";
+import { getBankAccountsByIdController } from "./getBankAccountById";
+const router = Router();
+router.post("/create", createBankAccountController);
+router.get("/getAll/:customerId", getBankAccountsByCustomerIdController);
+router.get("/getById/:id", getBankAccountsByIdController);
+router.patch("/update/:id", getBankAccountsByIdController);
+export default router;

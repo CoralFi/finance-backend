@@ -1,0 +1,508 @@
+/api/business/counterparties/create:
+  post:
+    summary: Crear cuenta bancaria externa (Counterparty)
+    description: Registra una cuenta bancaria externa asociada a un cliente de Conduit Financial.
+    tags:
+      - cuentas bancarias
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - type
+              - businessName
+              - website
+              - address
+              - email
+              - phone
+              - identificationType
+              - identificationNumber
+              - customerId
+              - paymentMethods
+            properties:
+              type:
+                type: string
+                example: business
+              businessName:
+                type: string
+                example: Office Supplies Inc.
+              website:
+                type: string
+                example: https://officesupplies.com
+              address:
+                type: object
+                required:
+                  - streetLine1
+                  - city
+                  - state
+                  - postalCode
+                  - country
+                properties:
+                  streetLine1:
+                    type: string
+                    example: 123 Vendor Street
+                  streetLine2:
+                    type: string
+                    example: Suite 500
+                  city:
+                    type: string
+                    example: Los Angeles
+                  state:
+                    type: string
+                    example: CA
+                  postalCode:
+                    type: string
+                    example: 90001
+                  country:
+                    type: string
+                    example: USA
+              email:
+                type: string
+                example: contact@officesupplies.com
+              phone:
+                type: string
+                example: +13105551234
+              identificationType:
+                type: string
+                example: tin
+              identificationNumber:
+                type: string
+                example: 98-7654321
+              customerId:
+                type: string
+                example: cus_34ef56Cvj65v32RJdVJfVm3gIKf
+              paymentMethods:
+                type: array
+                minItems: 1
+                items:
+                  type: object
+                  required:
+                    - type
+                    - accountOwnerName
+                    - bankName
+                    - currency
+                    - rail
+                    - routingNumber
+                    - accountNumber
+                    - accountType
+                    - address
+                  properties:
+                    type:
+                      type: string
+                      example: bank
+                    accountOwnerName:
+                      type: string
+                      example: Office Supplies Inc.
+                    bankName:
+                      type: string
+                      example: Chase Bank
+                    currency:
+                      type: string
+                      example: USD
+                    rail:
+                      type: array
+                      items:
+                        type: string
+                        example: ach
+                    routingNumber:
+                      type: string
+                      example: 123456789
+                    accountNumber:
+                      type: string
+                      example: 98765432101234
+                    accountType:
+                      type: string
+                      example: checking
+                    address:
+                      type: object
+                      required:
+                        - country
+                      properties:
+                        country:
+                          type: string
+                          example: USA
+                    iban:
+                      type: string
+                      nullable: true
+                      example: DE89 3704 0044 0532 0130 00
+                    pixKey:
+                      type: string
+                      nullable: true
+                      example: null
+                    swiftCode:
+                      type: string
+                      nullable: true
+                      example: null
+                    branchCode:
+                      type: string
+                      nullable: true
+                      example: null
+                    bankCode:
+                      type: string
+                      nullable: true
+                      example: null
+                    sortCode:
+                      type: string
+                      nullable: true
+                      example: null
+
+    responses:
+      201:
+        description: Cuenta bancaria externa creada correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Cuenta bancaria externa registrada correctamente
+                data:
+                  type: object
+                  description: Respuesta de Conduit al crear el counterparty
+      400:
+        description: Faltan campos requeridos
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Faltan campos obligatorios en el cuerpo de la solicitud.
+      500:
+        description: Error al registrar cuenta bancaria externa
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error al registrar cuenta bancaria externa
+                error:
+                  type: string
+                  example: Error de conexión o validación desde Conduit
+/api/business/counterparties/getAll/{customerId}:
+  get:
+    summary: Obtener cuentas bancarias por customerId
+    tags:
+      - cuentas bancarias
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        description: ID del cliente de Conduit
+        schema:
+          type: string
+          example: cus_34ef56Cvj65v32RJdVJfVm3gIKf
+    responses:
+      200:
+        description: Cuentas bancarias obtenidas correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Bank accounts filtered by customerId
+                data:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      customerId:
+                        type: string
+                        example: cus_34ef56Cvj65v32RJdVJfVm3gIKf
+                      bankName:
+                        type: string
+                        example: Chase Bank
+                      currency:
+                        type: string
+                        example: USD
+                      accountNumber:
+                        type: string
+                        example: 98765432101234
+      400:
+        description: Faltan parámetros requeridos
+      500:
+        description: Error del servidor
+/api/business/counterparties/getById/{id}:
+  get:
+    summary: Obtener una cuenta bancaria por ID
+    description: Retorna los detalles de una cuenta bancaria específica registrada en Conduit Financial, usando su identificador único.
+    tags:
+      - cuentas bancarias
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador único de la cuenta bancaria
+        schema:
+          type: string
+          example: ba_8fYq2ZBvL4V0HnspB1Vf5FJdKqN
+    responses:
+      200:
+        description: Cuenta bancaria obtenida correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Bank accounts filtered by id
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: ba_8fYq2ZBvL4V0HnspB1Vf5FJdKqN
+                    customerId:
+                      type: string
+                      example: cus_9lOq2YBvL4V0HnspB1Vf5FJdKqN
+                    bankName:
+                      type: string
+                      example: Chase Bank
+                    accountOwnerName:
+                      type: string
+                      example: Office Supplies Inc.
+                    currency:
+                      type: string
+                      example: USD
+                    accountNumber:
+                      type: string
+                      example: 98765432101234
+                    accountType:
+                      type: string
+                      example: checking
+                    rail:
+                      type: array
+                      items:
+                        type: string
+                      example: ["ach"]
+                    address:
+                      type: object
+                      properties:
+                        country:
+                          type: string
+                          example: USA
+                    iban:
+                      type: string
+                      nullable: true
+                      example: DE89 3704 0044 0532 0130 00
+                    pixKey:
+                      type: string
+                      nullable: true
+                      example: null
+                    swiftCode:
+                      type: string
+                      nullable: true
+                      example: null
+                    branchCode:
+                      type: string
+                      nullable: true
+                      example: null
+                    bankCode:
+                      type: string
+                      nullable: true
+                      example: null
+                    sortCode:
+                      type: string
+                      nullable: true
+                      example: null
+      400:
+        description: ID faltante en el path
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: id es requerido en el path
+      500:
+        description: Error interno al obtener la cuenta bancaria
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve bank accounts
+                error:
+                  type: string
+                  example: Error retrieving bank accounts from Conduit API
+/api/business/counterparties/update/{id}:
+  patch:
+    summary: Actualizar una cuenta bancaria por ID
+    description: Permite actualizar cualquier campo de una cuenta bancaria registrada en Conduit Financial. El ID es obligatorio en el path, y se debe enviar al menos un campo en el cuerpo.
+    tags:
+      - cuentas bancarias
+    security:
+      - bearerAuth: []
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Identificador único de la cuenta bancaria
+        schema:
+          type: string
+          example: ba_8fYq2ZBvL4V0HnspB1Vf5FJdKqN
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Al menos un campo debe estar presente
+            properties:
+              bankName:
+                type: string
+                example: Chase Bank
+              accountOwnerName:
+                type: string
+                example: Office Supplies Inc.
+              currency:
+                type: string
+                example: USD
+              accountNumber:
+                type: string
+                example: 98765432101234
+              accountType:
+                type: string
+                example: checking
+              rail:
+                type: array
+                items:
+                  type: string
+                example: ["ach"]
+              address:
+                type: object
+                properties:
+                  streetLine1:
+                    type: string
+                    example: 123 Main St
+                  city:
+                    type: string
+                    example: New York
+                  state:
+                    type: string
+                    example: NY
+                  postalCode:
+                    type: string
+                    example: 10001
+                  country:
+                    type: string
+                    example: USA
+              iban:
+                type: string
+                nullable: true
+                example: DE89 3704 0044 0532 0130 00
+              pixKey:
+                type: string
+                nullable: true
+                example: null
+              swiftCode:
+                type: string
+                nullable: true
+                example: null
+              branchCode:
+                type: string
+                nullable: true
+                example: null
+              bankCode:
+                type: string
+                nullable: true
+                example: null
+              sortCode:
+                type: string
+                nullable: true
+                example: null
+    responses:
+      200:
+        description: Cuenta bancaria actualizada correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Cuenta bancaria actualizada correctamente
+                data:
+                  type: object
+      400:
+        description: Error de validación (ID faltante o sin campos para actualizar)
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Debes enviar al menos un campo para actualizar
+      404:
+        description: Cuenta bancaria no encontrada
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: No se encontró la cuenta bancaria con el ID proporcionado
+      500:
+        description: Error interno al actualizar la cuenta bancaria
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error al actualizar cuenta bancaria
+                error:
+                  type: string
+                  example: Error retrieving bank accounts from Conduit API
