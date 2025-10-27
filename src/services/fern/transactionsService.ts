@@ -1,6 +1,6 @@
 import { CreateTransactionRequest, FernTransactionResponse } from "@/services/types/fern.types";
 import { fernApiRequest } from "./apiRequest";
-import { v4 as uuidv4 } from 'uuid';
+import { randomUUID } from 'crypto';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -35,7 +35,7 @@ export const createFernTransaction = async (
     validateTransactionRequest({ quoteId });
 
     // Generate unique idempotency key
-    const idempotencyKey = uuidv4();
+    const idempotencyKey = randomUUID();
 
     if (isDevelopment) {
       console.log('🔄 Creating transaction:', {
