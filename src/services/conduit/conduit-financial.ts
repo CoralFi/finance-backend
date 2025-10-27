@@ -25,7 +25,7 @@ const conduitFinancial = {
     const { data } = await conduitAxios.get(`/customers/${customerId}`);
     return data;
   },
-    async getCustomers() {
+  async getCustomers() {
     const { data } = await conduitAxios.get(`/customers`);
     return data;
   },
@@ -35,11 +35,23 @@ const conduitFinancial = {
     return data;
   },
 
-  // Puedes seguir agregando más endpoints aquí como:
-  // - deleteCustomer
-  // - getCustomerKybStatus
-  // - updateKybDocuments
-  // - etc.
+  async createBankAccounts(payload: Record<string, any>) {
+    const { data } = await conduitAxios.post(`/counterparties `, payload);
+    return data;
+  },
+
+  async getBankAccounts() {
+    const { data } = await conduitAxios.get(`/counterparties`);
+    return data;
+  },
+  async getBankAccountsById(id: string) {
+    const { data } = await conduitAxios.get(`/counterparties/${id}`);
+    return data;
+  },
+  async updateBankAccount(id: string, payload: Record<string, any>) {
+    const { data } = await conduitAxios.patch(`/counterparties/${id}`, payload);
+    return data;
+  },
 };
 
 export default conduitFinancial;

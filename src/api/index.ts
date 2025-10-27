@@ -10,6 +10,7 @@ import emailRoutes from "./email/index";
 import quotesRoutes from "./quotes/index";
 import businessRoutes from "./bussiness/auth/index";
 import customersBussRoutes from "./bussiness/customers/index";
+import bankAccountRoutes from "./bussiness/bankAccount/index";
 const router = Router();
 
 // /api/test
@@ -32,4 +33,5 @@ router.use("/email", emailRoutes);
 router.use("/quotes", quotesRoutes);
 router.use("/auth/business", businessRoutes);
 router.use("/business/customers", customersBussRoutes);
+router.use("/business/counterparties", bankAccountRoutes);
 export default router;
