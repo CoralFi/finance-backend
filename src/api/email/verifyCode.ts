@@ -1,15 +1,22 @@
 import { Request, Response } from 'express';
-import { verifyCode } from '../../services/emails/codeService';
+import { verifyCodeDB } from '@/services/emails/codeService';
+
+/**
+ * Controlador para verificar código usando customer_id y función de base de datos
+ */
 export const verifyCodeController = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { user_id, code } = req.body as { user_id: string; code: number };
-    if (!user_id || !code) {
+    const { customer_id, code } = req.body as { customer_id: string; code: number };
+    
+    if (!customer_id || !code) {
       return res.status(400).json({
         success: false,
-        message: 'user_id y code son requeridos',
+        message: 'customer_id y code son requeridos',
       });
     }
-    const isVerified = await verifyCode(user_id, code);
+
+    const isVerified = await verifyCodeDB(customer_id, code);
+    
     if (isVerified) {
       return res.status(200).json({
         success: true,
@@ -22,7 +29,7 @@ export const verifyCodeController = async (req: Request, res: Response): Promise
       });
     }
   } catch (error: any) {
-    console.error('Error verifying code:', error);
+    console.error('Error verifying code with DB function:', error);
     return res.status(500).json({
       success: false,
       message: 'Error verifying code',
