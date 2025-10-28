@@ -5,7 +5,7 @@ export const getBankAccountsByCustomerIdController = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  const { customerId } = req.params;
+  const { customerId } = req.params ;
 
   if (!customerId) {
     return res.status(400).json({
