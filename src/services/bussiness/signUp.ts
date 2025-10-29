@@ -7,7 +7,7 @@ export async function saveCustomerToDB({
   isDirectSetup,
   email,
   phone,
-  password,
+  hashedPassword,
   userId = null,
   recordType = 0,
   businessInformation = {}
@@ -18,7 +18,7 @@ export async function saveCustomerToDB({
   isDirectSetup: boolean;
   email: string;
   phone: string;
-  password: string;
+  hashedPassword: string;
   userId?: number | null;
   recordType?: number;
   businessInformation?: any;
@@ -28,7 +28,7 @@ export async function saveCustomerToDB({
     p_business_name: businessLegalName,
     p_business_email: email,
     p_business_phone: phone,
-    p_password: password,
+    p_password: hashedPassword,
     p_user_id: userId,
     p_record_type: recordType,
 
