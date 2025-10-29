@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createQuoteController } from "./quotes";
-
+import { createQuoteControllerConduit } from "./quotesConduit";
 const router = Router();
 
 /**
@@ -9,5 +9,5 @@ const router = Router();
  * @access Private
  */
 router.post("/", createQuoteController);
-
+router.post("/conduit", createQuoteControllerConduit);
 export default router;

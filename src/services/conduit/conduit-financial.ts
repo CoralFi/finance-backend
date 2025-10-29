@@ -52,6 +52,10 @@ const conduitFinancial = {
     const { data } = await conduitAxios.patch(`/counterparties/${id}`, payload);
     return data;
   },
+  async createQuote(payload: Record<string, any>) {
+    const { data } = await conduitAxios.post(`/quotes`, payload);
+    return data;
+  },
 };
 
 export default conduitFinancial;
