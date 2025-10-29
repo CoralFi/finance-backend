@@ -5,5 +5,6 @@ import { listAccountsController } from "./listAccount"
 const router = Router();
 router.get("/deposit/:id", depositInstructionsController);
 router.get("/:id", getAccountController);
+
 router.get("/", listAccountsController);
 export default router;

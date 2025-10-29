@@ -2,6 +2,7 @@ import { Router } from "express";
 import { listCustomersController } from "./listCustomers";
 import { getCustomerInfo } from "./getCustomerInfo";
 import { getCustomerTotalInfoController } from "./getCustomerTotalInfo";
+import { customerAddressController } from "./getCustomerAddress";
 import { listAccountPurposeController } from "./utilities/accountPurpose";
 import { amountToMoveController } from "./utilities/amountToMove";
 import { employmentSituationController } from "./utilities/employmentSituation";
@@ -23,6 +24,10 @@ router.get("/source-found", sourceFoundController);
 router.get("/employment-situation", employmentSituationController);
 // /api/customers/:customerId/info
 router.get("/:customerId/info", getCustomerTotalInfoController);
+// /api/customers/:customerId/addresses
+router.get("/:customerId/addresses", customerAddressController);
+router.post("/:customerId/addresses", customerAddressController);
+router.delete("/:customerId/addresses", customerAddressController);
 // /api/customers/:customerId
 router.get("/:customerId", getCustomerInfo);
 

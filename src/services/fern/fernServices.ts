@@ -110,15 +110,31 @@ export const createFernPaymentAccount = async (payload: any) => {
         timeout: 10000
       }
     );
-    return response;
+    return { success: true, data: response.data };
   } catch (error: any) {
-    console.error('Error en createFernPaymentAccount', {
+    console.error('❌ Error en createFernPaymentAccount:', {
       error: error.message,
       status: error.response?.status || 'unknown',
-      data: error.response?.data
+      data: error.response?.data,
+      details: JSON.stringify(error.response?.data?.details, null, 2)
     });
 
-    return null;
+    // Log full error details if available
+    if (error.response?.data?.details) {
+      console.error('Validation details:', JSON.stringify(error.response.data.details, null, 2));
+    }
+
+    // Return error details instead of null
+    return {
+      success: false,
+      error: {
+        message: error.message,
+        status: error.response?.status,
+        code: error.response?.data?.code,
+        details: error.response?.data?.details,
+        data: error.response?.data
+      }
+    };
   }
 }
 
