@@ -1,4 +1,4 @@
-import supabase from '../../db/supabase';
+import supabase from '@/db/supabase';
  
 export const createCode = async (user_id: string | number): Promise<number> => {
   if (!user_id) {
@@ -56,6 +56,54 @@ export const verifyCode = async (user_id: string | number, code: number): Promis
     .from('verification_code')
     .update({ used: true })
     .eq('verification_code_id', verificationCode.verification_code_id);
+
+  if (updateError) {
+    console.error('Database error:', updateError);
+    throw new Error(`Error updating verification code: ${updateError.message}`);
+  }
+
+  return true;
+};
+
+/**
+ * Verifica un código de verificación usando customer_id y la función de base de datos
+ * @param customer_id - UUID del customer
+ * @param code - Código de verificación de 6 dígitos
+ * @returns true si el código es válido
+ */
+export const verifyCodeDB = async (customer_id: string, code: number): Promise<boolean> => {
+  if (!customer_id) {
+    throw new Error('Customer ID is required');
+  }
+
+  if (!code) {
+    throw new Error('Code is required');
+  }
+
+  // Primero verificar si el código existe y es válido (sin marcarlo como usado)
+  const { data: checkData, error: checkError } = await supabase
+    .rpc('verify_code', { 
+      p_customer_id: customer_id, 
+      p_code: code,
+      p_used: null 
+    });
+
+  if (checkError) {
+    console.error('Database error:', checkError);
+    throw new Error(`Error verifying verification code: ${checkError.message}`);
+  }
+
+  if (!checkData || checkData.length === 0) {
+    throw new Error('Invalid or expired verification code!');
+  }
+
+  // Si el código es válido, marcarlo como usado
+  const { data: updateData, error: updateError } = await supabase
+    .rpc('verify_code', { 
+      p_customer_id: customer_id, 
+      p_code: code,
+      p_used: true 
+    });
 
   if (updateError) {
     console.error('Database error:', updateError);

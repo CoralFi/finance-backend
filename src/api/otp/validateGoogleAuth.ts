@@ -4,12 +4,12 @@ import supabase from '../../db/supabase';
 
 export const verifyGoogleAuthController = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const { codigo, userId } = req.body as { codigo: string; userId: string };
+    const { customer_id, codigo } = req.body as { customer_id: string; codigo: string };
 
     const { data, error } = await supabase
       .from('usuarios')
       .select('qr_code')
-      .eq('user_id', userId)
+      .eq('customer_id', customer_id)
       .single();
 
     if (error || !data?.qr_code) {
@@ -25,7 +25,7 @@ export const verifyGoogleAuthController = async (req: Request, res: Response): P
     await supabase
       .from('usuarios')
       .update({ google_auth: true })
-      .eq('user_id', userId);
+      .eq('customer_id', customer_id);
 
     return res.status(200).json({ success: true, message: 'Código válido, transferencia permitida.' });
   } catch (error: any) {

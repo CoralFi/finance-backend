@@ -19,4 +19,6 @@ export interface UserInfo {
   google_auth?: boolean;
   tos_coral?: boolean;
   fern?: FernUser;
+  conduit_id?: string;
+  conduit?: any;
 }

@@ -9,13 +9,45 @@ config();
 const app = express();
 
 // 👇 CORS debe estar ANTES de las rutas
+const getAllowedOrigins = () => {
+    if (process.env.ALLOWED_ORIGINS) {
+        // Si existe la variable de entorno, usarla (separada por comas)
+        return process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
+    }
+    
+    // Fallback según el entorno
+    if (process.env.NODE_ENV === "development") {
+        return ['http://localhost:5500', 'http://localhost:3001'];
+    }
+    
+    // Staging y producción
+    return [
+        'https://staging.app.coralfinance.io',
+        'https://app.coralfinance.io',
+        'https://www.coralfinance.io'
+    ];
+};
+
+const allowedOrigins = getAllowedOrigins();
+
+app.use(cors({
+    origin: (origin, callback) => {
+        // Permitir requests sin origin (como mobile apps o curl)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.warn(`🚫 CORS blocked origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-API-Key']
+}));
+
 if (process.env.NODE_ENV === "development") {
-    app.use(cors({
-        origin: ['http://localhost:5500', 'http://localhost:3001'],
-        credentials: true,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization']
-    }));
     app.use(morganMiddleware);
 }
 

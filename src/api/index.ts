@@ -33,5 +33,6 @@ router.use("/email", emailRoutes);
 router.use("/quotes", quotesRoutes);
 router.use("/auth/business", businessRoutes);
 router.use("/business/customers", customersBussRoutes);
+// /api/business/counterparties
 router.use("/business/counterparties", bankAccountRoutes);
 export default router;

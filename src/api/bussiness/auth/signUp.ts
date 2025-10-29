@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
 import { saveCustomerToDB } from '@/services/bussiness/signUp';
+import bcrypt from 'bcrypt';
 
 export const createCustomerController = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -39,6 +40,17 @@ export const createCustomerController = async (req: Request, res: Response): Pro
         ]
       });
     }
+
+    //hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Validate country is a 2-letter country code, not a currency code
+    if (country.length !== 2 || !/^[A-Z]{2}$/i.test(country)) {
+      return res.status(400).json({
+        success: false,
+        message: 'El campo "country" debe ser un código de país de 2 letras (ej: US, CA, MX), no un código de moneda',
+      });
+    }
     const conduitResponse = await conduitFinancial.createCustomer(req.body);
     const conduitCustomerId = conduitResponse?.id;
     if (!conduitCustomerId) {
@@ -54,7 +66,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
       isDirectSetup,
       email,
       phone,
-      password,
+      hashedPassword,
       userId,
       recordType,
       businessInformation,

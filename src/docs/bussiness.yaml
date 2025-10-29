@@ -133,3 +133,428 @@
                 error:
                   type: string
                   example: Error creating customer: Request failed with status code 400
+
+/api/business/customers:
+  get:
+    summary: Obtener todos los clientes de negocio
+    tags:
+      - Business Customers
+    responses:
+      "200":
+        description: Clientes obtenidos exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Customers retrieved successfully
+                data:
+                  type: array
+                  description: Lista de clientes de Conduit
+                  items:
+                    type: object
+      "500":
+        description: Error al obtener clientes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve customers
+                error:
+                  type: string
+
+/api/business/customers/{id}:
+  get:
+    summary: Obtener un cliente de negocio por ID
+    tags:
+      - Business Customers
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID del cliente en Conduit
+    responses:
+      "200":
+        description: Cliente obtenido exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Customer retrieved successfully
+                data:
+                  type: object
+                  description: Información del cliente de Conduit
+      "500":
+        description: Error al obtener el cliente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve customer
+                error:
+                  type: string
+
+/api/business/counterparties/create:
+  post:
+    summary: Crear una cuenta bancaria externa (counterparty)
+    tags:
+      - Business Counterparties
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - type
+              - businessName
+              - website
+              - address
+              - email
+              - phone
+              - identificationType
+              - identificationNumber
+              - customerId
+              - paymentMethods
+            properties:
+              type:
+                type: string
+                example: business
+              businessName:
+                type: string
+                example: Acme Corp
+              website:
+                type: string
+                example: https://acme.com
+              address:
+                type: object
+                required:
+                  - streetLine1
+                  - city
+                  - state
+                  - postalCode
+                  - country
+                properties:
+                  streetLine1:
+                    type: string
+                    example: 123 Business St
+                  city:
+                    type: string
+                    example: New York
+                  state:
+                    type: string
+                    example: NY
+                  postalCode:
+                    type: string
+                    example: 10001
+                  country:
+                    type: string
+                    example: USA
+              email:
+                type: string
+                example: contact@acme.com
+              phone:
+                type: string
+                example: +1234567890
+              identificationType:
+                type: string
+                example: EIN
+              identificationNumber:
+                type: string
+                example: 123456789
+              customerId:
+                type: string
+                example: cust_123abc
+              paymentMethods:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - type
+                    - accountOwnerName
+                    - bankName
+                    - currency
+                    - rail
+                    - routingNumber
+                    - accountNumber
+                    - accountType
+                    - address
+                  properties:
+                    type:
+                      type: string
+                      example: ach
+                    accountOwnerName:
+                      type: string
+                      example: Acme Corp
+                    bankName:
+                      type: string
+                      example: Chase Bank
+                    currency:
+                      type: string
+                      example: USD
+                    rail:
+                      type: string
+                      example: ach
+                    routingNumber:
+                      type: string
+                      example: 021000021
+                    accountNumber:
+                      type: string
+                      example: 1234567890
+                    accountType:
+                      type: string
+                      example: checking
+                    address:
+                      type: object
+                      required:
+                        - country
+                      properties:
+                        country:
+                          type: string
+                          example: USA
+    responses:
+      "201":
+        description: Cuenta bancaria externa registrada correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Cuenta bancaria externa registrada correctamente
+                data:
+                  type: object
+                  description: Respuesta de Conduit
+      "400":
+        description: Faltan campos obligatorios
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Faltan campos obligatorios en el cuerpo de la solicitud.
+      "500":
+        description: Error al registrar cuenta bancaria externa
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error al registrar cuenta bancaria externa
+                error:
+                  type: string
+
+/api/business/counterparties/{customerId}/list:
+  get:
+    summary: Obtener todas las cuentas bancarias externas de un cliente
+    tags:
+      - Business Counterparties
+    parameters:
+      - in: path
+        name: customerId
+        required: true
+        schema:
+          type: string
+        description: ID del cliente en Conduit
+    responses:
+      "200":
+        description: Cuentas bancarias obtenidas exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Bank accounts filtered by customerId
+                data:
+                  type: array
+                  description: Lista de cuentas bancarias del cliente
+                  items:
+                    type: object
+      "400":
+        description: customerId es requerido
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: customerId es requerido en el path
+      "500":
+        description: Error al obtener cuentas bancarias
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve bank accounts
+                error:
+                  type: string
+
+/api/business/counterparties/{id}/info:
+  get:
+    summary: Obtener información de una cuenta bancaria externa por ID
+    tags:
+      - Business Counterparties
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID de la cuenta bancaria en Conduit
+    responses:
+      "200":
+        description: Cuenta bancaria obtenida exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Bank accounts filtered by id
+                data:
+                  type: object
+                  description: Información de la cuenta bancaria
+      "400":
+        description: id es requerido
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: id es requerido en el path
+      "500":
+        description: Error al obtener la cuenta bancaria
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve bank accounts
+                error:
+                  type: string
+
+/api/business/counterparties/update/{id}:
+  patch:
+    summary: Actualizar una cuenta bancaria externa por ID
+    tags:
+      - Business Counterparties
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID de la cuenta bancaria en Conduit
+    responses:
+      "200":
+        description: Cuenta bancaria actualizada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Bank accounts filtered by id
+                data:
+                  type: object
+                  description: Información de la cuenta bancaria actualizada
+      "400":
+        description: id es requerido
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: id es requerido en el path
+      "500":
+        description: Error al actualizar la cuenta bancaria
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve bank accounts
+                error:
+                  type: string
