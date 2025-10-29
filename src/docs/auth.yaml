@@ -1,0 +1,228 @@
+/api/auth/login:
+  post:
+    summary: Iniciar sesión de usuario
+    description: |
+      Autentica a un usuario (persona o negocio) mediante email y contraseña. 
+      
+      Para usuarios tipo "persona", retorna información de Fern (KYC, wallet, etc.).
+      Para usuarios tipo "business", retorna información de Conduit (KYB, status, etc.).
+      
+      El endpoint valida las credenciales y retorna datos completos del usuario incluyendo:
+      - Información básica del perfil
+      - Estado de verificación (KYC/KYB)
+      - Enlaces de verificación si están disponibles
+      - Información de wallet (solo para usuarios persona)
+      - Información de Conduit (solo para usuarios business)
+    tags:
+      - Authentication
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+              - password
+            properties:
+              email:
+                type: string
+                format: email
+                description: Email del usuario registrado
+                example: user@example.com
+              password:
+                type: string
+                format: password
+                description: Contraseña del usuario
+                example: SecurePassword123!
+    responses:
+      "200":
+        description: Inicio de sesión exitoso
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Inicio de sesión exitoso.
+                user:
+                  type: object
+                  properties:
+                    customer_id:
+                      type: string
+                      format: uuid
+                      description: ID único del cliente
+                      example: 5cc380cf-d631-4584-b5f6-19cdbeac75a7
+                    email:
+                      type: string
+                      format: email
+                      description: Email del usuario
+                      example: user@example.com
+                    firstName:
+                      type: string
+                      description: Nombre del usuario o nombre del negocio
+                      example: John
+                    lastName:
+                      type: string
+                      nullable: true
+                      description: Apellido del usuario (null para usuarios business)
+                      example: Doe
+                    userType:
+                      type: string
+                      enum: [persona, business]
+                      description: Tipo de usuario
+                      example: persona
+                    google_auth:
+                      type: boolean
+                      description: Indica si el usuario usa autenticación de Google
+                      example: false
+                    tos:
+                      type: string
+                      description: Estado de aceptación de términos de servicio
+                      example: "true"
+                    fernCustomerId:
+                      type: string
+                      nullable: true
+                      description: ID del cliente en Fern (solo para usuarios persona)
+                      example: fern_cust_123abc
+                    fernWalletId:
+                      type: string
+                      nullable: true
+                      description: ID de la wallet en Fern (solo para usuarios persona)
+                      example: fern_wallet_456def
+                    fernWalletAddress:
+                      type: string
+                      nullable: true
+                      description: Dirección de la wallet (solo para usuarios persona)
+                      example: "0x1234567890abcdef"
+                    KycFer:
+                      type: string
+                      nullable: true
+                      description: Estado del KYC en Fern (solo para usuarios persona)
+                      example: approved
+                    KycLinkFer:
+                      type: string
+                      nullable: true
+                      description: Link de verificación KYC en Fern (solo para usuarios persona)
+                      example: https://fern.com/kyc/verify/abc123
+                    fernBusinessName:
+                      type: string
+                      nullable: true
+                      description: Nombre del negocio en Fern (solo para usuarios persona con negocio)
+                      example: Acme Corp
+                    user_info:
+                      type: boolean
+                      description: Indica si existe información adicional del usuario
+                      example: true
+                    conduit_id:
+                      type: string
+                      nullable: true
+                      description: ID del cliente en Conduit (solo para usuarios business)
+                      example: cus_34kFmTqgz2C7wIpJqdkMrGsaHLs
+                    conduit_kyb_status:
+                      type: string
+                      nullable: true
+                      description: Estado del KYB en Conduit (solo para usuarios business)
+                      example: pending
+                    conduit_kyb_link:
+                      type: string
+                      nullable: true
+                      description: Link de verificación KYB en Conduit (solo para usuarios business)
+                      example: https://conduit.com/kyb/verify/xyz789
+                    conduit_kyb_expires_at:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      description: Fecha de expiración del link KYB (solo para usuarios business)
+                      example: "2024-12-31T23:59:59Z"
+            examples:
+              personaUser:
+                summary: Usuario tipo persona
+                value:
+                  message: Inicio de sesión exitoso.
+                  user:
+                    customer_id: 5cc380cf-d631-4584-b5f6-19cdbeac75a7
+                    email: tobiasmuchut007@gmail.com
+                    firstName: Tobías
+                    lastName: Muchut
+                    userType: persona
+                    google_auth: true
+                    tos: "true"
+                    fernCustomerId: fern_cust_123abc
+                    fernWalletId: fern_wallet_456def
+                    fernWalletAddress: "0x1234567890abcdef"
+                    KycFer: approved
+                    KycLinkFer: https://fern.com/kyc/verify/abc123
+                    fernBusinessName: null
+                    user_info: true
+                    conduit_id: null
+                    conduit_kyb_status: null
+                    conduit_kyb_link: null
+                    conduit_kyb_expires_at: null
+              businessUser:
+                summary: Usuario tipo business
+                value:
+                  message: Inicio de sesión exitoso.
+                  user:
+                    customer_id: eb7c6a3a-c7c8-4d01-be6a-c727a5310724
+                    email: business@example.com
+                    firstName: Acme Corporation
+                    lastName: null
+                    userType: business
+                    google_auth: false
+                    tos: incomplete
+                    fernCustomerId: null
+                    fernWalletId: null
+                    fernWalletAddress: null
+                    KycFer: null
+                    KycLinkFer: null
+                    fernBusinessName: null
+                    user_info: false
+                    conduit_id: cus_34kFmTqgz2C7wIpJqdkMrGsaHLs
+                    conduit_kyb_status: pending
+                    conduit_kyb_link: https://conduit.com/kyb/verify/xyz789
+                    conduit_kyb_expires_at: "2024-12-31T23:59:59Z"
+      "400":
+        description: Faltan campos requeridos
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Email y contraseña son requeridos.
+      "401":
+        description: Contraseña incorrecta
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Contraseña incorrecta.
+      "404":
+        description: Usuario no encontrado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Usuario no encontrado.
+      "500":
+        description: Error interno del servidor
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Error al iniciar sesión.
+                error:
+                  type: string
+                  example: Database connection failed
