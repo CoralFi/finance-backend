@@ -68,6 +68,20 @@ const conduitFinancial = {
     const { data } = await conduitAxios.get(`/accounts/${id}/deposit-instructions`);
     return data;
   },
+  //
+  async listTransactions() {
+    const { data } = await conduitAxios.get(`/transactions`);
+    return data;
+  },
+  async createTransacions() {
+    const { data } = await conduitAxios.post(`/transactions`);
+    return data;
+  },
+  async getTransaction(id: string) {
+    const { data } = await conduitAxios.get(`/transactions/${id}`);
+    return data;
+  },
+ 
 };
 
 export default conduitFinancial;
