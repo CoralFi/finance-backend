@@ -217,3 +217,233 @@
                 error:
                   type: string
                   example: Internal server error
+
+/api/business/transactions/create:
+  post:
+    summary: Crear una transacción en Conduit
+    description: Crea una nueva transacción según el tipo especificado (`withdrawal`, `offramp`, `onramp`, `conversion`, `transfer`).
+      Cada tipo tiene distintos campos requeridos. Usa el campo `type` para indicar el tipo de transacción.
+    tags:
+      - Transactions
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            oneOf:
+              # ------------------ WITHDRAWAL ------------------
+              - type: object
+                required: [type, destination]
+                properties:
+                  type:
+                    type: string
+                    enum: [withdrawal]
+                  destination:
+                    type: object
+                    required: [walletId, asset, network, amount]
+                    properties:
+                      walletId:
+                        type: string
+                        example: "wlt_2ofTAESrTs4uQ8N3yGBMhGj59jV"
+                      asset:
+                        type: string
+                        enum: [USDT, USDC, RLUSD]
+                      network:
+                        type: string
+                        enum: [ethereum, tron, solana, polygon, base, xrpl]
+                      amount:
+                        type: string
+                        example: "10.50"
+
+              # ------------------ OFFRAMP ------------------
+              - type: object
+                required: [type, quote, source, destination, purpose, documents]
+                properties:
+                  type:
+                    type: string
+                    enum: [offramp]
+                  quote:
+                    type: string
+                    example: "quote_2ofTABULiy4F9k07JrrZJWpc065"
+                  source:
+                    type: string
+                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
+                  destination:
+                    type: string
+                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
+                  purpose:
+                    type: string
+                    enum:
+                      - PaymentsForGoodsOrServices
+                      - InterCompanyTransfer
+                      - Investments
+                      - Payroll
+                      - TreasuryManagement
+                      - Other
+                      - 12186-VirtualAssets
+                      - 12823-TradeOfGoods
+                      - 46019-FinancialServices
+                      - 46082-ItAndInformationServices
+                      - 46040-ManagementAndLegalServices
+                      - 46239-CreditTransfers
+                      - 46246-NonInsuranceIndemnities
+                      - 47689-CommissionsAndExpenses
+                      - 37303-MaintenanceOfResidents
+                      - 37334-DonationsAndCooperation
+                      - 46222-Reimbursements
+                      - 47908-SalariesAndCompensation
+                      - 46208-RentOfRealEstateAndEquipment
+                  documents:
+                    type: array
+                    items:
+                      type: string
+                      example: "doc_abc123"
+
+              # ------------------ ONRAMP ------------------
+              - type: object
+                required: [type, quote, source, destination, purpose, documents]
+                properties:
+                  type:
+                    type: string
+                    enum: [onramp]
+                  quote:
+                    type: string
+                    example: "quote_2ofTABULiy4F9k07JrrZJWpc065"
+                  source:
+                    type: string
+                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
+                  destination:
+                    type: string
+                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
+                  purpose:
+                    type: string
+                    enum:
+                      - PaymentsForGoodsOrServices
+                      - InterCompanyTransfer
+                      - Investments
+                      - Payroll
+                      - TreasuryManagement
+                      - Other
+                      - 12186-VirtualAssets
+                      - 12823-TradeOfGoods
+                      - 46019-FinancialServices
+                      - 46082-ItAndInformationServices
+                      - 46040-ManagementAndLegalServices
+                      - 46239-CreditTransfers
+                      - 46246-NonInsuranceIndemnities
+                      - 47689-CommissionsAndExpenses
+                      - 37303-MaintenanceOfResidents
+                      - 37334-DonationsAndCooperation
+                      - 46222-Reimbursements
+                      - 47908-SalariesAndCompensation
+                      - 46208-RentOfRealEstateAndEquipment
+                  documents:
+                    type: array
+                    items:
+                      type: string
+                      example: "doc_def456"
+
+              # ------------------ CONVERSION ------------------
+              - type: object
+                required: [type, quote, source, destination, purpose, documents]
+                properties:
+                  type:
+                    type: string
+                    enum: [conversion]
+                  quote:
+                    type: string
+                    example: "quote_2ofTABULiy4F9k07JrrZJWpc065"
+                  source:
+                    type: string
+                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
+                  destination:
+                    type: string
+                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
+                  purpose:
+                    type: string
+                    enum:
+                      - PaymentsForGoodsOrServices
+                      - InterCompanyTransfer
+                      - Investments
+                      - Payroll
+                      - TreasuryManagement
+                      - Other
+                      - 12186-VirtualAssets
+                      - 12823-TradeOfGoods
+                      - 46019-FinancialServices
+                      - 46082-ItAndInformationServices
+                      - 46040-ManagementAndLegalServices
+                      - 46239-CreditTransfers
+                      - 46246-NonInsuranceIndemnities
+                      - 47689-CommissionsAndExpenses
+                      - 37303-MaintenanceOfResidents
+                      - 37334-DonationsAndCooperation
+                      - 46222-Reimbursements
+                      - 47908-SalariesAndCompensation
+                      - 46208-RentOfRealEstateAndEquipment
+                  documents:
+                    type: array
+                    items:
+                      type: string
+                      example: "doc_xyz789"
+
+              # ------------------ TRANSFER ------------------
+              - type: object
+                required: [type, quote, source, destination, purpose, documents]
+                properties:
+                  type:
+                    type: string
+                    enum: [transfer]
+                  quote:
+                    type: string
+                    example: "quote_2ofTABULiy4F9k07JrrZJWpc065"
+                  source:
+                    type: string
+                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
+                  destination:
+                    type: string
+                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
+                  purpose:
+                    type: string
+                    enum:
+                      - PaymentsForGoodsOrServices
+                      - InterCompanyTransfer
+                      - Investments
+                      - Payroll
+                      - TreasuryManagement
+                      - Other
+                      - 12186-VirtualAssets
+                      - 12823-TradeOfGoods
+                      - 46019-FinancialServices
+                      - 46082-ItAndInformationServices
+                      - 46040-ManagementAndLegalServices
+                      - 46239-CreditTransfers
+                      - 46246-NonInsuranceIndemnities
+                      - 47689-CommissionsAndExpenses
+                      - 37303-MaintenanceOfResidents
+                      - 37334-DonationsAndCooperation
+                      - 46222-Reimbursements
+                      - 47908-SalariesAndCompensation
+                      - 46208-RentOfRealEstateAndEquipment
+                  documents:
+                    type: array
+                    items:
+                      type: string
+                      example: "doc_ghi321"
+
+            discriminator:
+              propertyName: type
+              mapping:
+                withdrawal: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/0"
+                offramp: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/1"
+                onramp: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/2"
+                conversion: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/3"
+                transfer: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/4"
+
+    responses:
+      "201":
+        description: Transacción creada exitosamente
+      "400":
+        description: Campos faltantes o inválidos
+      "500":
+        description: Error interno del servidor
