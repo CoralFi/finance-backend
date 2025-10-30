@@ -283,7 +283,7 @@
                 example: +1234567890
               identificationType:
                 type: string
-                example: EIN
+                example: tin
               identificationNumber:
                 type: string
                 example: 123456789
@@ -307,7 +307,7 @@
                   properties:
                     type:
                       type: string
-                      example: ach
+                      example: bank
                     accountOwnerName:
                       type: string
                       example: Acme Corp
@@ -318,8 +318,10 @@
                       type: string
                       example: USD
                     rail:
-                      type: string
-                      example: ach
+                      type: array
+                      items:
+                        type: string
+                      example: [ach]
                     routingNumber:
                       type: string
                       example: 021000021

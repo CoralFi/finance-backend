@@ -75,11 +75,11 @@ export const createBankAccountController = async (req: Request, res: Response): 
       data,
     });
   } catch (error: any) {
-    console.error('Error al registrar cuenta bancaria externa:', error);
+    console.error('Error al registrar cuenta bancaria externa:', error.response.data);
     return res.status(500).json({
       success: false,
       message: 'Error al registrar cuenta bancaria externa',
-      error: error.message || error,
+      error: error.response.data || error.message || error,
     });
   }
 };

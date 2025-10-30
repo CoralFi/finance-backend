@@ -17,7 +17,7 @@ const getAllowedOrigins = () => {
     
     // Fallback según el entorno
     if (process.env.NODE_ENV === "development") {
-        return ['http://localhost:5500', 'http://localhost:3001'];
+        return ['http://localhost:5500', 'http://localhost:3001', 'http://localhost:3000'];
     }
     
     // Staging y producción
