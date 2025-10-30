@@ -31,7 +31,17 @@ const getAllowedOrigins = () => {
 const allowedOrigins = getAllowedOrigins();
 
 app.use(cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+        // Permitir requests sin origin (como mobile apps o curl)
+        if (!origin) return callback(null, true);
+        
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.warn(`🚫 CORS blocked origin: ${origin}`);
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-API-Key']
