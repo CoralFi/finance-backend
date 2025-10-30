@@ -11,7 +11,8 @@ import quotesRoutes from "./quotes/index";
 import businessRoutes from "./bussiness/auth/index";
 import customersBussRoutes from "./bussiness/customers/index";
 import bankAccountRoutes from "./bussiness/bankAccount/index";
-import accountsRoutes from "./bussiness/accounts/index"
+import accountsRoutes from "./bussiness/accounts/index";
+import transactionsBussRoutes from "./bussiness/transactions/index"
 const router = Router();
 
 // /api/test
@@ -37,4 +38,6 @@ router.use("/business/customers", customersBussRoutes);
 // /api/business/counterparties
 router.use("/business/counterparties", bankAccountRoutes);
 router.use("/business/accounts", accountsRoutes);
+//transactions conduit 
+router.use("/business/transactions", transactionsBussRoutes);
 export default router;
