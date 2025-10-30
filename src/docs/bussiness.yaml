@@ -318,8 +318,10 @@
                       type: string
                       example: USD
                     rail:
-                      type: string
-                      example: ach
+                      type: array
+                      items:
+                        type: string
+                      example: [ach]
                     routingNumber:
                       type: string
                       example: 021000021
