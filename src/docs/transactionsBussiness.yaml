@@ -221,8 +221,7 @@
 /api/business/transactions/create:
   post:
     summary: Crear una transacción en Conduit
-    description: Crea una nueva transacción según el tipo especificado (`withdrawal`, `offramp`, `onramp`, `conversion`, `transfer`).
-      Cada tipo tiene distintos campos requeridos. Usa el campo `type` para indicar el tipo de transacción.
+    description: Crea una nueva transacción en Conduit según el tipo (`withdrawal`, `offramp`, `onramp`, `conversion`, `transfer`). Usa el campo `type` para indicar el tipo.
     tags:
       - Transactions
     requestBody:
@@ -231,6 +230,30 @@
         application/json:
           schema:
             oneOf:
+              - type: object
+                required: [type, quote, source, destination, purpose, documents]
+                properties:
+                  type:
+                    type: string
+                    enum: [offramp]
+                  quote:
+                    type: string
+                    example: quote_34qS0CrMrXUbx4NIf0pclAR9tqI
+                  source:
+                    type: string
+                    example: wlt_34nnOseuR0AVKwRdgkHaUlax7YY
+                  destination:
+                    type: string
+                    example: bank_34nnOv4g8oH2R24DJrilY2qo82L
+                  purpose:
+                    type: string
+                    example: InterCompanyTransfer
+                  documents:
+                    type: array
+                    items:
+                      type: string
+                      example: doc_34nkRui71EevJnkZVjmHQtAgaYb
+
               # ------------------ WITHDRAWAL ------------------
               - type: object
                 required: [type, destination]
@@ -244,7 +267,7 @@
                     properties:
                       walletId:
                         type: string
-                        example: "wlt_2ofTAESrTs4uQ8N3yGBMhGj59jV"
+                        example: wlt_2ofTAESrTs4uQ8N3yGBMhGj59jV
                       asset:
                         type: string
                         enum: [USDT, USDC, RLUSD]
@@ -255,195 +278,107 @@
                         type: string
                         example: "10.50"
 
-              # ------------------ OFFRAMP ------------------
-              - type: object
-                required: [type, quote, source, destination, purpose, documents]
-                properties:
-                  type:
-                    type: string
-                    enum: [offramp]
-                  quote:
-                    type: string
-                    example: "quote_2ofTABULiy4F9k07JrrZJWpc065"
-                  source:
-                    type: string
-                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
-                  destination:
-                    type: string
-                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
-                  purpose:
-                    type: string
-                    enum:
-                      - PaymentsForGoodsOrServices
-                      - InterCompanyTransfer
-                      - Investments
-                      - Payroll
-                      - TreasuryManagement
-                      - Other
-                      - 12186-VirtualAssets
-                      - 12823-TradeOfGoods
-                      - 46019-FinancialServices
-                      - 46082-ItAndInformationServices
-                      - 46040-ManagementAndLegalServices
-                      - 46239-CreditTransfers
-                      - 46246-NonInsuranceIndemnities
-                      - 47689-CommissionsAndExpenses
-                      - 37303-MaintenanceOfResidents
-                      - 37334-DonationsAndCooperation
-                      - 46222-Reimbursements
-                      - 47908-SalariesAndCompensation
-                      - 46208-RentOfRealEstateAndEquipment
-                  documents:
-                    type: array
-                    items:
-                      type: string
-                      example: "doc_abc123"
-
-              # ------------------ ONRAMP ------------------
-              - type: object
-                required: [type, quote, source, destination, purpose, documents]
-                properties:
-                  type:
-                    type: string
-                    enum: [onramp]
-                  quote:
-                    type: string
-                    example: "quote_2ofTABULiy4F9k07JrrZJWpc065"
-                  source:
-                    type: string
-                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
-                  destination:
-                    type: string
-                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
-                  purpose:
-                    type: string
-                    enum:
-                      - PaymentsForGoodsOrServices
-                      - InterCompanyTransfer
-                      - Investments
-                      - Payroll
-                      - TreasuryManagement
-                      - Other
-                      - 12186-VirtualAssets
-                      - 12823-TradeOfGoods
-                      - 46019-FinancialServices
-                      - 46082-ItAndInformationServices
-                      - 46040-ManagementAndLegalServices
-                      - 46239-CreditTransfers
-                      - 46246-NonInsuranceIndemnities
-                      - 47689-CommissionsAndExpenses
-                      - 37303-MaintenanceOfResidents
-                      - 37334-DonationsAndCooperation
-                      - 46222-Reimbursements
-                      - 47908-SalariesAndCompensation
-                      - 46208-RentOfRealEstateAndEquipment
-                  documents:
-                    type: array
-                    items:
-                      type: string
-                      example: "doc_def456"
-
-              # ------------------ CONVERSION ------------------
-              - type: object
-                required: [type, quote, source, destination, purpose, documents]
-                properties:
-                  type:
-                    type: string
-                    enum: [conversion]
-                  quote:
-                    type: string
-                    example: "quote_2ofTABULiy4F9k07JrrZJWpc065"
-                  source:
-                    type: string
-                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
-                  destination:
-                    type: string
-                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
-                  purpose:
-                    type: string
-                    enum:
-                      - PaymentsForGoodsOrServices
-                      - InterCompanyTransfer
-                      - Investments
-                      - Payroll
-                      - TreasuryManagement
-                      - Other
-                      - 12186-VirtualAssets
-                      - 12823-TradeOfGoods
-                      - 46019-FinancialServices
-                      - 46082-ItAndInformationServices
-                      - 46040-ManagementAndLegalServices
-                      - 46239-CreditTransfers
-                      - 46246-NonInsuranceIndemnities
-                      - 47689-CommissionsAndExpenses
-                      - 37303-MaintenanceOfResidents
-                      - 37334-DonationsAndCooperation
-                      - 46222-Reimbursements
-                      - 47908-SalariesAndCompensation
-                      - 46208-RentOfRealEstateAndEquipment
-                  documents:
-                    type: array
-                    items:
-                      type: string
-                      example: "doc_xyz789"
-
-              # ------------------ TRANSFER ------------------
-              - type: object
-                required: [type, quote, source, destination, purpose, documents]
-                properties:
-                  type:
-                    type: string
-                    enum: [transfer]
-                  quote:
-                    type: string
-                    example: "quote_2ofTABULiy4F9k07JrrZJWpc065"
-                  source:
-                    type: string
-                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
-                  destination:
-                    type: string
-                    example: "bank_2ofTA5mz0T91pBmD3tMTeLET74X"
-                  purpose:
-                    type: string
-                    enum:
-                      - PaymentsForGoodsOrServices
-                      - InterCompanyTransfer
-                      - Investments
-                      - Payroll
-                      - TreasuryManagement
-                      - Other
-                      - 12186-VirtualAssets
-                      - 12823-TradeOfGoods
-                      - 46019-FinancialServices
-                      - 46082-ItAndInformationServices
-                      - 46040-ManagementAndLegalServices
-                      - 46239-CreditTransfers
-                      - 46246-NonInsuranceIndemnities
-                      - 47689-CommissionsAndExpenses
-                      - 37303-MaintenanceOfResidents
-                      - 37334-DonationsAndCooperation
-                      - 46222-Reimbursements
-                      - 47908-SalariesAndCompensation
-                      - 46208-RentOfRealEstateAndEquipment
-                  documents:
-                    type: array
-                    items:
-                      type: string
-                      example: "doc_ghi321"
-
-            discriminator:
-              propertyName: type
-              mapping:
-                withdrawal: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/0"
-                offramp: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/1"
-                onramp: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/2"
-                conversion: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/3"
-                transfer: "#/api/transactions/post/requestBody/content/application~1json/schema/oneOf/4"
-
     responses:
       "201":
         description: Transacción creada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Transaction created successfully
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: offramp
+                    id:
+                      type: string
+                      example: trxn_34qS5WpgccszYhhifHMZtFSh5V9
+                    quote:
+                      type: string
+                      example: quote_34qS0CrMrXUbx4NIf0pclAR9tqI
+                    status:
+                      type: string
+                      example: created
+                    source:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: wlt_34nnOseuR0AVKwRdgkHaUlax7YY
+                        asset:
+                          type: string
+                          example: USDT
+                        network:
+                          type: string
+                          example: ethereum
+                        amount:
+                          type: string
+                          example: "10.000000"
+                    destination:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: bank_34nnOv4g8oH2R24DJrilY2qo82L
+                        asset:
+                          type: string
+                          example: USD
+                        amount:
+                          type: string
+                          example: 9.99
+                    documents:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: doc_34nkRui71EevJnkZVjmHQtAgaYb
+                    purpose:
+                      type: string
+                      example: InterCompanyTransfer
+                    reference:
+                      type: string
+                      nullable: true
+                      example: null
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: 2025-10-31T19:37:05.444Z
       "400":
         description: Campos faltantes o inválidos
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Missing or invalid fields
       "500":
         description: Error interno del servidor
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error creating transaction
+                error:
+                  type: string
+                  example: Unexpected error occurred
