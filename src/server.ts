@@ -15,17 +15,18 @@ const getAllowedOrigins = () => {
         return process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim());
     }
     
-    // Fallback según el entorno
     if (process.env.NODE_ENV === "development") {
         return ['http://localhost:5500', 'http://localhost:3001', 'http://localhost:3000'];
     }
     
-    // Staging y producción
-    return [
-        'https://staging.app.coralfinance.io',
-        'https://app.coralfinance.io',
-        'https://www.coralfinance.io'
-    ];
+    if (process.env.NODE_ENV === "production") {
+        return [
+            'https://staging.app.coralfinance.io',
+            'https://app.coralfinance.io',
+            'https://www.coralfinance.io'
+        ];
+    }
+    return [];
 };
 
 const allowedOrigins = getAllowedOrigins();
