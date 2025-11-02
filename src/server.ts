@@ -39,12 +39,15 @@ app.use(cors({
             callback(null, true);
         } else {
             console.warn(`🚫 CORS blocked origin: ${origin}`);
+            console.warn(`✅ Allowed origins:`, allowedOrigins);
             callback(new Error('Not allowed by CORS'));
         }
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-API-Key']
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-API-Key'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
 }));
 
 if (process.env.NODE_ENV === "development") {
