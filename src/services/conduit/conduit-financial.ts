@@ -73,8 +73,8 @@ const conduitFinancial = {
     const { data } = await conduitAxios.get(`/transactions`);
     return data;
   },
-  async createTransacions() {
-    const { data } = await conduitAxios.post(`/transactions`);
+  async createTransacions(payload: Record<string, any>) {
+    const { data } = await conduitAxios.post(`/transactions`, payload);
     return data;
   },
   async getTransaction(id: string) {
