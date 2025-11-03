@@ -17,6 +17,10 @@
               - source
               - target
             properties:
+              conduit_id:
+                type: string
+                description: ID del cliente o negocio en Conduit (opcional)
+                example: "cus_34nPOhgCsRj7YSWiTowI8cTRKOZ"
               source:
                 type: object
                 required:
@@ -96,6 +100,40 @@
                   example: Cotización creada correctamente en Conduit
                 data:
                   type: object
+                  properties:
+                    id:
+                      type: string
+                      description: ID único de la cotización
+                      example: "quote_34yaHotWZcxOAmz7GvcJ8Hef78W"
+                    source:
+                      type: object
+                      properties:
+                        asset:
+                          type: string
+                          example: "USD"
+                        amount:
+                          type: string
+                          example: "10.00"
+                    target:
+                      type: object
+                      properties:
+                        asset:
+                          type: string
+                          example: "USDT"
+                        network:
+                          type: string
+                          example: "ethereum"
+                        amount:
+                          type: string
+                          example: "9.998678"
+                    expiresAt:
+                      type: string
+                      format: date-time
+                      example: "2025-11-03T16:46:00.757Z"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2025-11-03T16:43:00.757Z"
       "400":
         description: Error de validación
         content:
