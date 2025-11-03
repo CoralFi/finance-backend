@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
+import supabase from '@/db/supabase';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
 /**
  * Create a new transaction 
  *{
@@ -88,6 +91,45 @@ export const createTransactionController = async (req: Request, res: Response): 
     }
 
     const data = await conduitFinancial.createTransacions(req.body);
+
+    if (isDevelopment) {
+      console.log('Transacción creada en Conduit:', data);
+    }
+
+    // Save transaction in database
+    const { data: savedTransaction, error: saveError } = await supabase
+      .from('conduit_transactions')
+      .insert({
+        transaction_id: data.id,
+        quote_id: data.quote || null,
+        transaction_type: data.type,
+        status: data.status,
+        source_id: data.source.id,
+        source_asset: data.source.asset,
+        source_network: data.source.network || null,
+        source_amount: data.source.amount,
+        destination_id: data.destination.id,
+        destination_asset: data.destination.asset,
+        destination_network: data.destination.network || null,
+        destination_amount: data.destination.amount,
+        onramp_instructions: data.onrampInstructions || null,
+        documents: data.documents || null,
+        purpose: data.purpose || null,
+        reference: data.reference || null,
+        conduit_created_at: data.createdAt,
+        raw_response: data,
+      })
+      .select('id, transaction_id, created_at')
+      .single();
+
+    if (isDevelopment) {
+      console.log('Transacción guardada en BD:', savedTransaction);
+    }
+
+    if (saveError) {
+      console.error('Error al guardar transacción:', saveError);
+      // Don't throw - we still want to return the transaction even if DB save fails
+    }
 
     return res.status(201).json({
       success: true,
