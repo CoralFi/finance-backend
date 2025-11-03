@@ -114,7 +114,7 @@ export const createFernQuote = async (
     if (isDevelopment) {
       console.log('✅ Quote created:', {
         quoteId: response.quoteId,
-        exchangeRate: response.exchangeRate
+        exchangeRate: response.estimatedExchangeRate
       });
     }
 
