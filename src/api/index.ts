@@ -14,6 +14,7 @@ import bankAccountRoutes from "./bussiness/bankAccount/index";
 import accountsRoutes from "./bussiness/accounts/index";
 import transactionsBussRoutes from "./bussiness/transactions/index"
 import webhooksRoutes from "./webhooks/index";
+import balancesBussRoutes from "./bussiness/balances/index";
 const router = Router();
 
 // /api/test
@@ -43,4 +44,6 @@ router.use("/business/accounts", accountsRoutes);
 router.use("/business/transactions", transactionsBussRoutes);
 // /api/webhooks
 router.use("/webhooks", webhooksRoutes);
+// /api/balances
+router.use("/business/balances", balancesBussRoutes);
 export default router;
