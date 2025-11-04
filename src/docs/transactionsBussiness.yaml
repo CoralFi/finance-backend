@@ -236,6 +236,10 @@
                   type:
                     type: string
                     enum: [offramp]
+                  conduit_id:
+                    type: string
+                    description: ID interno del cliente/usuario en tu sistema (opcional)
+                    example: user_123abc
                   quote:
                     type: string
                     example: quote_34qS0CrMrXUbx4NIf0pclAR9tqI
@@ -261,6 +265,10 @@
                   type:
                     type: string
                     enum: [withdrawal]
+                  conduit_id:
+                    type: string
+                    description: ID interno del cliente/usuario en tu sistema (opcional)
+                    example: user_123abc
                   destination:
                     type: object
                     required: [walletId, asset, network, amount]

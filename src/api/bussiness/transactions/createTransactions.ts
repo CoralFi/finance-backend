@@ -90,7 +90,9 @@ export const createTransactionController = async (req: Request, res: Response): 
         });
     }
 
-    const data = await conduitFinancial.createTransacions(req.body);
+    // Extract conduit_id from body and send the rest to Conduit API
+    const { conduit_id, ...transactionData } = req.body;
+    const data = await conduitFinancial.createTransacions(transactionData);
 
     if (isDevelopment) {
       console.log('Transacción creada en Conduit:', data);
@@ -101,6 +103,7 @@ export const createTransactionController = async (req: Request, res: Response): 
       .from('conduit_transactions')
       .insert({
         transaction_id: data.id,
+        conduit_id: req.body.conduit_id,
         quote_id: data.quote || null,
         transaction_type: data.type,
         status: data.status,
