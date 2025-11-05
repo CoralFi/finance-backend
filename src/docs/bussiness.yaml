@@ -385,9 +385,9 @@
                 error:
                   type: string
 
-/api/business/counterparties/{customerId}/list:
+/api/business/counterparties/{customerId}/list/{currency}:
   get:
-    summary: Obtener todas las cuentas bancarias externas de un cliente
+    summary: Obtener las cuentas bancarias externas de un cliente, opcionalmente filtradas por moneda
     tags:
       - Business Counterparties
     parameters:
@@ -397,6 +397,13 @@
         schema:
           type: string
         description: ID del cliente en Conduit
+      - in: path
+        name: currency
+        required: false
+        schema:
+          type: string
+          example: all
+        description: Código de moneda (por ejemplo USD, PEN, CLP) para filtrar las cuentas bancarias
     responses:
       "200":
         description: Cuentas bancarias obtenidas exitosamente
@@ -410,7 +417,7 @@
                   example: true
                 message:
                   type: string
-                  example: Bank accounts filtered by customerId
+                  example: Bank accounts filtered by customerId and currency
                 data:
                   type: array
                   description: Lista de cuentas bancarias del cliente
