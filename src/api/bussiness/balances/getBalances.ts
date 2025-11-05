@@ -10,7 +10,7 @@ export const getBalancesController = async (req: Request, res: Response): Promis
 
     const { data, error } = await supabase
       .from('conduit_transactions')
-      .select('source_asset, source_network, source_amount, transaction_type, status')
+      .select('source_asset, source_network, source_amount, destination_asset, destination_network, destination_amount, transaction_type, status')
       .eq('conduit_id', conduitId);
 
     if (error) {
@@ -23,10 +23,10 @@ export const getBalancesController = async (req: Request, res: Response): Promis
     data?.forEach(tx => {
       if (!tx.status || tx.status.toLowerCase() !== 'completed') return;
 
-      const network = tx.source_network ? tx.source_network.toUpperCase() : 'BANKS';
-      const asset = tx.source_asset?.toUpperCase() || 'UNKNOWN';
-      const amount = Number(tx.source_amount) || 0;
-      const sign = tx.transaction_type === 'offramp' ? -1 : 1;
+      const network = tx.source_network ? tx.source_network.toUpperCase() : tx.destination_network.toUpperCase();
+      const asset = tx.source_asset?.toUpperCase() || tx.destination_asset?.toUpperCase() || 'UNKNOWN';
+      const amount = Number(tx.source_amount) || Number(tx.destination_amount) || 0;
+      const sign = tx.transaction_type === 'offramp' ? -1 : tx.transaction_type === 'onramp' ? 1 : 0;
 
       if (!balances[network]) balances[network] = {};
       if (!balances[network][asset]) balances[network][asset] = 0;
