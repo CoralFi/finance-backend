@@ -6,7 +6,7 @@ const router = Router();
 // /api/business/counterparties/create
 router.post("/create", createBankAccountController);
 // /api/business/counterparties/:customerId/list
-router.get("/:customerId/list", getBankAccountsByCustomerIdController);
+router.get("/:customerId/list/:currency", getBankAccountsByCustomerIdController);
 // /api/business/counterparties/:id/info
 router.get("/:id/info", getBankAccountsByIdController);
 // /api/business/counterparties/update/:id

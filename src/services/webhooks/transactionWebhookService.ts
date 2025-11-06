@@ -1,0 +1,173 @@
+import supabase from '@/db/supabase';
+import { TransactionData, TransactionStatus } from '@/types/conduit-webhooks';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+/**
+ * Service to handle transaction webhook updates in Supabase
+ */
+export class TransactionWebhookService {
+  /**
+   * Update transaction status in Supabase based on webhook data
+   */
+  static async updateTransactionStatus(
+    transactionId: string,
+    status: TransactionStatus,
+    transactionData: TransactionData
+  ): Promise<void> {
+    try {
+      if (isDevelopment) {
+        console.log(`📝 Updating transaction ${transactionId} to status: ${status}`);
+      }
+
+      // Prepare update data
+      const updateData: any = {
+        status,
+        updated_at: new Date().toISOString(),
+      };
+
+      // Add completed_at timestamp if transaction is completed
+      if (status === 'COMPLETED' && transactionData.completedAt) {
+        updateData.completed_at = transactionData.completedAt;
+      }
+
+      // Update the transaction in the database
+      const { data, error } = await supabase
+        .from('conduit_transactions')
+        .update(updateData)
+        .eq('transaction_id', transactionId)
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        console.warn(`⚠️ Transaction ${transactionId} not found in database`);
+        // Optionally, you could create the transaction here if it doesn't exist
+        await this.createTransactionFromWebhook(transactionData);
+        return;
+      }
+
+      if (isDevelopment) {
+        console.log(`✅ Transaction ${transactionId} updated successfully`);
+      }
+    } catch (error) {
+      console.error(`❌ Error updating transaction ${transactionId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Create a transaction record from webhook data if it doesn't exist
+   * This handles cases where webhook arrives before the transaction is saved
+   */
+  static async createTransactionFromWebhook(transactionData: TransactionData): Promise<void> {
+    try {
+      if (isDevelopment) {
+        console.log(`📝 Creating transaction ${transactionData.id} from webhook`);
+      }
+
+      const { data, error } = await supabase
+        .from('conduit_transactions')
+        .insert({
+          transaction_id: transactionData.id,
+          quote_id: transactionData.quote || null,
+          transaction_type: transactionData.type,
+          status: transactionData.status,
+          source_id: transactionData.source.id || null,
+          source_asset: transactionData.source.asset || transactionData.source.amount.assetType,
+          source_network: transactionData.source.network || null,
+          source_amount: transactionData.source.amount.amount,
+          destination_id: transactionData.destination.id || null,
+          destination_asset: transactionData.destination.asset || transactionData.destination.amount.assetType,
+          destination_network: transactionData.destination.network || null,
+          destination_amount: transactionData.destination.amount.amount,
+          purpose: transactionData.purpose || null,
+          reference: transactionData.reference || null,
+          conduit_created_at: transactionData.createdAt,
+          completed_at: transactionData.completedAt || null,
+          raw_response: transactionData,
+        })
+        .select();
+
+      if (error) {
+        throw error;
+      }
+
+      if (isDevelopment) {
+        console.log(`✅ Transaction ${transactionData.id} created from webhook`);
+      }
+    } catch (error) {
+      console.error(`❌ Error creating transaction ${transactionData.id} from webhook:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Log webhook event for audit purposes
+   */
+  static async logWebhookEvent(
+    eventType: string,
+    transactionId: string,
+    payload: any,
+    idempotencyKey?: string
+  ): Promise<void> {
+    try {
+      // Check if this webhook has already been processed (idempotency)
+      if (idempotencyKey) {
+        const { data: existingLog } = await supabase
+          .from('webhook_logs')
+          .select('id')
+          .eq('idempotency_key', idempotencyKey)
+          .single();
+
+        if (existingLog) {
+          console.log(`⚠️ Webhook already processed: ${idempotencyKey}`);
+          return;
+        }
+      }
+
+      // Log the webhook event
+      const { error } = await supabase
+        .from('webhook_logs')
+        .insert({
+          event_type: eventType,
+          transaction_id: transactionId,
+          payload,
+          idempotency_key: idempotencyKey || null,
+          processed_at: new Date().toISOString(),
+        });
+
+      if (error) {
+        console.error('❌ Error logging webhook event:', error);
+        // Don't throw - logging failure shouldn't stop webhook processing
+      }
+    } catch (error) {
+      console.error('❌ Error in logWebhookEvent:', error);
+      // Don't throw - logging failure shouldn't stop webhook processing
+    }
+  }
+
+  /**
+   * Get transaction history for a specific transaction
+   */
+  static async getTransactionHistory(transactionId: string): Promise<any[]> {
+    try {
+      const { data, error } = await supabase
+        .from('webhook_logs')
+        .select('*')
+        .eq('transaction_id', transactionId)
+        .order('processed_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      return data || [];
+    } catch (error) {
+      console.error(`❌ Error getting transaction history for ${transactionId}:`, error);
+      throw error;
+    }
+  }
+}

@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
+import supabase from '@/db/supabase';
+
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 const FIAT_ASSETS = ['USD', 'MXN', 'BRL', 'COP', 'EUR', 'NGN', 'ARS', 'GBP'];
 const CRYPTO_ASSETS = ['USDT', 'USDC', 'RLUSD'];
@@ -19,6 +22,7 @@ interface TargetData {
 interface CreateQuoteBody {
   source: SourceData;
   target: TargetData;
+  conduit_id?: string;
 }
 
 export const createQuoteControllerConduit = async (
@@ -112,6 +116,37 @@ export const createQuoteControllerConduit = async (
 
     const payload = { source, target };
     const data = await conduitFinancial.createQuote(payload);
+
+    if (isDevelopment) {
+      console.log('Cotización creada en Conduit:', data);
+    }
+
+    // Save quote in database
+    const { data: savedQuote, error: saveError } = await supabase
+      .from('conduit_quotes')
+      .insert({
+        quote_id: data.id,
+        conduit_id: body.conduit_id || null,
+        source_asset: data.source.asset,
+        source_amount: data.source.amount,
+        target_asset: data.target.asset,
+        target_network: data.target.network || null,
+        target_amount: data.target.amount,
+        expires_at: data.expiresAt,
+        conduit_created_at: data.createdAt,
+        raw_response: data,
+      })
+      .select('id, quote_id, created_at')
+      .single();
+
+    if (isDevelopment) {
+      console.log('Cotización guardada en BD:', savedQuote);
+    }
+
+    if (saveError) {
+      console.error('Error al guardar cotización:', saveError);
+      // Don't throw - we still want to return the quote even if DB save fails
+    }
 
     return res.status(201).json({
       success: true,

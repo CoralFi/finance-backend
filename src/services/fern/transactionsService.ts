@@ -60,7 +60,7 @@ export const createFernTransaction = async (
     if (isDevelopment) {
       console.log('✅ Transaction created:', {
         transactionId: response.transactionId,
-        status: response.status
+        status: response.transactionStatus
       });
     }
 
@@ -76,3 +76,5 @@ export const createFernTransaction = async (
     throw error;
   }
 };
+
+

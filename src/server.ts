@@ -46,7 +46,15 @@ app.use(cors({
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-API-Key'],
+    allowedHeaders: [
+        'Content-Type', 
+        'Authorization', 
+        'X-Requested-With', 
+        'X-API-Key',
+        'conduit-signature',
+        'conduit-signature-timestamp',
+        'conduit-webhook-idempotency-key'
+    ],
     preflightContinue: false,
     optionsSuccessStatus: 204
 }));

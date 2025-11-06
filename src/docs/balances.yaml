@@ -1,0 +1,93 @@
+/api/business/balances/{conduitId}:
+  get:
+    summary: Obtener el resumen de balances de un cliente por su conduitId
+    description: >
+      Retorna un resumen agregado de los balances del cliente, agrupado por red y activo.
+      Solo se consideran transacciones con estado `completed`.
+      Las transacciones tipo `onramp` suman al balance, mientras que las tipo `offramp` restan.
+    tags:
+      - Business Balances
+    parameters:
+      - in: path
+        name: conduitId
+        required: true
+        schema:
+          type: string
+        description: ID único del cliente en Conduit
+    responses:
+      "200":
+        description: Resumen de balances obtenido exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                balanceTotal:
+                  type: number
+                  example: 19.27
+                  description: Balance total neto considerando todas las redes y activos
+                BANKS:
+                  type: object
+                  description: Saldos agregados en cuentas bancarias (sin red asociada)
+                  properties:
+                    USD:
+                      type: number
+                      example: 3.5
+                POLYGON:
+                  type: object
+                  description: Saldos de activos en la red Polygon
+                  properties:
+                    USDT:
+                      type: number
+                      example: 5.33
+                    USDC:
+                      type: number
+                      example: 11
+                BASE:
+                  type: object
+                  description: Saldos de activos en la red Base
+                  properties:
+                    USDT:
+                      type: number
+                      example: 0
+                    USDC:
+                      type: number
+                      example: 0.12
+                ETHEREUM:
+                  type: object
+                  description: Saldos de activos en la red Ethereum
+                  properties:
+                    USDT:
+                      type: number
+                      example: 0
+                    USDC:
+                      type: number
+                      example: 2.82
+      "400":
+        description: conduitId es requerido
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: conduitId es requerido en el path
+      "500":
+        description: Error al obtener balances
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error al obtener datos
+                error:
+                  type: string

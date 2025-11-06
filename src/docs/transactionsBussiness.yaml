@@ -217,3 +217,176 @@
                 error:
                   type: string
                   example: Internal server error
+
+/api/business/transactions/create:
+  post:
+    summary: Crear una transacción en Conduit
+    description: Crea una nueva transacción en Conduit según el tipo (`withdrawal`, `offramp`, `onramp`, `conversion`, `transfer`). Usa el campo `type` para indicar el tipo.
+    tags:
+      - Transactions
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - type: object
+                required: [type, quote, source, destination, purpose, documents]
+                properties:
+                  type:
+                    type: string
+                    enum: [offramp]
+                  conduit_id:
+                    type: string
+                    description: ID interno del cliente/usuario en tu sistema (opcional)
+                    example: user_123abc
+                  quote:
+                    type: string
+                    example: quote_34qS0CrMrXUbx4NIf0pclAR9tqI
+                  source:
+                    type: string
+                    example: wlt_34nnOseuR0AVKwRdgkHaUlax7YY
+                  destination:
+                    type: string
+                    example: bank_34nnOv4g8oH2R24DJrilY2qo82L
+                  purpose:
+                    type: string
+                    example: InterCompanyTransfer
+                  documents:
+                    type: array
+                    items:
+                      type: string
+                      example: doc_34nkRui71EevJnkZVjmHQtAgaYb
+
+              # ------------------ WITHDRAWAL ------------------
+              - type: object
+                required: [type, destination]
+                properties:
+                  type:
+                    type: string
+                    enum: [withdrawal]
+                  conduit_id:
+                    type: string
+                    description: ID interno del cliente/usuario en tu sistema (opcional)
+                    example: user_123abc
+                  destination:
+                    type: object
+                    required: [walletId, asset, network, amount]
+                    properties:
+                      walletId:
+                        type: string
+                        example: wlt_2ofTAESrTs4uQ8N3yGBMhGj59jV
+                      asset:
+                        type: string
+                        enum: [USDT, USDC, RLUSD]
+                      network:
+                        type: string
+                        enum: [ethereum, tron, solana, polygon, base, xrpl]
+                      amount:
+                        type: string
+                        example: "10.50"
+
+    responses:
+      "201":
+        description: Transacción creada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Transaction created successfully
+                data:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: offramp
+                    id:
+                      type: string
+                      example: trxn_34qS5WpgccszYhhifHMZtFSh5V9
+                    quote:
+                      type: string
+                      example: quote_34qS0CrMrXUbx4NIf0pclAR9tqI
+                    status:
+                      type: string
+                      example: created
+                    source:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: wlt_34nnOseuR0AVKwRdgkHaUlax7YY
+                        asset:
+                          type: string
+                          example: USDT
+                        network:
+                          type: string
+                          example: ethereum
+                        amount:
+                          type: string
+                          example: "10.000000"
+                    destination:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          example: bank_34nnOv4g8oH2R24DJrilY2qo82L
+                        asset:
+                          type: string
+                          example: USD
+                        amount:
+                          type: string
+                          example: 9.99
+                    documents:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: string
+                            example: doc_34nkRui71EevJnkZVjmHQtAgaYb
+                    purpose:
+                      type: string
+                      example: InterCompanyTransfer
+                    reference:
+                      type: string
+                      nullable: true
+                      example: null
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: 2025-10-31T19:37:05.444Z
+      "400":
+        description: Campos faltantes o inválidos
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Missing or invalid fields
+      "500":
+        description: Error interno del servidor
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error creating transaction
+                error:
+                  type: string
+                  example: Unexpected error occurred
