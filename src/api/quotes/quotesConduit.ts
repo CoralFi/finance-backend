@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
 import supabase from '@/db/supabase';
-
+import { filterBalance } from '../bussiness/balances/helpers/filterBalance';
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 const FIAT_ASSETS = ['USD', 'MXN', 'BRL', 'COP', 'EUR', 'NGN', 'ARS', 'GBP'];
@@ -31,8 +31,6 @@ export const createQuoteControllerConduit = async (
 ): Promise<Response> => {
   try {
     const body = req.body;
-
-    // Validaciones base
     if (!body?.source || !body?.target) {
       return res.status(400).json({
         success: false,
@@ -88,6 +86,48 @@ export const createQuoteControllerConduit = async (
         success: false,
         message: 'Falta el campo target.asset',
       });
+    }
+
+    if (isSourceCrypto) {
+      if (!body.conduit_id) {
+        return res.status(400).json({
+          success: false,
+          message: "Falta conduit_id"
+        });
+      }
+
+      const balances = await filterBalance(body.conduit_id);
+      const network = body.source.network
+      if (!network) {
+        return res.status(400).json({
+          success: false,
+          message: "Falta conduit_id"
+        });
+      }
+      const netKey = network.toUpperCase();
+      const assetKey = body.source.asset.toUpperCase();
+      const amount = body.source.amount;
+
+      if (!balances[netKey]) {
+        return res.status(400).json({
+          error: `No hay balances para la red ${network}`
+        });
+      }
+
+      // Validar que exista el asset en esa red
+      if (!balances[netKey][assetKey]) {
+        return res.status(400).json({
+          error: `No hay balance para el asset ${assetKey} en la red ${network}`
+        });
+      }
+
+      // Validar que el monto sea suficiente
+      const available = balances[netKey][assetKey];
+      if (parseFloat(amount) > available) {
+        return res.status(400).json({
+          error: `Fondos insuficientes: tienes ${available} ${assetKey}, intentas usar ${amount}`
+        });
+      }
     }
 
     const isTargetFiat = FIAT_ASSETS.includes(target.asset);
