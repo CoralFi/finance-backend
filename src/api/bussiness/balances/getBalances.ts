@@ -1,5 +1,4 @@
 import { Request, Response } from 'express';
-import supabase from '../../../db/supabase';
 import { filterBalance } from './helpers/filterBalance';
 
 export const getBalancesController = async (req: Request, res: Response): Promise<Response> => {
