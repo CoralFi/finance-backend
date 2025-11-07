@@ -33,7 +33,7 @@ const upload = multer({
 });
 
 /**
- * @route POST /api/bussiness/documents/upload
+ * @route POST /api/business/documents/upload
  * @desc Upload a document to Conduit Financial
  * @access Private (requires authentication)
  */
