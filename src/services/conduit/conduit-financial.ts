@@ -1,4 +1,6 @@
 import axios from 'axios';
+import FormData from 'form-data';
+
 const CONDUIT_BASE_URL = process.env.CONDUIT_API_BASE_URL;
 const CONDUIT_PUBLIC_KEY = process.env.CONDUIT_PUBLIC_KEY;
 const CONDUIT_PRIVATE_KEY = process.env.CONDUIT_PRIVATE_KEY;
@@ -79,6 +81,25 @@ const conduitFinancial = {
   },
   async getTransaction(id: string) {
     const { data } = await conduitAxios.get(`/transactions/${id}`);
+    return data;
+  },
+
+  async uploadDocument(file: Buffer, fileName: string, scope: string, type: string, purpose?: string) {
+    const formData = new FormData();
+    formData.append('file', file, fileName);
+    formData.append('scope', scope);
+    formData.append('type', type);
+    if (purpose) {
+      formData.append('purpose', purpose);
+    }
+
+    const { data } = await axios.post(`${CONDUIT_BASE_URL}/documents`, formData, {
+      headers: {
+        ...formData.getHeaders(),
+        'X-API-Key': CONDUIT_PUBLIC_KEY!,
+        'X-API-Secret': CONDUIT_PRIVATE_KEY!,
+      },
+    });
     return data;
   },
  
