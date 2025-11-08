@@ -16,6 +16,7 @@ import transactionsBussRoutes from "./bussiness/transactions/index"
 import webhooksRoutes from "./webhooks/index";
 import balancesBussRoutes from "./bussiness/balances/index";
 import documentsBussRoutes from "./bussiness/documents/index";
+import simulatorBussRoutes from "./bussiness/simulator/index";
 const router = Router();
 
 // /api/test
@@ -49,4 +50,6 @@ router.use("/webhooks", webhooksRoutes);
 router.use("/business/balances", balancesBussRoutes);
 // /api/business/documents
 router.use("/business/documents", documentsBussRoutes);
+// /api/business/simulator
+router.use("/business/simulator", simulatorBussRoutes);
 export default router;

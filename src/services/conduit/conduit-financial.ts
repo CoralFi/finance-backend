@@ -102,6 +102,24 @@ const conduitFinancial = {
     });
     return data;
   },
+
+  // Sandbox Simulator Methods
+  async simulateCustomerKYB(customerId: string, countryCode: string) {
+    const { data } = await conduitAxios.post(`/simulator/customer-kyb`, {
+      id: customerId,
+      countryCode: countryCode,
+    });
+    return data;
+  },
+
+  async changeComplianceStatus(type: 'customer' | 'counterparty', id: string, status: string) {
+    const { data } = await conduitAxios.post(`/simulator/compliance`, {
+      type,
+      id,
+      status,
+    });
+    return data;
+  },
  
 };
 
