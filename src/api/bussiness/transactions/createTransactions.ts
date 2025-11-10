@@ -79,11 +79,22 @@ export const createTransactionController = async (req: Request, res: Response): 
         break;
       }
 
+      case 'onramp': {
+        const { quote, source, destination, purpose } = req.body;
+        if (!quote || !source || !destination || !purpose) {
+          return res.status(400).json({
+            success: false,
+            message: `Missing required fields for 'onramp': quote, source, destination, purpose`
+          });
+        }
+        break;
+      }
+
       case 'offramp':
       case 'conversion':
       case 'transfer': {
         const { quote, source, destination, purpose, documents } = req.body;
-        if (!quote || !source || !destination || !purpose || !Array.isArray(documents) || !documents.length) {
+        if (!quote || !source || !destination || !purpose || !Array.isArray(documents) || !documents.length ) {
           return res.status(400).json({
             success: false,
             message: `Missing required fields for '${type}': quote, source, destination, purpose, documents[]`
