@@ -15,6 +15,9 @@ import accountsRoutes from "./bussiness/accounts/index";
 import transactionsBussRoutes from "./bussiness/transactions/index"
 import webhooksRoutes from "./webhooks/index";
 import balancesBussRoutes from "./bussiness/balances/index";
+import documentsBussRoutes from "./bussiness/documents/index";
+import simulatorBussRoutes from "./bussiness/simulator/index";
+import paymentMethodsRoutes from "./paymentMethods/index";
 const router = Router();
 
 // /api/test
@@ -46,4 +49,10 @@ router.use("/business/transactions", transactionsBussRoutes);
 router.use("/webhooks", webhooksRoutes);
 // /api/balances
 router.use("/business/balances", balancesBussRoutes);
+// /api/business/documents
+router.use("/business/documents", documentsBussRoutes);
+// /api/business/simulator
+router.use("/business/simulator", simulatorBussRoutes);
+// Payment Methods routes - nested under /api
+router.use("/", paymentMethodsRoutes);
 export default router;
