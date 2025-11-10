@@ -120,6 +120,32 @@ const conduitFinancial = {
     });
     return data;
   },
+
+  // Payment Methods
+  async createPaymentMethod(customerId: string, payload: Record<string, any>) {
+    const { data } = await conduitAxios.post(`/customers/${customerId}/payment-methods`, payload);
+    return data;
+  },
+
+  async listPaymentMethods(customerId: string) {
+    const { data } = await conduitAxios.get(`/customers/${customerId}/payment-methods`);
+    return data;
+  },
+
+  async getPaymentMethod(customerId: string, paymentMethodId: string) {
+    const { data } = await conduitAxios.get(`/customers/${customerId}/payment-methods/${paymentMethodId}`);
+    return data;
+  },
+
+  async updatePaymentMethod(customerId: string, paymentMethodId: string, payload: Record<string, any>) {
+    const { data } = await conduitAxios.patch(`/customers/${customerId}/payment-methods/${paymentMethodId}`, payload);
+    return data;
+  },
+
+  async deletePaymentMethod(customerId: string, paymentMethodId: string) {
+    const { data } = await conduitAxios.delete(`/customers/${customerId}/payment-methods/${paymentMethodId}`);
+    return data;
+  },
  
 };
 
