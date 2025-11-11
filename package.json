@@ -4,7 +4,7 @@
   "description": "CORAL BACKEND",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --poll -r tsconfig-paths/register src/server.ts",
     "build": "tsc && tsc-alias && cp -r src/docs dist/docs",
     "start": "node dist/server.js"
   },

@@ -102,6 +102,50 @@ const conduitFinancial = {
     });
     return data;
   },
+
+  // Sandbox Simulator Methods
+  async simulateCustomerKYB(customerId: string, countryCode: string) {
+    const { data } = await conduitAxios.post(`/simulator/customer-kyb`, {
+      id: customerId,
+      countryCode: countryCode,
+    });
+    return data;
+  },
+
+  async changeComplianceStatus(type: 'customer' | 'counterparty', id: string, status: string) {
+    const { data } = await conduitAxios.post(`/simulator/compliance`, {
+      type,
+      id,
+      status,
+    });
+    return data;
+  },
+
+  // Payment Methods
+  async createPaymentMethod(customerId: string, payload: Record<string, any>) {
+    const { data } = await conduitAxios.post(`/customers/${customerId}/payment-methods`, payload);
+    return data;
+  },
+
+  async listPaymentMethods(customerId: string) {
+    const { data } = await conduitAxios.get(`/customers/${customerId}/payment-methods`);
+    return data;
+  },
+
+  async getPaymentMethod(customerId: string, paymentMethodId: string) {
+    const { data } = await conduitAxios.get(`/customers/${customerId}/payment-methods/${paymentMethodId}`);
+    return data;
+  },
+
+  async updatePaymentMethod(customerId: string, paymentMethodId: string, payload: Record<string, any>) {
+    const { data } = await conduitAxios.patch(`/customers/${customerId}/payment-methods/${paymentMethodId}`, payload);
+    return data;
+  },
+
+  async deletePaymentMethod(customerId: string, paymentMethodId: string) {
+    const { data } = await conduitAxios.delete(`/customers/${customerId}/payment-methods/${paymentMethodId}`);
+    return data;
+  },
  
 };
 
