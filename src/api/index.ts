@@ -17,7 +17,7 @@ import webhooksRoutes from "./webhooks/index";
 import balancesBussRoutes from "./bussiness/balances/index";
 import documentsBussRoutes from "./bussiness/documents/index";
 import simulatorBussRoutes from "./bussiness/simulator/index";
-import paymentMethodsRoutes from "./paymentMethods/index";
+import paymentMethodsRoutes from "./bussiness/paymentMethods/index";
 const router = Router();
 
 // /api/test
