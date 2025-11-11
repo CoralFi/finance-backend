@@ -3,6 +3,7 @@ import supabase from "@/db/supabase";
 import axios from "axios";
 import { PaymentAccount } from "@/services/types/fern.types";
 import { DeleteResponse } from "@/services/types/request.types";
+import currenciesAllows from "./helpers/currenciesAllows";
 
 export const FernKycStatus = async (fernCustomerId: any, userId: any) => {
   try {
@@ -209,6 +210,9 @@ export const listFernBankAccounts = async (
     }
 
     if (currency) {
+      if (!currenciesAllows(currency)) {
+        throw new Error(`La moneda ${currency} no es permitida.`);
+      }
       accounts = accounts.filter(
         (acc) =>
           acc.externalBankAccount?.bankAccountCurrency?.label === currency.toUpperCase() 
