@@ -20,6 +20,48 @@ export class TransactionWebhookService {
         console.log(`📝 Updating transaction ${transactionId} to status: ${status}`);
       }
 
+      // First, check if transaction exists and its current state
+      const { data: existingTransaction } = await supabase
+        .from('conduit_transactions')
+        .select('status, updated_at')
+        .eq('transaction_id', transactionId)
+        .single();
+
+      if (!existingTransaction) {
+        console.warn(`⚠️ Transaction ${transactionId} not found in database`);
+        // Create the transaction if it doesn't exist (skipUpdate=true to avoid recursion)
+        await this.createTransactionFromWebhook(transactionData, true);
+        return;
+      }
+
+      // Check if we should update based on status priority (avoid race conditions)
+      const statusPriority: Record<TransactionStatus, number> = {
+        'CREATED': 1,
+        'IN_COMPLIANCE_REVIEW': 2,
+        'AWAITING_COMPLIANCE_REVIEW': 2,
+        'COMPLIANCE_APPROVED': 3,
+        'COMPLIANCE_REJECTED': 10, // Final state
+        'AWAITING_FUNDS': 4,
+        'FUNDS_RECEIVED': 5,
+        'PROCESSING_WITHDRAWAL': 6,
+        'WITHDRAWAL_PROCESSED': 7,
+        'PROCESSING_SETTLEMENT': 8,
+        'SETTLEMENT_PROCESSED': 9,
+        'PROCESSING_PAYMENT': 8,
+        'PAYMENT_PROCESSED': 9,
+        'COMPLETED': 10, // Final state
+        'CANCELLED': 10, // Final state
+      };
+
+      const currentPriority = statusPriority[existingTransaction.status] || 0;
+      const newPriority = statusPriority[status] || 0;
+
+      // Don't downgrade from a final state or higher priority state
+      if (currentPriority >= newPriority && currentPriority >= 10) {
+        console.log(`⚠️ Skipping update: Transaction ${transactionId} is already in final state ${existingTransaction.status}`);
+        return;
+      }
+
       // Prepare update data
       const updateData: any = {
         status,
@@ -42,15 +84,8 @@ export class TransactionWebhookService {
         throw error;
       }
 
-      if (!data || data.length === 0) {
-        console.warn(`⚠️ Transaction ${transactionId} not found in database`);
-        // Create the transaction if it doesn't exist (skipUpdate=true to avoid recursion)
-        await this.createTransactionFromWebhook(transactionData, true);
-        return;
-      }
-
       if (isDevelopment) {
-        console.log(`✅ Transaction ${transactionId} updated successfully`);
+        console.log(`✅ Transaction ${transactionId} updated from ${existingTransaction.status} to ${status}`);
       }
     } catch (error) {
       console.error(`❌ Error updating transaction ${transactionId}:`, error);
@@ -68,6 +103,42 @@ export class TransactionWebhookService {
     transactionData: TransactionData
   ): Promise<void> {
     try {
+      // First, check current transaction state to avoid race conditions
+      const { data: existingTransaction } = await supabase
+        .from('conduit_transactions')
+        .select('status, updated_at, conduit_created_at')
+        .eq('transaction_id', transactionId)
+        .single();
+
+      if (existingTransaction) {
+        // Don't update if the existing status is more "final" than the new one
+        const statusPriority: Record<TransactionStatus, number> = {
+          'CREATED': 1,
+          'IN_COMPLIANCE_REVIEW': 2,
+          'AWAITING_COMPLIANCE_REVIEW': 2,
+          'COMPLIANCE_APPROVED': 3,
+          'COMPLIANCE_REJECTED': 10, // Final state
+          'AWAITING_FUNDS': 4,
+          'FUNDS_RECEIVED': 5,
+          'PROCESSING_WITHDRAWAL': 6,
+          'WITHDRAWAL_PROCESSED': 7,
+          'PROCESSING_SETTLEMENT': 8,
+          'SETTLEMENT_PROCESSED': 9,
+          'PROCESSING_PAYMENT': 8,
+          'PAYMENT_PROCESSED': 9,
+          'COMPLETED': 10, // Final state
+          'CANCELLED': 10, // Final state
+        };
+
+        const currentPriority = statusPriority[existingTransaction.status] || 0;
+        const newPriority = statusPriority[status] || 0;
+
+        if (currentPriority >= newPriority && currentPriority >= 10) {
+          console.log(`⚠️ Skipping update: Transaction ${transactionId} is already in final state ${existingTransaction.status}`);
+          return;
+        }
+      }
+
       const updateData: any = {
         status,
         updated_at: new Date().toISOString(),
