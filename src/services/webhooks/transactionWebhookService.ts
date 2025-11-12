@@ -44,8 +44,8 @@ export class TransactionWebhookService {
 
       if (!data || data.length === 0) {
         console.warn(`⚠️ Transaction ${transactionId} not found in database`);
-        // Optionally, you could create the transaction here if it doesn't exist
-        await this.createTransactionFromWebhook(transactionData);
+        // Create the transaction if it doesn't exist (skipUpdate=true to avoid recursion)
+        await this.createTransactionFromWebhook(transactionData, true);
         return;
       }
 
@@ -59,13 +59,57 @@ export class TransactionWebhookService {
   }
 
   /**
+   * Update transaction status only (without creating if not found)
+   * Used internally to avoid infinite recursion
+   */
+  private static async updateTransactionStatusOnly(
+    transactionId: string,
+    status: TransactionStatus,
+    transactionData: TransactionData
+  ): Promise<void> {
+    try {
+      const updateData: any = {
+        status,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (status === 'COMPLETED' && transactionData.completedAt) {
+        updateData.completed_at = transactionData.completedAt;
+      }
+
+      const { error } = await supabase
+        .from('conduit_transactions')
+        .update(updateData)
+        .eq('transaction_id', transactionId);
+
+      if (error) {
+        console.error(`Error updating transaction status: ${error.message}`);
+      }
+    } catch (error) {
+      console.error(`Error in updateTransactionStatusOnly:`, error);
+    }
+  }
+
+  /**
    * Create a transaction record from webhook data if it doesn't exist
    * This handles cases where webhook arrives before the transaction is saved
    */
-  static async createTransactionFromWebhook(transactionData: TransactionData): Promise<void> {
+  static async createTransactionFromWebhook(transactionData: TransactionData, skipUpdate: boolean = false): Promise<void> {
     try {
       if (isDevelopment) {
         console.log(`📝 Creating transaction ${transactionData.id} from webhook`);
+      }
+
+      // Validate required fields
+      if (!transactionData.source?.amount?.amount || !transactionData.destination?.amount?.amount) {
+        throw new Error(`Missing required amount data for transaction ${transactionData.id}`);
+      }
+
+      const sourceAsset = transactionData.source.asset || transactionData.source.amount.assetType;
+      const destinationAsset = transactionData.destination.asset || transactionData.destination.amount.assetType;
+
+      if (!sourceAsset || !destinationAsset) {
+        throw new Error(`Missing asset type for transaction ${transactionData.id}`);
       }
 
       const { data, error } = await supabase
@@ -76,11 +120,11 @@ export class TransactionWebhookService {
           transaction_type: transactionData.type,
           status: transactionData.status,
           source_id: transactionData.source.id || null,
-          source_asset: transactionData.source.asset || transactionData.source.amount.assetType,
+          source_asset: sourceAsset,
           source_network: transactionData.source.network || null,
           source_amount: transactionData.source.amount.amount,
           destination_id: transactionData.destination.id || null,
-          destination_asset: transactionData.destination.asset || transactionData.destination.amount.assetType,
+          destination_asset: destinationAsset,
           destination_network: transactionData.destination.network || null,
           destination_amount: transactionData.destination.amount.amount,
           purpose: transactionData.purpose || null,
@@ -92,6 +136,14 @@ export class TransactionWebhookService {
         .select();
 
       if (error) {
+        if (error.code === '23505') {
+          console.log(`Transaction ${transactionData.id} already exists in database`);
+          // Avoid infinite recursion: only update if skipUpdate is false
+          if (!skipUpdate) {
+            await this.updateTransactionStatusOnly(transactionData.id, transactionData.status, transactionData);
+          }
+          return;
+        }
         throw error;
       }
 
