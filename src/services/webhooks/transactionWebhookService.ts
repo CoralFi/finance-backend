@@ -183,6 +183,9 @@ export class TransactionWebhookService {
         throw new Error(`Missing asset type for transaction ${transactionData.id}`);
       }
 
+      // Extract wallet address from destination (for withdrawals/offramps) or source (for deposits/onramps)
+      const walletAddress = transactionData.destination?.address || transactionData.source?.address || null;
+
       const { data, error } = await supabase
         .from('conduit_transactions')
         .insert({
@@ -200,6 +203,7 @@ export class TransactionWebhookService {
           destination_amount: transactionData.destination.amount.amount,
           purpose: transactionData.purpose || null,
           reference: transactionData.reference || null,
+          wallet_address: walletAddress,
           conduit_created_at: transactionData.createdAt,
           completed_at: transactionData.completedAt || null,
           raw_response: transactionData,
