@@ -73,18 +73,14 @@ export const filterBalance = async (conduitId: string): Promise<BalanceResponse>
       sign = -1;
     }
     else if (tx.transaction_type === 'deposit') {
-      // 🔹 obtener el address del depósito
       const walletAddress = (tx as any).wallet_address;
       if (!walletAddress) return;
-      // 🔹 buscar si ese wallet pertenece a este conduitId
       const match = paymentMethods.find(
         (pm: any) =>
           pm.wallet_address === walletAddress && pm.customer_id === conduitId
       );
       console.log(match)
-      if (!match) return; // no pertenece a este cliente
-
-      // 🔹 obtener red, moneda y monto
+      if (!match) return;
       network = match.rail?.toUpperCase() || 'UNKNOWN';
       asset = match.wallet_label?.toUpperCase() || 'UNKNOWN';
       amount = Number((tx as any).destination_amount) / 1_000_000;
