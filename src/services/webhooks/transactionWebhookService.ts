@@ -56,9 +56,9 @@ export class TransactionWebhookService {
       const currentPriority = statusPriority[existingTransaction.status] || 0;
       const newPriority = statusPriority[status] || 0;
 
-      // Don't downgrade from a final state or higher priority state
-      if (currentPriority >= newPriority && currentPriority >= 10) {
-        console.log(`⚠️ Skipping update: Transaction ${transactionId} is already in final state ${existingTransaction.status}`);
+      // Don't downgrade from a higher priority state (prevents race conditions)
+      if (currentPriority >= newPriority) {
+        console.log(`⚠️ Skipping update: Transaction ${transactionId} already at ${existingTransaction.status} (priority ${currentPriority}), not downgrading to ${status} (priority ${newPriority})`);
         return;
       }
 
@@ -133,8 +133,8 @@ export class TransactionWebhookService {
         const currentPriority = statusPriority[existingTransaction.status] || 0;
         const newPriority = statusPriority[status] || 0;
 
-        if (currentPriority >= newPriority && currentPriority >= 10) {
-          console.log(`⚠️ Skipping update: Transaction ${transactionId} is already in final state ${existingTransaction.status}`);
+        if (currentPriority >= newPriority) {
+          console.log(`⚠️ Skipping update: Transaction ${transactionId} already at ${existingTransaction.status} (priority ${currentPriority}), not downgrading to ${status} (priority ${newPriority})`);
           return;
         }
       }
