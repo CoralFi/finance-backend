@@ -29,8 +29,11 @@ export class TransactionWebhookService {
 
       if (!existingTransaction) {
         console.warn(`⚠️ Transaction ${transactionId} not found in database`);
-        // Create the transaction if it doesn't exist (skipUpdate=true to avoid recursion)
-        await this.createTransactionFromWebhook(transactionData, true);
+        // Create the transaction if it doesn't exist
+        // Note: createTransactionFromWebhook will handle race conditions if another webhook
+        // creates it simultaneously, and will call updateTransactionStatusOnly to apply
+        // the correct status based on priority
+        await this.createTransactionFromWebhook(transactionData, false);
         return;
       }
 
