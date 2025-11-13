@@ -73,20 +73,12 @@ export const filterBalance = async (conduitId: string): Promise<BalanceResponse>
       sign = -1;
     }
     else if (tx.transaction_type === 'deposit') {
-      const walletAddress = (tx as any).wallet_address;
-      if (!walletAddress) return;
-      const match = paymentMethods.find(
-        (pm: any) =>
-          pm.wallet_address === walletAddress && pm.customer_id === conduitId
-      );
-      console.log(match)
-      if (!match) return;
-      network = match.rail?.toUpperCase() || 'UNKNOWN';
-      asset = match.wallet_label?.toUpperCase() || 'UNKNOWN';
-      amount = Number((tx as any).destination_amount) / 1_000_000;
-      console.log(amount)
-      sign = 1
-
+      // network = tx.source_network ? tx.source_network.toUpperCase() : 'UNKNOWN';
+      // Normaliza la red: si hay ":", toma solo la parte antes de los dos puntos
+      network = tx.source_network ? tx.source_network.toUpperCase().split(":")[0] : 'UNKNOWN';
+      asset = tx.destination_asset ? tx.destination_asset.toUpperCase() : 'UNKNOWN';
+      amount = Number(tx.destination_amount) / 1_000_000 || 0;
+      sign = 1;
     }
     else {
       // Otros tipos de transacciones (deposit, withdrawal, conversion, transfer)
