@@ -176,8 +176,13 @@ export class TransactionWebhookService {
         throw new Error(`Missing required amount data for transaction ${transactionData.id}`);
       }
 
+      // Get asset type from source or destination
       const sourceAsset = transactionData.source.asset || transactionData.source.amount.assetType;
       const destinationAsset = transactionData.destination.asset || transactionData.destination.amount.assetType;
+
+      // Get network from source or destination
+      const sourceNetwork = transactionData.source.network || transactionData.source.amount.assetTypeNetwork?.networkId || null;
+      const destinationNetwork = transactionData.destination.network || transactionData.destination.amount.assetTypeNetwork?.networkId || null;
 
       if (!sourceAsset || !destinationAsset) {
         throw new Error(`Missing asset type for transaction ${transactionData.id}`);
@@ -195,11 +200,11 @@ export class TransactionWebhookService {
           status: transactionData.status,
           source_id: transactionData.source.id || null,
           source_asset: sourceAsset,
-          source_network: transactionData.source.network || null,
+          source_network: sourceNetwork,
           source_amount: transactionData.source.amount.amount,
           destination_id: transactionData.destination.id || null,
           destination_asset: destinationAsset,
-          destination_network: transactionData.destination.network || null,
+          destination_network: destinationNetwork,
           destination_amount: transactionData.destination.amount.amount,
           purpose: transactionData.purpose || null,
           reference: transactionData.reference || null,

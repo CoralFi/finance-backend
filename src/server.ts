@@ -16,7 +16,12 @@ const getAllowedOrigins = () => {
     }
     
     if (process.env.NODE_ENV === "development") {
-        return ['http://localhost:5500', 'http://localhost:3001', 'http://localhost:3000'];
+        return [
+            'http://localhost:5500', 
+            'http://localhost:3001', 
+            'http://localhost:3000',
+            'http://coral-front:5500' // Permitir comunicación entre contenedores Docker
+        ];
     }
     
     if (process.env.NODE_ENV === "production") {
