@@ -21,10 +21,11 @@ export class PaymentMethodService {
    */
   static async savePaymentMethod(
     paymentMethodData: PaymentMethodResponse,
-    customerId: string
+    customerId: string,
+    counterpartyId?: string
   ): Promise<PaymentMethodDB> {
     try {
-      const dbRecord = this.mapResponseToDB(paymentMethodData, customerId);
+      const dbRecord = this.mapResponseToDB(paymentMethodData, customerId, counterpartyId);
 
       const { data, error } = await supabase
         .from(this.TABLE_NAME)
@@ -244,11 +245,13 @@ export class PaymentMethodService {
    */
   private static mapResponseToDB(
     response: PaymentMethodResponse,
-    customerId: string
+    customerId: string,
+    counterpartyId?: string
   ): Partial<PaymentMethodDB> {
     const baseRecord: any = {
       payment_method_id: response.id,
       customer_id: customerId,
+      counterparty_id: counterpartyId,
       type: response.type,
       status: response.status,
       entity_info: response.entity,
