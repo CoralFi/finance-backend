@@ -39,6 +39,13 @@ export type TransactionEventType =
   | 'transaction.processing_payment'
   | 'transaction.payment_processed';
 
+// Counterparty Status Types
+export type CounterpartyStatus =
+  | 'active'
+  | 'in_compliance_review'
+  | 'compliance_rejected'
+  | 'deleted';
+
 // Counterparty Event Types
 export type CounterpartyEventType =
   | 'counterparty.active'
