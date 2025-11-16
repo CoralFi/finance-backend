@@ -5,6 +5,8 @@
 // =====================================================
 
 import supabase from '@/db/supabase';
+import { PaymentMethodService } from '@/services/paymentMethods/paymentMethodService';
+import { PaymentMethodResponse } from '@/types/payment-methods';
 import {
   CounterpartyDB,
   CounterpartyResponse,
@@ -35,6 +37,15 @@ export class CounterpartyService {
       if (error) {
         console.error('Error saving counterparty to Supabase:', error);
         throw new Error(`Failed to save counterparty: ${error.message}`);
+      }
+      if (counterpartyData.paymentMethods && counterpartyData.paymentMethods.length > 0) {
+        for (const pm of counterpartyData.paymentMethods) {
+          await PaymentMethodService.savePaymentMethod(
+            pm as unknown as PaymentMethodResponse,
+            counterpartyData.customerId,
+            data.counterparty_id
+          );
+        }
       }
 
       console.log('✓ Counterparty saved to Supabase:', data.counterparty_id);
