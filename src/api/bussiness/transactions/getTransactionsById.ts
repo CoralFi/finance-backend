@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
 
 export const getTransactionController = async (req: Request, res: Response): Promise<Response> => {
+
+  // TODO: get transaction from database
+
   try {
     const { id } = req.params;
     const data = await conduitFinancial.getTransaction(id);

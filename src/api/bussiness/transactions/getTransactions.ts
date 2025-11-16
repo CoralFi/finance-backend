@@ -20,7 +20,7 @@ export const listTransactionsController = async (req: Request, res: Response): P
     //   data: [],
     // });
 
-    // will be return conduit transactions from our database
+    // we will return conduit transactions from our database
     const { data, error } = await supabase
     .from('conduit_transactions')
     .select(`

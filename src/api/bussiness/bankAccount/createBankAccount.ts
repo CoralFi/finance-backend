@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
+import { CounterpartyService } from '@/services/counterparties/counterpartyService';
+import { CounterpartyResponse } from '@/types/counterparties';
 
+
+const is_development = process.env.NODE_ENV === 'development';
 
 export const createBankAccountController = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -67,7 +71,20 @@ export const createBankAccountController = async (req: Request, res: Response): 
       }
     }
 
+    // Crear counterparty en Conduit
     const data = await conduitFinancial.createBankAccounts(req.body);
+
+    // Guardar counterparty en Supabase
+    try {
+      const counterpartyResponse = data as CounterpartyResponse;
+      await CounterpartyService.saveCounterparty(counterpartyResponse);
+      if(is_development){
+        console.log('✅ Counterparty guardado en Supabase:', counterpartyResponse.id);
+      }
+    } catch (dbError: any) {
+      console.error('⚠️ Error al guardar counterparty en Supabase:', dbError);
+      // No fallar la request si Supabase falla, pero loguearlo
+    }
 
     return res.status(201).json({
       success: true,
@@ -75,7 +92,7 @@ export const createBankAccountController = async (req: Request, res: Response): 
       data,
     });
   } catch (error: any) {
-    console.error('Error al registrar cuenta bancaria externa:', error.response.data);
+    console.error('❌ Error al registrar cuenta bancaria externa:', error.response.data);
     return res.status(500).json({
       success: false,
       message: 'Error al registrar cuenta bancaria externa',
