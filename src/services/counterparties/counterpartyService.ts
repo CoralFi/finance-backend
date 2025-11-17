@@ -323,6 +323,21 @@ export class CounterpartyService {
    * Mapea el registro de base de datos a formato de respuesta
    */
   static mapDBToResponse(dbRecord: CounterpartyDB): CounterpartyResponse {
+    const rawCreated = (dbRecord as any).conduit_created_at || dbRecord.created_at;
+    const rawUpdated = (dbRecord as any).conduit_updated_at || dbRecord.updated_at;
+
+    const createdAt = rawCreated
+      ? typeof rawCreated === 'string'
+        ? rawCreated
+        : rawCreated.toISOString()
+      : '';
+
+    const updatedAt = rawUpdated
+      ? typeof rawUpdated === 'string'
+        ? rawUpdated
+        : rawUpdated.toISOString()
+      : '';
+
     const baseResponse = {
       id: dbRecord.counterparty_id,
       customerId: dbRecord.customer_id,
@@ -333,8 +348,8 @@ export class CounterpartyService {
       paymentMethods: (dbRecord.payment_method_ids || []).map(id => ({ id, type: 'bank' as const })),
       documents: (dbRecord.document_ids || []).map(id => ({ documentId: id })),
       messages: dbRecord.messages || [],
-      createdAt: dbRecord.conduit_created_at?.toISOString() || dbRecord.created_at.toISOString(),
-      updatedAt: dbRecord.conduit_updated_at?.toISOString() || dbRecord.updated_at.toISOString(),
+      createdAt,
+      updatedAt,
     };
 
     if (dbRecord.type === 'individual') {
@@ -344,7 +359,11 @@ export class CounterpartyService {
         firstName: dbRecord.first_name!,
         middleName: dbRecord.middle_name,
         lastName: dbRecord.last_name!,
-        birthDate: dbRecord.birth_date?.toISOString() || '',
+        birthDate: dbRecord.birth_date
+          ? typeof dbRecord.birth_date === 'string'
+            ? dbRecord.birth_date
+            : dbRecord.birth_date.toISOString()
+          : '',
         nationality: dbRecord.nationality!,
         identificationType: dbRecord.identification_type!,
         identificationNumber: dbRecord.identification_number!,

@@ -4,6 +4,7 @@ import { listPaymentMethodsController } from './listPaymentMethods';
 import { getPaymentMethodController } from './getPaymentMethod';
 import { updatePaymentMethodController } from './updatePaymentMethod';
 import { deletePaymentMethodController } from './deletePaymentMethod';
+import { listWalletsAndCounterpartiesController } from './listWalletsAndCounterparties';
 
 const paymentMethodsRouter = Router();
 
@@ -25,6 +26,11 @@ paymentMethodsRouter.post(
 paymentMethodsRouter.get(
   '/business/:customerId/payment-methods',
   listPaymentMethodsController
+);
+
+paymentMethodsRouter.get(
+  '/customers/:customerId/wallets-and-counterparties',
+  listWalletsAndCounterpartiesController
 );
 
 /**

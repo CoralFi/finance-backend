@@ -294,6 +294,21 @@ export class PaymentMethodService {
    * Mapea el registro de base de datos a formato de respuesta
    */
   static mapDBToResponse(dbRecord: PaymentMethodDB): PaymentMethodResponse {
+    const rawCreated = (dbRecord as any).conduit_created_at || dbRecord.created_at;
+    const rawUpdated = (dbRecord as any).conduit_updated_at || dbRecord.updated_at;
+
+    const createdAt = rawCreated
+      ? typeof rawCreated === 'string'
+        ? rawCreated
+        : rawCreated.toISOString()
+      : undefined;
+
+    const updatedAt = rawUpdated
+      ? typeof rawUpdated === 'string'
+        ? rawUpdated
+        : rawUpdated.toISOString()
+      : undefined;
+
     if (dbRecord.type === 'bank') {
       return {
         id: dbRecord.payment_method_id,
@@ -314,8 +329,8 @@ export class PaymentMethodService {
         status: dbRecord.status,
         address: dbRecord.address,
         entity: dbRecord.entity_info!,
-        createdAt: dbRecord.conduit_created_at?.toISOString(),
-        updatedAt: dbRecord.conduit_updated_at?.toISOString(),
+        createdAt,
+        updatedAt,
       };
     } else {
       return {
@@ -327,8 +342,8 @@ export class PaymentMethodService {
         currency: dbRecord.currency as any,
         status: dbRecord.status,
         entity: dbRecord.entity_info!,
-        createdAt: dbRecord.conduit_created_at?.toISOString(),
-        updatedAt: dbRecord.conduit_updated_at?.toISOString(),
+        createdAt,
+        updatedAt,
       };
     }
   }
