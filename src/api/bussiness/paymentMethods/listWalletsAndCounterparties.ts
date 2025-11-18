@@ -2,7 +2,15 @@ import { Request, Response } from 'express';
 import { PaymentMethodService } from '@/services/paymentMethods/paymentMethodService';
 import { CounterpartyService } from '@/services/counterparties/counterpartyService';
 import { PaymentMethodFilters, PaymentMethodResponse } from '@/types/payment-methods';
-import { CounterpartyFilters } from '@/types/counterparties';
+import {
+  CounterpartyFilters,
+  CounterpartyResponse,
+} from '@/types/counterparties';
+
+type CounterpartyListItem = CounterpartyResponse & {
+  kind: 'counterparty';
+  paymentMethods: PaymentMethodResponse[];
+};
 
 export const listWalletsAndCounterpartiesController = async (
   req: Request,
@@ -10,7 +18,28 @@ export const listWalletsAndCounterpartiesController = async (
 ): Promise<Response> => {
   try {
     const { customerId } = req.params;
-    const { currency } = req.query as { currency?: string };
+    const { currency, network } = req.query as {
+      currency?: string;
+      network?: string;
+    };
+
+    const normalizedNetwork = network?.toLowerCase();
+    const normalizedCurrency = currency?.toUpperCase();
+
+    const CRYPTO_CURRENCIES = ['USDT', 'USDC', 'BTC', 'ETH'];
+    const FIAT_CURRENCIES = ['USD', 'MXN', 'BRL', 'COP', 'EUR', 'NGN', 'ARS', 'GBP'];
+
+    const isCryptoCurrency = normalizedCurrency
+      ? CRYPTO_CURRENCIES.includes(normalizedCurrency)
+      : false;
+    const isFiatCurrency = normalizedCurrency ? FIAT_CURRENCIES.includes(normalizedCurrency) : false;
+
+    // Default behavior is wallet-only for crypto use cases. Allow banks when filtering by fiat currency.
+    const walletOnly = normalizedNetwork
+      ? true
+      : normalizedCurrency
+      ? !isFiatCurrency
+      : true;
 
     if (!customerId) {
       return res.status(400).json({
@@ -20,11 +49,13 @@ export const listWalletsAndCounterpartiesController = async (
     }
 
     console.log(
-      `Listing wallets (sin counterparty) y counterparties para customer ${customerId} con currency=${currency}`
+      `Listing wallets (sin counterparty) y counterparties para customer ${customerId} con currency=${normalizedCurrency} y network=${normalizedNetwork}`
     );
 
     const paymentMethodFilters: PaymentMethodFilters = {
       customerId,
+      ...(walletOnly && { type: 'wallet' }),
+      ...(normalizedCurrency && { currency: normalizedCurrency }),
     };
 
     const counterpartyFilters: CounterpartyFilters = {
@@ -36,18 +67,27 @@ export const listWalletsAndCounterpartiesController = async (
       CounterpartyService.listCounterparties(counterpartyFilters),
     ]);
 
-    const methodsWithoutCounterparty = paymentMethods.filter(
-      (pm) => !pm.counterparty_id
-    );
-
-    const filteredMethods = methodsWithoutCounterparty.filter((pm) => {
-      if (pm.type === 'wallet' && currency) {
-        return pm.currency === currency;
+    const methodsWithoutCounterparty = paymentMethods.filter((pm) => {
+      if (pm.counterparty_id) {
+        return false;
+      }
+      if (normalizedNetwork) {
+        const railValues = Array.isArray(pm.rail) ? pm.rail : [pm.rail];
+        const matchesNetwork = railValues.some((rail) => rail?.toLowerCase() === normalizedNetwork);
+        if (!matchesNetwork) {
+          return false;
+        }
+      }
+      if (normalizedCurrency && pm.currency !== normalizedCurrency) {
+        return false;
+      }
+      if (walletOnly && pm.type !== 'wallet') {
+        return false;
       }
       return true;
     });
 
-    const walletItems = filteredMethods.map((pm) => ({
+    const walletItems = methodsWithoutCounterparty.map((pm) => ({
       kind: 'paymentMethod' as const,
       id: pm.payment_method_id,
       customerId: pm.customer_id,
@@ -63,33 +103,61 @@ export const listWalletsAndCounterpartiesController = async (
       raw: pm,
     }));
 
-    const counterpartyItems = await Promise.all(
-      counterparties.map(async (cp) => {
-        const baseResponse = CounterpartyService.mapDBToResponse(cp);
+    const counterpartyItems = (
+      await Promise.all(
+        counterparties.map(async (cp): Promise<CounterpartyListItem | null> => {
+          const baseResponse = CounterpartyService.mapDBToResponse(cp);
 
-        let paymentMethods: PaymentMethodResponse[] = [];
+          let paymentMethods: PaymentMethodResponse[] = [];
 
-        if (cp.payment_method_ids && cp.payment_method_ids.length > 0) {
-          const methods = await Promise.all(
-            cp.payment_method_ids.map(async (id) => {
-              const pmDb = await PaymentMethodService.getPaymentMethodById(id);
-              if (!pmDb) return null;
-              return PaymentMethodService.mapDBToResponse(pmDb);
-            })
-          );
+          if (cp.payment_method_ids && cp.payment_method_ids.length > 0) {
+            const methods = await Promise.all(
+              cp.payment_method_ids.map(async (id) => {
+                const pmDb = await PaymentMethodService.getPaymentMethodById(id);
+                if (!pmDb) return null;
+                return PaymentMethodService.mapDBToResponse(pmDb);
+              })
+            );
 
-          paymentMethods = methods.filter(Boolean) as PaymentMethodResponse[];
-        }
+            paymentMethods = (methods.filter(Boolean) as PaymentMethodResponse[]).filter(
+              (pm) => {
+                if (walletOnly && pm.type !== 'wallet') {
+                  return false;
+                }
+                if (normalizedCurrency && pm.currency !== normalizedCurrency) {
+                  return false;
+                }
+                if (normalizedNetwork && pm.type === 'wallet') {
+                  const railValues = Array.isArray(pm.rail) ? pm.rail : [pm.rail];
+                  const matchesNetwork = railValues.some(
+                    (rail) => rail?.toLowerCase() === normalizedNetwork
+                  );
+                  if (!matchesNetwork) {
+                    return false;
+                  }
+                }
+                return true;
+              }
+            );
+          }
 
-        return {
-          kind: 'counterparty' as const,
-          ...baseResponse,
-          paymentMethods,
-        };
-      })
-    );
+          if (paymentMethods.length === 0) {
+            return null;
+          }
 
-    const items = [...walletItems, ...counterpartyItems];
+          return {
+            kind: 'counterparty' as const,
+            ...baseResponse,
+            paymentMethods,
+          };
+        })
+      )
+    ).filter((item): item is CounterpartyListItem => Boolean(item));
+
+    const items: (typeof walletItems[number] | CounterpartyListItem)[] = [
+      ...walletItems,
+      ...counterpartyItems,
+    ];
 
     return res.status(200).json({
       success: true,

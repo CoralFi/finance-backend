@@ -152,7 +152,6 @@ export class PaymentMethodService {
       if (filters?.currency) {
         query = query.eq('currency', filters.currency);
       }
-
       // Ordenar por fecha de creación descendente
       query = query.order('created_at', { ascending: false });
 
