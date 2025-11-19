@@ -39,6 +39,13 @@ export type TransactionEventType =
   | 'transaction.processing_payment'
   | 'transaction.payment_processed';
 
+// Counterparty Status Types
+export type CounterpartyStatus =
+  | 'active'
+  | 'in_compliance_review'
+  | 'compliance_rejected'
+  | 'deleted';
+
 // Counterparty Event Types
 export type CounterpartyEventType =
   | 'counterparty.active'
@@ -73,10 +80,12 @@ export interface TransactionAmount {
 }
 
 // Transaction Source/Destination Interface
+export type TransactionAmountPayload = TransactionAmount | string | number;
+
 export interface TransactionEndpoint {
   id?: string;
   address?: string;
-  amount: TransactionAmount;
+  amount: TransactionAmountPayload;
   asset?: string;
   network?: string;
 }

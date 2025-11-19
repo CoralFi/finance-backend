@@ -178,6 +178,7 @@ export interface PaymentMethodDB {
   id: string;
   payment_method_id: string;
   customer_id: string;
+  counterparty_id?: string;
   type: PaymentMethodType;
   status: PaymentMethodStatus;
   
@@ -248,4 +249,5 @@ export interface PaymentMethodFilters {
   type?: PaymentMethodType;
   status?: PaymentMethodStatus;
   currency?: string;
+  rail?: string;
 }

@@ -21,10 +21,11 @@ export class PaymentMethodService {
    */
   static async savePaymentMethod(
     paymentMethodData: PaymentMethodResponse,
-    customerId: string
+    customerId: string,
+    counterpartyId?: string
   ): Promise<PaymentMethodDB> {
     try {
-      const dbRecord = this.mapResponseToDB(paymentMethodData, customerId);
+      const dbRecord = this.mapResponseToDB(paymentMethodData, customerId, counterpartyId);
 
       const { data, error } = await supabase
         .from(this.TABLE_NAME)
@@ -151,7 +152,6 @@ export class PaymentMethodService {
       if (filters?.currency) {
         query = query.eq('currency', filters.currency);
       }
-
       // Ordenar por fecha de creación descendente
       query = query.order('created_at', { ascending: false });
 
@@ -244,11 +244,13 @@ export class PaymentMethodService {
    */
   private static mapResponseToDB(
     response: PaymentMethodResponse,
-    customerId: string
+    customerId: string,
+    counterpartyId?: string
   ): Partial<PaymentMethodDB> {
     const baseRecord: any = {
       payment_method_id: response.id,
       customer_id: customerId,
+      counterparty_id: counterpartyId,
       type: response.type,
       status: response.status,
       entity_info: response.entity,
@@ -291,6 +293,21 @@ export class PaymentMethodService {
    * Mapea el registro de base de datos a formato de respuesta
    */
   static mapDBToResponse(dbRecord: PaymentMethodDB): PaymentMethodResponse {
+    const rawCreated = (dbRecord as any).conduit_created_at || dbRecord.created_at;
+    const rawUpdated = (dbRecord as any).conduit_updated_at || dbRecord.updated_at;
+
+    const createdAt = rawCreated
+      ? typeof rawCreated === 'string'
+        ? rawCreated
+        : rawCreated.toISOString()
+      : undefined;
+
+    const updatedAt = rawUpdated
+      ? typeof rawUpdated === 'string'
+        ? rawUpdated
+        : rawUpdated.toISOString()
+      : undefined;
+
     if (dbRecord.type === 'bank') {
       return {
         id: dbRecord.payment_method_id,
@@ -311,8 +328,8 @@ export class PaymentMethodService {
         status: dbRecord.status,
         address: dbRecord.address,
         entity: dbRecord.entity_info!,
-        createdAt: dbRecord.conduit_created_at?.toISOString(),
-        updatedAt: dbRecord.conduit_updated_at?.toISOString(),
+        createdAt,
+        updatedAt,
       };
     } else {
       return {
@@ -324,8 +341,8 @@ export class PaymentMethodService {
         currency: dbRecord.currency as any,
         status: dbRecord.status,
         entity: dbRecord.entity_info!,
-        createdAt: dbRecord.conduit_created_at?.toISOString(),
-        updatedAt: dbRecord.conduit_updated_at?.toISOString(),
+        createdAt,
+        updatedAt,
       };
     }
   }
