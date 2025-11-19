@@ -18,6 +18,7 @@ import balancesBussRoutes from "./bussiness/balances/index";
 import documentsBussRoutes from "./bussiness/documents/index";
 import simulatorBussRoutes from "./bussiness/simulator/index";
 import paymentMethodsRoutes from "./bussiness/paymentMethods/index";
+import businessQuoteRoutes from "./bussiness/quote/index";
 const router = Router();
 
 // /api/test
@@ -55,4 +56,6 @@ router.use("/business/documents", documentsBussRoutes);
 router.use("/business/simulator", simulatorBussRoutes);
 // Payment Methods routes - nested under /api
 router.use("/", paymentMethodsRoutes);
+// /api/business/quote
+router.use("/business/quote", businessQuoteRoutes);
 export default router;

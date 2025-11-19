@@ -64,6 +64,7 @@ async function handleTransactionEvent(
         status: transaction.status,
         type: transaction.type,
       });
+      console.log('Transaction:', transaction);
     }
 
     // Log the webhook event

@@ -249,4 +249,5 @@ export interface PaymentMethodFilters {
   type?: PaymentMethodType;
   status?: PaymentMethodStatus;
   currency?: string;
+  rail?: string;
 }
