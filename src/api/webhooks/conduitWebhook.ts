@@ -6,6 +6,7 @@ import {
   CustomerWebhookPayload,
 } from '@/types/conduit-webhooks';
 import { TransactionWebhookService } from '@/services/webhooks/transactionWebhookService';
+import { ConterpartiesWebhookService } from '@/services/webhooks/conterpartiesWebhookService';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -63,6 +64,7 @@ async function handleTransactionEvent(
         status: transaction.status,
         type: transaction.type,
       });
+      console.log('Transaction:', transaction);
     }
 
     // Log the webhook event
@@ -141,8 +143,18 @@ async function handleCounterpartyEvent(
       });
     }
 
-    // Add your counterparty event handling logic here
-    // For example, update counterparty status in database
+    await ConterpartiesWebhookService.logWebhookEvent(
+      event,
+      counterparty.id,
+      payload,
+      idempotencyKey
+    );
+
+    await ConterpartiesWebhookService.updateCounterpartyStatus(
+      counterparty.id,
+      counterparty.status as any,
+      counterparty
+    );
 
     switch (event) {
       case 'counterparty.active':

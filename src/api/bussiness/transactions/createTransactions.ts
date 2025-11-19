@@ -118,6 +118,9 @@ export const createTransactionController = async (req: Request, res: Response): 
       console.log('Transacción creada en Conduit:', data);
     }
 
+    // Extract wallet address from destination (for withdrawals/offramps) or source (for deposits/onramps)
+    const walletAddress = data.destination?.address || data.source?.address || null;
+
     // Save transaction in database
     const { data: savedTransaction, error: saveError } = await supabase
       .from('conduit_transactions')
@@ -139,6 +142,7 @@ export const createTransactionController = async (req: Request, res: Response): 
         documents: data.documents || null,
         purpose: data.purpose || null,
         reference: data.reference || null,
+        wallet_address: walletAddress,
         conduit_created_at: data.createdAt,
         raw_response: data,
       })
