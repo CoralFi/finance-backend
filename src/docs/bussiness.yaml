@@ -649,3 +649,135 @@
                 message:
                   type: string
                   example: "Error updating password"
+/api/auth/business/change-password:
+  post:
+    summary: Cambiar contraseña del usuario (Business)
+    description: Permite cambiar la contraseña proporcionando la contraseña actual y la nueva. Aplica límites de intentos (3 por hora).
+    tags:
+      - Auth Business
+
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - business_id
+              - currentPassword
+              - newPassword
+            properties:
+              business_id:
+                type: string
+                description: UUID del usuario/business.
+                example: "52b9c3ab-29c6-4e0c-a4ce-11f008b91f4d"
+              currentPassword:
+                type: string
+                description: Contraseña actual del usuario.
+                example: "MiContraseñaActual123"
+              newPassword:
+                type: string
+                description: Nueva contraseña a establecer.
+                example: "MiNuevaContraseñaSegura456"
+
+    responses:
+      "200":
+        description: Contraseña cambiada exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Contraseña cambiada exitosamente."
+                data:
+                  type: object
+                  properties:
+                    business_id:
+                      type: string
+                      example: "52b9c3ab-29c6-4e0c-a4ce-11f008b91f4d"
+                    email:
+                      type: string
+                      format: email
+                      example: "user@example.com"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2025-01-19T20:12:45.500Z"
+
+      "400":
+        description: Campos faltantes, contraseña inválida o nueva contraseña igual a la anterior.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "business_id, contraseña actual y nueva contraseña son obligatorios."
+
+      "401":
+        description: Contraseña actual incorrecta.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "La contraseña actual es incorrecta."
+
+      "404":
+        description: Usuario no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Usuario no encontrado."
+
+      "429":
+        description: Límite de intentos excedido (3 por hora).
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Demasiados intentos fallidos. Intenta nuevamente en 45 minutos."
+
+      "500":
+        description: Error interno del servidor al intentar cambiar la contraseña.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno del servidor."
+                error:
+                  type: string
+                  example: "Error al actualizar la contraseña en la base de datos."
