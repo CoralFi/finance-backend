@@ -80,10 +80,12 @@ export interface TransactionAmount {
 }
 
 // Transaction Source/Destination Interface
+export type TransactionAmountPayload = TransactionAmount | string | number;
+
 export interface TransactionEndpoint {
   id?: string;
   address?: string;
-  amount: TransactionAmount;
+  amount: TransactionAmountPayload;
   asset?: string;
   network?: string;
 }

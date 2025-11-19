@@ -1,5 +1,5 @@
 import supabase from '@/db/supabase';
-import { TransactionData, TransactionStatus } from '@/types/conduit-webhooks';
+import { TransactionData, TransactionEndpoint, TransactionStatus } from '@/types/conduit-webhooks';
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -7,6 +7,65 @@ const isDevelopment = process.env.NODE_ENV === 'development';
  * Service to handle transaction webhook updates in Supabase
  */
 export class TransactionWebhookService {
+  private static getAmountValue(amount?: TransactionEndpoint['amount']): string | null {
+    if (amount === undefined || amount === null) {
+      return null;
+    }
+
+    if (typeof amount === 'string') {
+      return amount;
+    }
+
+    if (typeof amount === 'number') {
+      return amount.toString();
+    }
+
+    if (typeof amount === 'object' && 'amount' in amount) {
+      return amount.amount;
+    }
+
+    return null;
+  }
+
+  private static getAssetValue(endpoint?: TransactionEndpoint): string | null {
+    if (!endpoint) {
+      return null;
+    }
+
+    if (endpoint.asset) {
+      return endpoint.asset;
+    }
+
+    const amount = endpoint.amount;
+    if (amount && typeof amount === 'object' && 'assetType' in amount) {
+      return amount.assetType;
+    }
+
+    return null;
+  }
+
+  private static getNetworkValue(endpoint?: TransactionEndpoint): string | null {
+    if (!endpoint) {
+      return null;
+    }
+
+    if (endpoint.network) {
+      return endpoint.network;
+    }
+
+    const amount = endpoint.amount;
+    if (
+      amount &&
+      typeof amount === 'object' &&
+      'assetTypeNetwork' in amount &&
+      amount.assetTypeNetwork?.networkId
+    ) {
+      return amount.assetTypeNetwork.networkId;
+    }
+
+    return null;
+  }
+
   /**
    * Update transaction status in Supabase based on webhook data
    */
@@ -174,18 +233,21 @@ export class TransactionWebhookService {
         console.log(`📝 Creating transaction ${transactionData.id} from webhook`);
       }
 
+      const sourceAmount = this.getAmountValue(transactionData.source?.amount);
+      const destinationAmount = this.getAmountValue(transactionData.destination?.amount);
+
       // Validate required fields
-      if (!transactionData.source?.amount?.amount || !transactionData.destination?.amount?.amount) {
+      if (!sourceAmount || !destinationAmount) {
         throw new Error(`Missing required amount data for transaction ${transactionData.id}`);
       }
 
       // Get asset type from source or destination
-      const sourceAsset = transactionData.source.asset || transactionData.source.amount.assetType;
-      const destinationAsset = transactionData.destination.asset || transactionData.destination.amount.assetType;
+      const sourceAsset = this.getAssetValue(transactionData.source);
+      const destinationAsset = this.getAssetValue(transactionData.destination);
 
       // Get network from source or destination
-      const sourceNetwork = transactionData.source.network || transactionData.source.amount.assetTypeNetwork?.networkId || null;
-      const destinationNetwork = transactionData.destination.network || transactionData.destination.amount.assetTypeNetwork?.networkId || null;
+      const sourceNetwork = this.getNetworkValue(transactionData.source);
+      const destinationNetwork = this.getNetworkValue(transactionData.destination);
 
       if (!sourceAsset || !destinationAsset) {
         throw new Error(`Missing asset type for transaction ${transactionData.id}`);
@@ -204,11 +266,11 @@ export class TransactionWebhookService {
           source_id: transactionData.source.id || null,
           source_asset: sourceAsset,
           source_network: sourceNetwork,
-          source_amount: transactionData.source.amount.amount,
+          source_amount: sourceAmount,
           destination_id: transactionData.destination.id || null,
           destination_asset: destinationAsset,
           destination_network: destinationNetwork,
-          destination_amount: transactionData.destination.amount.amount,
+          destination_amount: destinationAmount,
           purpose: transactionData.purpose || null,
           reference: transactionData.reference || null,
           wallet_address: walletAddress,
