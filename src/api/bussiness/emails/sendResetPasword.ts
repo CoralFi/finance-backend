@@ -49,7 +49,7 @@ export const sendResetPasswordEmail = async (req: Request, res: Response): Promi
       });
     }
 
-    const resetLink = `${process.env.BASE_URL_FRONTEND}/reset-password?token=${token}&email=${email}`;
+    const resetLink = `${process.env.BASE_URL_FRONTEND}/reset-password?token=${token}&email=${email}&rol=business`;
 
     await resendService.sendResetPasswordEmail(
       email,
