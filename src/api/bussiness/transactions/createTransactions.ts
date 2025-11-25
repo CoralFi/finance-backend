@@ -68,6 +68,16 @@ export const createTransactionController = async (req: Request, res: Response): 
         }
         break;
       }
+      case 'onramp': {
+        const { quote, source, destination, purpose } = req.body;
+        if (!quote || !source || !destination || !purpose) {
+          return res.status(400).json({
+            success: false,
+            message: `Missing required fields for '${type}': quote, source, destination, purpose `
+          });
+        }
+        break;
+      }
 
       case 'onramp': {
         const { quote, source, destination, purpose } = req.body;

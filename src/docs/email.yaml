@@ -188,3 +188,75 @@
                 error:
                   type: string
                   example: "Database connection failed"
+/api/email/send-reset-password:
+  post:
+    summary: Enviar correo para restablecimiento de contraseña
+    description: Envía un correo con un enlace para restablecer la contraseña, incluyendo un token generado y guardado en la base de datos.
+    tags:
+      - Emails  
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                format: email
+                example: user@example.com
+    responses:
+      "200":
+        description: Correo de restablecimiento enviado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Password reset email sent
+      "400":
+        description: Solicitud inválida (email faltante).
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Email is required
+      "404":
+        description: Usuario no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User not found
+      "500":
+        description: Error interno al enviar el correo o actualizar token.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error sending email

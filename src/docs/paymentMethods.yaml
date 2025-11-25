@@ -1,0 +1,219 @@
+/api/business/{customerId}/payment-methods:
+  post:
+    summary: Create Payment Method
+    tags: 
+      - PaymentMethod
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        description: ID del cliente asociado al método de pago.
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            description: Datos para crear un nuevo método de pago.
+    responses:
+      "201":
+        description: Método de pago creado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                message:
+                  type: string
+                paymentMethod:
+                  type: object
+        headers:
+          X-Powered-By:
+            schema:
+              type: string
+          Vary:
+            schema:
+              type: string
+          Access-Control-Allow-Credentials:
+            schema:
+              type: boolean
+          Content-Length:
+            schema:
+              type: integer
+          ETag:
+            schema:
+              type: string
+          Date:
+            schema:
+              type: string
+          Connection:
+            schema:
+              type: string
+          Keep-Alive:
+            schema:
+              type: string
+
+  get:
+    summary: List Payment Methods
+    description: >
+      Retorna los métodos de pago asociados a un cliente.
+      Permite filtrar opcionalmente por tipo (`bank` o `wallet`) y por moneda (`currency`).
+      El filtro de moneda solo aplica cuando el tipo es `bank`.
+    tags:
+      - PaymentMethod
+    parameters:
+      - name: customerId
+        in: path
+        required: true
+        description: ID del cliente asociado a los métodos de pago.
+        schema:
+          type: string
+      - name: type
+        in: query
+        required: false
+        description: Filtrar por tipo de método de pago (`bank` o `wallet`).
+        schema:
+          type: string
+          enum: [bank, wallet]
+      - name: currency
+        in: query
+        required: false
+        description: Filtrar por moneda (solo aplica para métodos tipo `bank`, ej. `USD`, `MXN`, `EUR`).
+        schema:
+          type: string
+    responses:
+      "200":
+        description: Lista de métodos de pago obtenida exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                message:
+                  type: string
+                count:
+                  type: integer
+                paymentMethods:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PaymentMethod"
+      "400":
+        description: Error de validación (por ejemplo, falta el customerId).
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                error:
+                  type: string
+      "500":
+        description: Error interno al obtener los métodos de pago.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                error:
+                  type: string
+
+/api/business/{customerId}/payment-methods/{paymentMethodId}:
+  get:
+    summary: Get Payment By ID
+    tags:
+      - PaymentMethod
+    responses:
+      "200":
+        description: "200"
+        headers:
+          X-Powered-By:
+            schema:
+              type: string
+          Vary:
+            schema:
+              type: string
+          Access-Control-Allow-Credentials:
+            schema:
+              type: boolean
+          Content-Length:
+            schema:
+              type: integer
+          ETag:
+            schema:
+              type: string
+          Date:
+            schema:
+              type: string
+          Connection:
+            schema:
+              type: string
+          Keep-Alive:
+            schema:
+              type: string
+  parameters:
+    - name: customerId
+      in: path
+      required: true
+      deprecated: false
+      schema: {}
+    - name: paymentMethodId
+      in: path
+      required: true
+      deprecated: false
+      schema: {}
+  patch:
+    summary: Update
+    tags:
+      - PaymentMethod
+    responses:
+      "200":
+        description: "200"
+    requestBody:
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              status:
+                type: string
+  delete:
+    summary: Delete
+    tags:
+      - PaymentMethod
+    responses:
+      "200":
+        description: "200"
+        headers:
+          X-Powered-By:
+            schema:
+              type: string
+          Vary:
+            schema:
+              type: string
+          Access-Control-Allow-Credentials:
+            schema:
+              type: boolean
+          Content-Length:
+            schema:
+              type: integer
+          ETag:
+            schema:
+              type: string
+          Date:
+            schema:
+              type: string
+          Connection:
+            schema:
+              type: string
+          Keep-Alive:
+            schema:
+              type: string

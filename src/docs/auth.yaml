@@ -226,3 +226,85 @@
                 error:
                   type: string
                   example: Database connection failed
+
+
+/api/auth/reset-password:
+  post:
+    summary: Restablecer contraseña de un usuario (Business)
+    description: Permite restablecer la contraseña usando un token previamente enviado al correo.
+    tags:
+      - Authentication
+    parameters:
+      - in: query
+        name: token
+        required: true
+        schema:
+          type: string
+        description: Token de restablecimiento enviado al email.
+        example: "4f9b1c94e2ab1fe0239ad889"
+
+      - in: query
+        name: email
+        required: true
+        schema:
+          type: string
+          format: email
+        description: Email del usuario que solicita el cambio de contraseña.
+        example: "user@example.com"
+
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - newPassword
+            properties:
+              newPassword:
+                type: string
+                description: Nueva contraseña del usuario.
+                example: "NuevaContraseñaSegura123!"
+
+    responses:
+      "200":
+        description: Contraseña restablecida correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Password reset successfully"
+
+      "400":
+        description: Error de validación (token incorrecto, email inválido, password igual a la anterior, etc.)
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token inválido o correo electrónico"
+
+      "500":
+        description: Error interno al actualizar la contraseña
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error updating password"

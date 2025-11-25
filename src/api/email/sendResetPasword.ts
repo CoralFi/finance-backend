@@ -1,12 +1,11 @@
 import { Request, Response } from 'express';
-import supabase from '../../../db/supabase';
+import supabase from '../../db/supabase';
 import crypto from 'crypto';
-import ResendService from '../../../services/emails/resend';
+import ResendService from '../../services/emails/resend';
 
 const resendService = new ResendService();
 
 export const sendResetPasswordEmail = async (req: Request, res: Response): Promise<Response> => {
-  console.log('test')
   try {
     const { email } = req.body;
 
@@ -19,9 +18,9 @@ export const sendResetPasswordEmail = async (req: Request, res: Response): Promi
 
     // Buscar usuario
     const { data, error } = await supabase
-      .from('business')
+      .from('usuarios')
       .select('*')
-      .eq('business_email', email)
+      .eq('email', email)
       .single();
 
     if (error || !data) {
@@ -31,16 +30,15 @@ export const sendResetPasswordEmail = async (req: Request, res: Response): Promi
       });
     }
 
-    const fullName = `${data.business_name}`;
-    console.log(fullName)
+    const fullName = `${data.name} ${data.apellido}`;
     // Generar token
     const token = crypto.randomBytes(16).toString('hex');
 
     // Guardar token en DB
     const { error: updateError } = await supabase
-      .from('business')
+      .from('usuarios')
       .update({ reset_token: token })
-      .eq('business_email', email);
+      .eq('email', email);
 
     if (updateError) {
       return res.status(500).send({
@@ -49,7 +47,7 @@ export const sendResetPasswordEmail = async (req: Request, res: Response): Promi
       });
     }
 
-    const resetLink = `${process.env.BASE_URL_FRONTEND}/reset-password?token=${token}&email=${email}&rol=business`;
+    const resetLink = `${process.env.BASE_URL_FRONTEND}/reset-password?token=${token}&email=${email}`;
 
     await resendService.sendResetPasswordEmail(
       email,
@@ -60,7 +58,8 @@ export const sendResetPasswordEmail = async (req: Request, res: Response): Promi
 
     return res.status(200).send({
       success: true,
-      message: 'Password reset email sent'
+      message: 'Password reset email sent',
+      resetLink
     });
 
   } catch (err) {

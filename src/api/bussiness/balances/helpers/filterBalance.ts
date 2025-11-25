@@ -23,26 +23,32 @@ interface Transaction {
  * @returns Balance total y balances por red y activo
  */
 export const filterBalance = async (conduitId: string): Promise<BalanceResponse> => {
+  const { data, error } = await supabase
+    .from('conduit_transactions')
+    .select('source_asset, source_network, source_amount, destination_asset, destination_network, destination_amount, transaction_type, status,wallet_address')
+    .or(`conduit_id.eq.${conduitId},transaction_type.eq.deposit`);
+  if (error) {
+    return { balanceTotal: 0 };
+  }
 
-    const { data, error } = await supabase
-      .from('conduit_transactions')
-      .select('source_asset, source_network, source_amount, destination_asset, destination_network, destination_amount, transaction_type, status')
-      .eq('conduit_id', conduitId);
 
-    if (error) {
-      return { balanceTotal: 0 };
-    }
+  if (!data || data.length === 0) {
+    return { balanceTotal: 0 };
+  }
+  const { data: paymentMethods, error: pmError } = await supabase
+    .from('conduit_payment_methods')
+    .select('wallet_address, customer_id, wallet_label, rail');
 
-    if (!data || data.length === 0) {
-      return { balanceTotal: 0 };
-    }
+  if (pmError) {
+    return { balanceTotal: 0 };
+  }
 
-    // Inicializar objeto de balances por red y activo
-    const balances: Record<string, Record<string, number>> = {};
-    let balanceTotal = 0;
+  // Inicializar objeto de balances por red y activo
+  const balances: Record<string, Record<string, number>> = {};
+  let balanceTotal = 0;
 
-    // Procesar cada transacción
-    data.forEach((tx: Transaction) => {
+  // Procesar cada transacción
+  data.forEach((tx: Transaction) => {
     // Solo procesar transacciones completadas
     if (!tx.status || tx.status.toLowerCase() !== 'completed') {
       return;
@@ -53,7 +59,6 @@ export const filterBalance = async (conduitId: string): Promise<BalanceResponse>
     let asset: string;
     let amount: number;
     let sign: number;
-
     if (tx.transaction_type === 'onramp') {
       // Onramp: suma al balance (entrada de fondos)
       network = tx.destination_network ? tx.destination_network.toUpperCase() : 'UNKNOWN';
@@ -66,14 +71,22 @@ export const filterBalance = async (conduitId: string): Promise<BalanceResponse>
       asset = tx.source_asset ? tx.source_asset.toUpperCase() : 'UNKNOWN';
       amount = Number(tx.source_amount) || 0;
       sign = -1;
-    } else {
+    }
+    else if (tx.transaction_type === 'deposit') {
+      // network = tx.source_network ? tx.source_network.toUpperCase() : 'UNKNOWN';
+      // Normaliza la red: si hay ":", toma solo la parte antes de los dos puntos
+      network = tx.source_network ? tx.source_network.toUpperCase().split(":")[0] : 'UNKNOWN';
+      asset = tx.destination_asset ? tx.destination_asset.toUpperCase() : 'UNKNOWN';
+      amount = Number(tx.destination_amount) / 1_000_000 || 0;
+      sign = 1;
+    }
+    else {
       // Otros tipos de transacciones (deposit, withdrawal, conversion, transfer)
       network = tx.source_network ? tx.source_network.toUpperCase() : tx.destination_network?.toUpperCase() || 'UNKNOWN';
       asset = tx.source_asset ? tx.source_asset.toUpperCase() : tx.destination_asset?.toUpperCase() || 'UNKNOWN';
       amount = Number(tx.source_amount) || Number(tx.destination_amount) || 0;
       sign = 0; // No afecta el balance total para otros tipos
     }
-
     // Inicializar red si no existe
     if (!balances[network]) {
       balances[network] = {};
@@ -89,20 +102,20 @@ export const filterBalance = async (conduitId: string): Promise<BalanceResponse>
 
     // Actualizar balance total
     balanceTotal += amount * sign;
-    });
+  });
 
-    // Redondear todos los valores a 2 decimales
-    Object.keys(balances).forEach(network => {
+  // Redondear todos los valores a 2 decimales
+  Object.keys(balances).forEach(network => {
     Object.keys(balances[network]).forEach(asset => {
       balances[network][asset] = Number(balances[network][asset].toFixed(2));
     });
-    });
+  });
 
-    // Construir respuesta
-    const response: BalanceResponse = {
+  // Construir respuesta
+  const response: BalanceResponse = {
     balanceTotal: Number(balanceTotal.toFixed(2)),
     ...balances,
-    };
+  };
 
-    return response;
+  return response;
 };
