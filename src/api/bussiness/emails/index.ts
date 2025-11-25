@@ -11,9 +11,8 @@ router.post('/send-confirm-email', sendConfirmEmailController);
 router.post('/send-code', sendCodeController);
 // /api/email/verify-code-db (usa función de base de datos con customer_id)
 router.post('/verify-code', verifyCodeController);
-
+// /api/email/verify-code-db (usa función de base de datos con customer_id)
 router.post('/send-reset-password', sendResetPasswordEmail);
-
 
 
 export default router;

@@ -1,9 +1,9 @@
-/api/email/send-confirm-email:
+/api/business/email/send-confirm-email:
   post:
     summary: Enviar correo de confirmación de cuenta
     description: Envía un correo al usuario con un enlace de confirmación usando un token temporal.
     tags:
-      - Emails
+      - Emails Buss
     requestBody:
       required: true
       content:
@@ -57,14 +57,14 @@
                 message:
                   type: string
                   example: Error sending email
-/api/email/send-code:
+/api/business/email/send-code:
   post:
     summary: Enviar código de verificación por correo
     description: >
       Genera un código de verificación de 6 dígitos y lo envía por correo electrónico al usuario.
       El código es válido por 15 minutos.
     tags:
-      - Emails
+      - Emails Buss
     requestBody:
       required: true
       content:
@@ -124,11 +124,11 @@
                 error:
                   type: string
                   example: Database connection failed
-/api/email/verify-code:
+/api/business/email/verify-code:
   post:
     summary: Verificar código de autenticación (OTP)
     tags:
-      - Emails
+      - Emails Buss
     requestBody:
       required: true
       content:
@@ -188,12 +188,12 @@
                 error:
                   type: string
                   example: "Database connection failed"
-/api/email/send-reset-password:
+/api/business/email/send-reset-password:
   post:
     summary: Enviar correo para restablecimiento de contraseña
     description: Envía un correo con un enlace para restablecer la contraseña, incluyendo un token generado y guardado en la base de datos.
     tags:
-      - Emails  
+      - Emails Buss
     requestBody:
       required: true
       content:

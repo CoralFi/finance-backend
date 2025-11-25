@@ -19,6 +19,7 @@ import documentsBussRoutes from "./bussiness/documents/index";
 import simulatorBussRoutes from "./bussiness/simulator/index";
 import paymentMethodsRoutes from "./bussiness/paymentMethods/index";
 import businessQuoteRoutes from "./bussiness/quote/index";
+import emailBussRoutes from "./bussiness/emails/index";
 const router = Router();
 
 // /api/test
@@ -58,4 +59,6 @@ router.use("/business/simulator", simulatorBussRoutes);
 router.use("/", paymentMethodsRoutes);
 // /api/business/quote
 router.use("/business/quote", businessQuoteRoutes);
+// emails para buss
+router.use("/business/email", emailBussRoutes);
 export default router;

@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS conduit_crypto_wallet_deposits (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
 
   -- Identificadores base
-  conduit_id TEXT UNIQUE NOT NULL,
+  conduit_id TEXT NOT NULL,
   wallet_address TEXT NOT NULL,
 
   -- Referencias locales (al menos una debe existir)
@@ -183,3 +183,14 @@ ALTER TABLE conduit_crypto_wallet_deposits
   ADD CONSTRAINT conduit_crypto_wallet_deposits_counterparty_id_fkey
     FOREIGN KEY (counterparty_id)
     REFERENCES conduit_counterparties(counterparty_id);
+
+ALTER TABLE conduit_crypto_wallet_deposits
+  ADD CONSTRAINT conduit_crypto_wallet_deposits_unique
+    UNIQUE (conduit_id);
+
+-- remove unique constraint
+ALTER TABLE conduit_crypto_wallet_deposits
+  DROP CONSTRAINT IF EXISTS conduit_crypto_wallet_deposits_unique;
+
+
+DROP TABLE IF EXISTS conduit_crypto_wallet_deposits;

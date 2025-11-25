@@ -13,6 +13,8 @@ export const listPaymentMethodsController = async (
 ): Promise<Response> => {
   try {
     const { customerId } = req.params;
+    const { type, currency } = req.query;
+
 
     // Validar que el customerId esté presente
     if (!customerId) {
@@ -26,7 +28,7 @@ export const listPaymentMethodsController = async (
 
     // Obtener métodos de pago desde Conduit
     const conduitResponse = await conduitFinancial.listPaymentMethods(customerId);
-
+    let methods = conduitResponse.data || [];
     // Sincronizar con Supabase en segundo plano
     //  Esto no es necesario por ahora, ademas que consume tiempo
     // try {
@@ -34,7 +36,7 @@ export const listPaymentMethodsController = async (
     //   if (conduitResponse.data && Array.isArray(conduitResponse.data)) {
     //     for (const paymentMethod of conduitResponse.data) {
     //       const existing = await PaymentMethodService.getPaymentMethodById(paymentMethod.id);
-          
+
     //       if (existing) {
     //         await PaymentMethodService.updatePaymentMethod(paymentMethod.id, paymentMethod);
     //       } else {
@@ -46,12 +48,23 @@ export const listPaymentMethodsController = async (
     //   console.error('Error syncing with Supabase (non-blocking):', dbError.message);
     // }
 
-
+    if (type && typeof type === 'string') {
+      methods = methods.filter(
+        (m: any) => m.type.toLowerCase() === type.toLowerCase()
+      );
+    }
+    if (currency && typeof currency === 'string') {
+      methods = methods.filter(
+        (m: any) =>
+          m.type === 'bank' &&
+          m.currency?.toLowerCase() === currency.toLowerCase()
+      );
+    }
     const response: ListPaymentMethodsResponse = {
       success: true,
       message: 'Métodos de pago obtenidos exitosamente',
-      count: conduitResponse.data?.length || 0,
-      paymentMethods: conduitResponse.data || [],
+      count: methods.length || 0,
+      paymentMethods: methods || [],
     };
 
     return res.status(200).json(response);
