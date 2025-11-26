@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { sendConfirmEmailController } from "./confirmEmail";
+import { sendConfirmEmailController } from "./sendConfirmEmail";
 import { sendCodeController } from "./sendCode";
 import { verifyCodeController } from "./verifyCode";
 import { sendResetPasswordEmail } from "./sendResetPasword";

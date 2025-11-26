@@ -39,8 +39,8 @@ export const sendConfirmEmailController = async (req: Request, res: Response): P
     });
   }
 
-  const resetLink = `${process.env.BASE_URL_FRONTEND}/confirm-email?token=${token}&email=${encodeURIComponent(email)}`;
-
+  const resetLink = `${process.env.BASE_URL_FRONTEND}/confirm-email?token=${token}&email=${email}&role=business`;
+  console.log(resetLink)
   try {
     await resendService.sendConfirmEmail(email, data.business_name, 'Confirmar tu correo electrónico', resetLink);
 
