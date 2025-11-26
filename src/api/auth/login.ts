@@ -41,22 +41,22 @@ export const loginController = async (req: Request, res: Response) => {
       isBusinessUser ? Promise.resolve(null) : fetchFernRelatedData(fernData!, user.user_id),
       supabase.rpc("user_info_exists", { p_user_id: user.user_id })
         .then(({ data, error }) => {
-          if (error) {  
+          if (error) {
             console.error("Error verificando user info:", error.message);
             return false;
           }
           return data || false;
         }),
       // Fetch Conduit data only if conduit_id exists
-      user.conduit_id 
+      user.conduit_id
         ? conduitFinancial.getCustomer(user.conduit_id)
-            .then((data) => {
-              return data || null;
-            })
-            .catch((error) => {
-              console.error("Error buscando datos de Conduit:", error.message);
-              return null;
-            })
+          .then((data) => {
+            return data || null;
+          })
+          .catch((error) => {
+            console.error("Error buscando datos de Conduit:", error.message);
+            return null;
+          })
         : Promise.resolve(null)
     ]);
 
@@ -64,7 +64,7 @@ export const loginController = async (req: Request, res: Response) => {
       console.log("Inicio de sesión exitoso:", user.email);
       console.log("Conduit user:", conduitUser);
     }
-
+    console.log("Conduit user:", user);
     // 5. Return success response
     return res.status(200).json({
       message: "Inicio de sesión exitoso.",
@@ -76,6 +76,7 @@ export const loginController = async (req: Request, res: Response) => {
         userType: user.user_type,
         google_auth: user.google_auth,
         tos: user.tos_coral,
+        verificado_email: user?.verificado_email,
         fernCustomerId: fernData?.fernCustomerId || null,
         fernWalletId: fernData?.fernWalletId || null,
         fernWalletAddress: fernRelatedData?.walletAddress || null,
@@ -86,7 +87,7 @@ export const loginController = async (req: Request, res: Response) => {
         conduit_id: user?.conduit_id,
         conduit_kyb_status: conduitUser?.status,
         conduit_kyb_link: conduitUser?.kybLink,
-        conduit_kyb_expires_at: conduitUser?.kybLinkExpiration,        
+        conduit_kyb_expires_at: conduitUser?.kybLinkExpiration,
       }
     });
   } catch (error: any) {

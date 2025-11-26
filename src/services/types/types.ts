@@ -16,6 +16,7 @@ export interface UserInfo {
   nombre?: string;
   apellido?: string;
   user_type?: string;
+  verificado_email?: boolean;
   google_auth?: boolean;
   tos_coral?: boolean;
   fern?: FernUser;
