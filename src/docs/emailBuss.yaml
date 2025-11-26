@@ -260,3 +260,65 @@
                 message:
                   type: string
                   example: Error sending email
+/api/business/email/confirm-email:
+  get:
+    summary: Confirmar email del negocio
+    description: Verifica el token y email recibidos por query params y actualiza el estado de verificación del email a true en la tabla business
+    tags:
+      - Emails Buss
+    parameters:
+      - in: query
+        name: token
+        required: true
+        schema:
+          type: string
+        description: Token de confirmación generado y enviado al email del negocio
+        example: "7d62f0d007237c2c7738eb61c03cb9ab"
+      - in: query
+        name: email
+        required: true
+        schema:
+          type: string
+          format: email
+        description: Email del negocio a confirmar
+        example: "negocio@example.com"
+    responses:
+      200:
+        description: Email confirmado exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Email confirmed successfully"
+      400:
+        description: Token o email inválidos o faltantes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Invalid token or email"
+      500:
+        description: Error interno del servidor
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error updating email verification status"

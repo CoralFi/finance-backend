@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
-import supabase from '../../db/supabase';
+import supabase from '../../../db/supabase';
 
 export const confirmEmailController = async (req: Request, res: Response): Promise<Response> => {
-
-
+    console.log(req.query)
     const { token, email } = req.query as { token: string; email: string };
 
     if (!token || !email) {
@@ -14,9 +13,9 @@ export const confirmEmailController = async (req: Request, res: Response): Promi
     }
 
     const { data, error } = await supabase
-        .from('usuarios')
+        .from('business')
         .select('*')
-        .eq('email', email)
+        .eq('business_email', email)
         .eq('reset_token', token)
         .single();
 
@@ -28,12 +27,12 @@ export const confirmEmailController = async (req: Request, res: Response): Promi
     }
 
     const { error: updateError } = await supabase
-        .from('usuarios')
+        .from('business')
         .update({
             verificado_email: true,
             reset_token: null
         })
-        .eq('email', email);
+        .eq('business_email', email);
 
     if (updateError) {
         return res.status(500).json({
