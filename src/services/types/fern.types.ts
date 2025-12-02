@@ -244,10 +244,13 @@ export interface FernTransactionResponse {
       feeAmount: string,
       feeUSDAmount: string,
     }
-    },
+  },
   createdAt: string,
   updatedAt: string,
   correlationId: string,
   expiresAt: string,
   [key: string]: any;
 }
+
+
+

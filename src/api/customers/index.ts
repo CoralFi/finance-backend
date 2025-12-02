@@ -8,7 +8,7 @@ import { amountToMoveController } from "./utilities/amountToMove";
 import { employmentSituationController } from "./utilities/employmentSituation";
 import { ocupationsController } from "./utilities/occupations";
 import { sourceFoundController } from "./utilities/sourceFound";
-
+import { FernKycUpdateController } from "./updateCustomerById";
 const router = Router();
 
 router.get("/", listCustomersController);
@@ -31,5 +31,7 @@ router.delete("/:customerId/addresses", customerAddressController);
 // /api/customers/:customerId
 router.get("/:customerId", getCustomerInfo);
 
+// /api/customers/:customerId
+router.post("/kyc/update", FernKycUpdateController);
 
 export default router;
