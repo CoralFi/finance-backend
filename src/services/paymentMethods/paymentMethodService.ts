@@ -137,7 +137,7 @@ export class PaymentMethodService {
    */
   static async listPaymentMethods(filters?: PaymentMethodFilters): Promise<PaymentMethodDB[]> {
     try {
-      let query = supabase.from(this.TABLE_NAME).select('*');
+      let query = supabase.from(this.TABLE_NAME).select('*').eq('status', 'enabled');
 
       // Aplicar filtros
       if (filters?.customerId) {

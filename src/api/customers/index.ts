@@ -31,7 +31,7 @@ router.delete("/:customerId/addresses", customerAddressController);
 // /api/customers/:customerId
 router.get("/:customerId", getCustomerInfo);
 
-// /api/customers/:customerId
+// /api/customers/kyc/update
 router.post("/kyc/update", FernKycUpdateController);
 
 export default router;

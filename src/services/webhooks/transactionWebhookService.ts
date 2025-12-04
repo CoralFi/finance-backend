@@ -115,8 +115,8 @@ export class TransactionWebhookService {
         'CANCELLED': 10, // Final state
       };
 
-      const currentPriority = statusPriority[existingTransaction.status] || 0;
-      const newPriority = statusPriority[status] || 0;
+      const currentPriority = statusPriority[existingTransaction.status.toUpperCase()] || 0;
+      const newPriority = statusPriority[status.toUpperCase()] || 0;
 
       // Don't downgrade from a higher priority state (prevents race conditions)
       if (currentPriority >= newPriority) {

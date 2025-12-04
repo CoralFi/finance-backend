@@ -15,6 +15,7 @@ interface Transaction {
   destination_amount?: string | number;
   transaction_type: string;
   status: string;
+  wallet_address?: string;
 }
 
 /**
@@ -25,23 +26,19 @@ interface Transaction {
 export const filterBalance = async (conduitId: string): Promise<BalanceResponse> => {
   const { data, error } = await supabase
     .from('conduit_transactions')
-    .select('source_asset, source_network, source_amount, destination_asset, destination_network, destination_amount, transaction_type, status,wallet_address')
-    .or(`conduit_id.eq.${conduitId},transaction_type.eq.deposit`);
+    .select('source_asset, source_network, source_amount, destination_asset, destination_network, destination_amount, transaction_type, status, wallet_address')
+    .eq('conduit_id', conduitId);
   if (error) {
     return { balanceTotal: 0 };
   }
 
-
   if (!data || data.length === 0) {
     return { balanceTotal: 0 };
   }
-  const { data: paymentMethods, error: pmError } = await supabase
-    .from('conduit_payment_methods')
-    .select('wallet_address, customer_id, wallet_label, rail');
-
-  if (pmError) {
-    return { balanceTotal: 0 };
-  }
+  // TODO: Si necesitas filtrar por payment methods, implementar aquí
+  // const { data: paymentMethods, error: pmError } = await supabase
+  //   .from('conduit_payment_methods')
+  //   .select('wallet_address, customer_id, wallet_label, rail');
 
   // Inicializar objeto de balances por red y activo
   const balances: Record<string, Record<string, number>> = {};
@@ -73,9 +70,10 @@ export const filterBalance = async (conduitId: string): Promise<BalanceResponse>
       sign = -1;
     }
     else if (tx.transaction_type === 'deposit') {
+
       // network = tx.source_network ? tx.source_network.toUpperCase() : 'UNKNOWN';
       // Normaliza la red: si hay ":", toma solo la parte antes de los dos puntos
-      network = tx.source_network ? tx.source_network.toUpperCase().split(":")[0] : 'UNKNOWN';
+      network = tx.destination_network ? tx.destination_network.toUpperCase() : 'UNKNOWN';
       asset = tx.destination_asset ? tx.destination_asset.toUpperCase() : 'UNKNOWN';
       amount = Number(tx.destination_amount) / 1_000_000 || 0;
       sign = 1;
