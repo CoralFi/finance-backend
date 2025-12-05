@@ -97,7 +97,7 @@ export const createBankAccountController = async (req: Request, res: Response): 
 
         if (
           !accountOwnerName || !bankName || !currency || !rail ||
-          !routingNumber || !accountNumber || !accountType || !bankAddress
+          !accountNumber || !accountType || !bankAddress
         ) {
           return res.status(400).json({
             success: false,
@@ -169,7 +169,7 @@ export const createBankAccountController = async (req: Request, res: Response): 
     try {
       const counterpartyResponse = data as CounterpartyResponse;
       await CounterpartyService.saveCounterparty(counterpartyResponse);
-      if(is_development){
+      if (is_development) {
         console.log('✅ Counterparty guardado en Supabase:', counterpartyResponse.id);
       }
     } catch (dbError: any) {

@@ -20,6 +20,7 @@ import simulatorBussRoutes from "./bussiness/simulator/index";
 import paymentMethodsRoutes from "./bussiness/paymentMethods/index";
 import businessQuoteRoutes from "./bussiness/quote/index";
 import emailBussRoutes from "./bussiness/emails/index";
+import otpBussRoutes from "./bussiness/otp/index";
 const router = Router();
 
 // /api/test
@@ -61,4 +62,6 @@ router.use("/", paymentMethodsRoutes);
 router.use("/business/quote", businessQuoteRoutes);
 // emails para buss
 router.use("/business/email", emailBussRoutes);
+// otp para buss
+router.use("/business/otp", otpBussRoutes);
 export default router;
