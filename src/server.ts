@@ -26,10 +26,10 @@ const getAllowedOrigins = () => {
 
     if (process.env.NODE_ENV === "production") {
         return [
-            '*',
-            // 'https://staging.app.coralfinance.io',
-            // 'https://app.coralfinance.io',
-            // 'https://www.coralfinance.io'
+            'https://staging.app.coralfinance.io',
+            'https://app.coralfinance.io',
+            'https://www.coralfinance.io',
+            'http://localhost:5500'
         ];
     }
     return [];
