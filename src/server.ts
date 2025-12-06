@@ -29,7 +29,7 @@ const getAllowedOrigins = () => {
             'https://staging.app.coralfinance.io',
             'https://app.coralfinance.io',
             'https://www.coralfinance.io',
-            'http://localhost:5500'
+            'http://localhost:5500',
         ];
     }
     return [];
@@ -42,7 +42,7 @@ app.use(cors({
         // Permitir requests sin origin (como mobile apps o curl)
         if (!origin) return callback(null, true);
 
-        if (allowedOrigins.indexOf(origin) !== -1) {
+        if (allowedOrigins.includes(origin)) {
             callback(null, true);
         } else {
             console.warn(`🚫 CORS blocked origin: ${origin}`);
