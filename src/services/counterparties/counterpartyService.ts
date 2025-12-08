@@ -166,7 +166,7 @@ export class CounterpartyService {
    */
   static async listCounterparties(filters?: CounterpartyFilters): Promise<CounterpartyDB[]> {
     try {
-      let query = supabase.from(this.TABLE_NAME).select('*');
+      let query = supabase.from(this.TABLE_NAME).select('*').eq('active', true);
 
       // Aplicar filtros
       if (filters?.customerId) {
@@ -206,7 +206,7 @@ export class CounterpartyService {
     try {
       const { error } = await supabase
         .from(this.TABLE_NAME)
-        .update({ 
+        .update({
           status: 'deleted',
           updated_at: new Date().toISOString()
         })
@@ -220,6 +220,31 @@ export class CounterpartyService {
       console.log('✓ Counterparty marked as deleted:', counterpartyId);
     } catch (error: any) {
       console.error('Error in deleteCounterparty:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Desactiva un counterparty (soft delete cambiando active a false)
+   */
+  static async deactivateCounterparty(counterpartyId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from(this.TABLE_NAME)
+        .update({
+          active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('counterparty_id', counterpartyId);
+
+      if (error) {
+        console.error('Error deactivating counterparty in Supabase:', error);
+        throw new Error(`Failed to deactivate counterparty: ${error.message}`);
+      }
+
+      console.log('✓ Counterparty deactivated:', counterpartyId);
+    } catch (error: any) {
+      console.error('Error in deactivateCounterparty:', error);
       throw error;
     }
   }

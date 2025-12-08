@@ -137,7 +137,7 @@ export class PaymentMethodService {
    */
   static async listPaymentMethods(filters?: PaymentMethodFilters): Promise<PaymentMethodDB[]> {
     try {
-      let query = supabase.from(this.TABLE_NAME).select('*').eq('status', 'enabled');
+      let query = supabase.from(this.TABLE_NAME).select('*').eq('status', 'enabled').eq('active', true);
 
       // Aplicar filtros
       if (filters?.customerId) {
@@ -176,7 +176,7 @@ export class PaymentMethodService {
     try {
       const { error } = await supabase
         .from(this.TABLE_NAME)
-        .update({ 
+        .update({
           status: 'disabled',
           updated_at: new Date().toISOString()
         })
@@ -188,6 +188,29 @@ export class PaymentMethodService {
       }
     } catch (error: any) {
       console.error('Error in disablePaymentMethod:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Desactiva un método de pago (soft delete cambiando active a false)
+   */
+  static async deactivatePaymentMethod(paymentMethodId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from(this.TABLE_NAME)
+        .update({
+          active: false,
+          updated_at: new Date().toISOString()
+        })
+        .eq('payment_method_id', paymentMethodId);
+
+      if (error) {
+        console.error('Error deactivating payment method in Supabase:', error);
+        throw new Error(`Failed to deactivate payment method: ${error.message}`);
+      }
+    } catch (error: any) {
+      console.error('Error in deactivatePaymentMethod:', error);
       throw error;
     }
   }
