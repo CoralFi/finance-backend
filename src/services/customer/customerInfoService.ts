@@ -103,6 +103,7 @@ export interface UpdateCustomerInfoData {
   postal_code: string;
   address_line_1: string;
   address_line_2: string | null;
+  tax_number: string;
 }
 
 /**
@@ -202,23 +203,40 @@ export const updateCustomerInfo = async (
         console.log(`📝 Updating existing record for user ${customerId}`);
       }
 
+      const { data: existingInfo, error: infoCheckError } = await supabase
+        .from('usuarios')
+        .select('user_id')
+        .eq('customer_id', customerId)
+        .single();
+
+      if (infoCheckError) {
+        console.error('❌ Error checking existing user_info:', infoCheckError);
+        throw new Error(`DATABASE_ERROR: ${infoCheckError.message}`);
+      }
+
+
+      // Update user_info table
+
       const { data: rpcResult, error: rpcError } = await supabase
-        .rpc('update_user_info', {
-          p_user_id: customerId,
-          p_birth_date: data.birth_date,
-          p_phone_number: data.phone_number,
-          p_employment_status_id: data.employment_status,
-          p_recent_occupation_id: data.recent_occupation,
-          p_account_purpose_id: data.account_purpose,
-          p_funds_origin_id: data.funds_origin,
-          p_expected_amount_id: data.expected_amount,
-          p_country: data.country,
-          p_state_region_province: data.state_region_province,
-          p_city: data.city,
-          p_postal_code: data.postal_code,
-          p_address_line_1: data.address_line_1,
-          p_address_line_2: data.address_line_2,
-        });
+        .from('user_info')
+        .update({
+          birthdate: data.birth_date,
+          phone_number: data.phone_number,
+          employment_situation_id: data.employment_status,
+          occupation_id: data.recent_occupation,
+          account_purposes_id: data.account_purpose,
+          source_fund_id: data.funds_origin,
+          amount_to_moved_id: data.expected_amount,
+          country: data.country,
+          state_region_province: data.state_region_province,
+          city: data.city,
+          postal_code: data.postal_code,
+          address_line_1: data.address_line_1,
+          address_line_2: data.address_line_2,
+          tax_number: data.tax_number,
+        })
+        .eq('user_id', existingInfo.user_id)
+        .select();
 
       if (rpcError) {
         console.error('❌ Error in RPC update:', rpcError);

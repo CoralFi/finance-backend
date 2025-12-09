@@ -18,6 +18,7 @@ interface UpdateCustomerInfoBody {
     postal_code: string;
     address_line_1: string;
     address_line_2?: string;
+    tax_number: string;
 }
 
 /**
@@ -71,6 +72,7 @@ export const postCustomerInfoController = async (
             postal_code,
             address_line_1,
             address_line_2,
+            tax_number,
         } = req.body as UpdateCustomerInfoBody;
 
         // Log received data for debugging
@@ -89,6 +91,7 @@ export const postCustomerInfoController = async (
             postal_code,
             address_line_1,
             address_line_2,
+            tax_number,
         });
 
         // Validate required fields
@@ -105,6 +108,7 @@ export const postCustomerInfoController = async (
             city: !!city,
             postal_code: !!postal_code,
             address_line_1: !!address_line_1,
+            tax_number: !!tax_number,
         };
 
         const missingFields = REQUIRED_FIELDS.filter(field => !receivedFields[field]);
@@ -135,6 +139,7 @@ export const postCustomerInfoController = async (
             postal_code,
             address_line_1,
             address_line_2: address_line_2 || null,
+            tax_number,
         });
 
         console.log(`✅ Información procesada exitosamente para cliente ${customerId}`);
