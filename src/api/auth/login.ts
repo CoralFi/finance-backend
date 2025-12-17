@@ -63,6 +63,7 @@ export const loginController = async (req: Request, res: Response) => {
     if (isDeveloment) {
       console.log("Inicio de sesión exitoso:", user.email);
       console.log("Conduit user:", conduitUser);
+
     }
     console.log("Conduit user:", user);
     // 5. Return success response
@@ -88,6 +89,7 @@ export const loginController = async (req: Request, res: Response) => {
         conduit_kyb_status: conduitUser?.status,
         conduit_kyb_link: conduitUser?.kybLink,
         conduit_kyb_expires_at: conduitUser?.kybLinkExpiration,
+        mainAccount: conduitUser?.paymentMethods,
       }
     });
   } catch (error: any) {
