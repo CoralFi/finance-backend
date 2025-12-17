@@ -91,3 +91,102 @@
                   example: Error al obtener datos
                 error:
                   type: string
+
+/api/business/balances/{conduitId}/samename:
+  get:
+    summary: Obtener balances agrupados por red y activo (same name)
+    description: >
+      Retorna un resumen agregado de los balances del cliente identificado por `conduitId`,
+      agrupando los activos con el mismo nombre por red.
+      El cálculo depende de la lógica interna del servicio `getBalanceSameName`.
+    tags:
+      - Business Balances
+    parameters:
+      - in: path
+        name: conduitId
+        required: true
+        schema:
+          type: string
+        description: ID único del cliente en Conduit
+        example: "conduit_123456"
+
+    responses:
+      "200":
+        description: Balances obtenidos exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                data:
+                  type: object
+                  description: Balances agrupados por red y activo
+                  properties:
+                    balanceTotal:
+                      type: number
+                      example: 19.27
+                    BANKS:
+                      type: object
+                      description: Saldos agregados en cuentas bancarias
+                      properties:
+                        USD:
+                          type: number
+                          example: 3.5
+                    POLYGON:
+                      type: object
+                      properties:
+                        USDT:
+                          type: number
+                          example: 5.33
+                        USDC:
+                          type: number
+                          example: 11
+                    BASE:
+                      type: object
+                      properties:
+                        USDT:
+                          type: number
+                          example: 0
+                        USDC:
+                          type: number
+                          example: 0.12
+                    ETHEREUM:
+                      type: object
+                      properties:
+                        USDT:
+                          type: number
+                          example: 0
+                        USDC:
+                          type: number
+                          example: 2.82
+
+      "400":
+        description: conduitId es requerido en el path
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: conduitId es requerido en el path
+
+      "500":
+        description: Error interno al obtener balances
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error al obtener datos

@@ -48,12 +48,12 @@ export const createCustomerController = async (req: Request, res: Response): Pro
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Validate country is a 2-letter country code, not a currency code
-    if (country.length !== 2 || !/^[A-Z]{2}$/i.test(country)) {
-      return res.status(400).json({
-        success: false,
-        message: 'El campo "country" debe ser un código de país de 2 letras (ej: US, CA, MX), no un código de moneda',
-      });
-    }
+    // if (country.length !== 2 || !/^[A-Z]{2}$/i.test(country)) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'El campo "country" debe ser un código de país de 2 letras (ej: US, CA, MX), no un código de moneda',
+    //   });
+    // }
     // Verify if the user already exists
 
     const userExists = await verifyUser(email);
@@ -102,7 +102,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
     }
 
 
-    console.error('Error creating customer:', error);
+    console.error('Error creating customer:', error.response?.data);
     return res.status(500).json({
       success: false,
       message: 'Error al crear cliente',

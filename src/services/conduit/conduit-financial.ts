@@ -31,6 +31,21 @@ const conduitFinancial = {
     const { data } = await conduitAxios.get(`/customers`);
     return data;
   },
+  // async getCustomers() {
+  //   const { data } = await conduitAxios.get(`/customers/cus_36wHSvwX2EOhb7CUIAXMnAczpCx/account`)
+  //   console.log("data", data.balances.available);
+  //   // cus_36wFqvmafcbNbpgBm8SJPGL7zdY
+  //   console.log("data", data.totalBalances);
+  //   return data;
+  // },
+
+
+  async getBalanceSameName(customerId: string) {
+    console.log("customerId", customerId);
+    const { data } = await conduitAxios.get(`/customers/${customerId}/account`);
+    console.log("data", data);
+    return data.balances.available;
+  },
 
   async updateCustomer(customerId: string, payload: Record<string, any>) {
     const { data } = await conduitAxios.patch(`/customers/${customerId}`, payload);
@@ -146,7 +161,7 @@ const conduitFinancial = {
     const { data } = await conduitAxios.delete(`/customers/${customerId}/payment-methods/${paymentMethodId}`);
     return data;
   },
- 
+
 };
 
 export default conduitFinancial;
