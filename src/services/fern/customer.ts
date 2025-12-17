@@ -2,15 +2,16 @@ import { FERN_API_BASE_URL, getAuthHeaders } from "@/config/fern/config";
 import supabase from "@/db/supabase";
 import { getFernWalletCryptoInfo } from "./wallet";
 import { UserRecord } from "@/types/user.types";
-import { 
-  FernCustomerData, 
-  FernWalletData, 
+import {
+  FernCustomerData,
+  FernWalletData,
   FernCustomerResponse,
   FernCustomer,
   FernCustomersListResponse,
-  FernRecord, 
-  CreateFernCustomerResult 
+  FernRecord,
+  CreateFernCustomerResult
 } from "@/services/types/fern.types";
+import { getAllCustomerIDMappings } from "@/services/supabase/customersb";
 
 // Constants
 const CUSTOMER_TYPES = {
@@ -68,7 +69,7 @@ const fernApiRequest = async <T>(
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
       throw new Error(
-        errorData.message || 
+        errorData.message ||
         `HTTP ${response.status}: ${response.statusText}`
       );
     }
@@ -85,7 +86,7 @@ const fernApiRequest = async <T>(
 const validateCustomerData = (user: UserRecord): void => {
   const requiredFields: (keyof UserRecord)[] = ['user_id', 'email', 'nombre', 'apellido', 'user_type'];
   const missingFields = requiredFields.filter(field => !isValidField(user[field]));
-  
+
   if (missingFields.length > 0) {
     throw new Error(`MISSING_REQUIRED_FIELDS: ${missingFields.join(', ')}`);
   }
@@ -173,14 +174,14 @@ export const createFernCustomer = async (
 
     // 2. Create wallet for the customer
     const walletId = await createFernWallet(customerId);
-    
+
     // 3. Save to local database
     const fernRecord: FernRecord = {
       fernCustomerId: customerId,
       fernWalletId: walletId,
       KycLink: fernCustomerResponse.kycLink || null,
-      Kyc: fernCustomerResponse.customerStatus !== KYC_STATUS.ACTIVE 
-        ? fernCustomerResponse.customerStatus 
+      Kyc: fernCustomerResponse.customerStatus !== KYC_STATUS.ACTIVE
+        ? fernCustomerResponse.customerStatus
         : KYC_STATUS.APPROVED,
       user_id: user.user_id,
       businessName: !isIndividual ? user.nombre : undefined,
@@ -218,12 +219,12 @@ export const createFernCustomer = async (
       email: user?.email,
       stack: isDevelopment ? error.stack : undefined
     });
-    
+
     // Safe error message for production
-    const safeMessage = isDevelopment 
-      ? error.message 
+    const safeMessage = isDevelopment
+      ? error.message
       : 'Error creating customer in payment system';
-        
+
     throw new Error(safeMessage);
   }
 };
@@ -266,19 +267,36 @@ export const getFernCustomer = async (
 
 export const getFernCustomers = async (): Promise<FernCustomersListResponse> => {
   try {
-    const response = await fernApiRequest<FernCustomersListResponse>(
-      '/customers?pageSize=100',
-      {
-        method: 'GET',
-        headers: getAuthHeaders()
-      }
-    );
+    // Fetch customers from Fern API and internal ID mappings in parallel
+    const [response, customerIdMappings] = await Promise.all([
+      fernApiRequest<FernCustomersListResponse>(
+        '/customers?pageSize=100',
+        {
+          method: 'GET',
+          headers: getAuthHeaders()
+        }
+      ),
+      getAllCustomerIDMappings()
+    ]);
 
     if (isDevelopment) {
       console.log('Fern customers fetched:', response.customers?.length || 0);
     }
 
-    return response;
+    // Transform customers to include internal customerId
+    const transformedCustomers = response.customers?.map(customer => {
+      const { customerId: fernCustomerId, ...rest } = customer;
+      return {
+        ...rest,
+        fernCustomerId,
+        customerId: customerIdMappings.get(fernCustomerId) || null,
+      };
+    });
+
+    return {
+      ...response,
+      customers: transformedCustomers
+    } as FernCustomersListResponse;
   } catch (error: any) {
     console.error('Error fetching customers:', error.message);
     throw error;
