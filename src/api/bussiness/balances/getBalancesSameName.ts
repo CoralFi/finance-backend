@@ -7,6 +7,7 @@ export const getBalancesSameController = async (req: Request, res: Response): Pr
     if (!conduitId) {
       return res.status(400).json({ success: false, message: 'conduitId es requerido en el path' });
     }
+    console.log('test')
     const balances = await conduitFinancial.getBalanceSameName(conduitId);
     if (!balances || balances.length === 0) {
       throw new Error('No existen balances para este conduitId');
@@ -20,7 +21,7 @@ export const getBalancesSameController = async (req: Request, res: Response): Pr
     }
     return res.status(200).json({ success: true, data });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: error.message });
+    return res.status(500).json({ success: false, message: error });
   }
 };
 

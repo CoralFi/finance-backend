@@ -41,7 +41,9 @@ const conduitFinancial = {
 
 
   async getBalanceSameName(customerId: string) {
+    console.log("customerId", customerId);
     const { data } = await conduitAxios.get(`/customers/${customerId}/account`);
+    console.log("data", data);
     return data.balances.available;
   },
 
