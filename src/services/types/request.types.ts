@@ -42,3 +42,27 @@ export interface DeleteResponseError {
   details?: unknown;
 }
 export type DeleteResponse = DeleteResponseSuccess | DeleteResponseError;
+
+
+
+export interface FernKycUpdateSuccess {
+  success: true;
+  customer: any;
+  kycStatus: string | null;
+  kycLink: string | null;
+  dbResult: any;
+  responseText: string;
+}
+
+export interface FernKycUpdateError {
+  success: false;
+  error: {
+    message: string;
+    status?: number | string;
+    details?: any;
+    kycData?: any;
+    fullError?: string;
+    stack?: string;
+  };
+}
+export type FernKycUpdateResponse = FernKycUpdateSuccess | FernKycUpdateError;

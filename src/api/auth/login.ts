@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import supabase from "../../db/supabase";
 import { getUserByEmail } from './helpers/authHelpers';
 import { getFernData, fetchFernRelatedData } from './helpers/fernHelpers';
-
+import conduitFinancial from "@/services/conduit/conduit-financial";
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -27,13 +27,18 @@ export const loginController = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Contraseña incorrecta." });
     }
 
-    // 3. Fetch Fern data
-    const fernData = await getFernData(user.customer_id);
-    user.fern = fernData;
+    // 2.1. Verify if user is a business user
+    const isBusinessUser = user.user_type === 'business';
+    let fernData;
+    if (!isBusinessUser) {
+      fernData = await getFernData(user.customer_id);
+      user.fern = fernData;
+    }
 
     // 4. Fetch additional data in parallel
-    const [fernRelatedData, userInfoExists] = await Promise.all([
-      fetchFernRelatedData(fernData, user.user_id),
+    const [fernRelatedData, userInfoExists, conduitUser] = await Promise.all([
+      // Fetch Fern related data only for non-business users
+      isBusinessUser ? Promise.resolve(null) : fetchFernRelatedData(fernData!, user.user_id),
       supabase.rpc("user_info_exists", { p_user_id: user.user_id })
         .then(({ data, error }) => {
           if (error) {
@@ -41,13 +46,26 @@ export const loginController = async (req: Request, res: Response) => {
             return false;
           }
           return data || false;
-        })
+        }),
+      // Fetch Conduit data only if conduit_id exists
+      user.conduit_id
+        ? conduitFinancial.getCustomer(user.conduit_id)
+          .then((data) => {
+            return data || null;
+          })
+          .catch((error) => {
+            console.error("Error buscando datos de Conduit:", error.message);
+            return null;
+          })
+        : Promise.resolve(null)
     ]);
 
     if (isDeveloment) {
       console.log("Inicio de sesión exitoso:", user.email);
-    }
+      console.log("Conduit user:", conduitUser);
 
+    }
+    console.log("Conduit user:", user);
     // 5. Return success response
     return res.status(200).json({
       message: "Inicio de sesión exitoso.",
@@ -59,13 +77,19 @@ export const loginController = async (req: Request, res: Response) => {
         userType: user.user_type,
         google_auth: user.google_auth,
         tos: user.tos_coral,
+        verificado_email: user?.verificado_email,
         fernCustomerId: fernData?.fernCustomerId || null,
         fernWalletId: fernData?.fernWalletId || null,
-        fernWalletAddress: fernRelatedData.walletAddress,
-        KycFer: fernRelatedData.kycStatus,
-        KycLinkFer: fernRelatedData.kycLink,
+        fernWalletAddress: fernRelatedData?.walletAddress || null,
+        KycFer: fernRelatedData?.kycStatus || null,
+        KycLinkFer: fernRelatedData?.kycLink || null,
         fernBusinessName: fernData?.businessname || null,
-        user_info: userInfoExists
+        user_info: userInfoExists,
+        conduit_id: user?.conduit_id,
+        conduit_kyb_status: conduitUser?.status,
+        conduit_kyb_link: conduitUser?.kybLink,
+        conduit_kyb_expires_at: conduitUser?.kybLinkExpiration,
+        mainAccount: conduitUser?.paymentMethods,
       }
     });
   } catch (error: any) {

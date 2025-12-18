@@ -1,0 +1,324 @@
+/api/business/email/send-confirm-email:
+  post:
+    summary: Enviar correo de confirmación de cuenta
+    description: Envía un correo al usuario con un enlace de confirmación usando un token temporal.
+    tags:
+      - Emails Buss
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                format: email
+                example: user@example.com
+    responses:
+      "200":
+        description: Correo enviado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Confirm email sent successfully
+      "404":
+        description: Usuario no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User not found
+      "500":
+        description: Error interno al procesar el correo.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error sending email
+/api/business/email/send-code:
+  post:
+    summary: Enviar código de verificación por correo
+    description: >
+      Genera un código de verificación de 6 dígitos y lo envía por correo electrónico al usuario.
+      El código es válido por 15 minutos.
+    tags:
+      - Emails Buss
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                format: email
+                example: user@example.com
+    responses:
+      "200":
+        description: Código enviado exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Code sent successfully to user@example.com
+                code:
+                  type: integer
+                  example: 123456
+      "404":
+        description: Usuario no encontrado
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User not found
+      "500":
+        description: Error interno al enviar el código
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error sending code
+                error:
+                  type: string
+                  example: Database connection failed
+/api/business/email/verify-code:
+  post:
+    summary: Verificar código de autenticación (OTP)
+    tags:
+      - Emails Buss
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - user_id
+              - code
+            properties:
+              user_id:
+                type: string
+                example: "1a2b3c4d-5678-90ab-cdef-1234567890gh"
+              code:
+                type: integer
+                example: 123456
+    responses:
+      "200":
+        description: Código verificado correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Code verified successfully
+      "400":
+        description: Código inválido o faltan parámetros
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Invalid code
+      "500":
+        description: Error del servidor al verificar el código
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error verifying code
+                error:
+                  type: string
+                  example: "Database connection failed"
+/api/business/email/send-reset-password:
+  post:
+    summary: Enviar correo para restablecimiento de contraseña
+    description: Envía un correo con un enlace para restablecer la contraseña, incluyendo un token generado y guardado en la base de datos.
+    tags:
+      - Emails Buss
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - email
+            properties:
+              email:
+                type: string
+                format: email
+                example: user@example.com
+    responses:
+      "200":
+        description: Correo de restablecimiento enviado exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Password reset email sent
+      "400":
+        description: Solicitud inválida (email faltante).
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Email is required
+      "404":
+        description: Usuario no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: User not found
+      "500":
+        description: Error interno al enviar el correo o actualizar token.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error sending email
+/api/business/email/confirm-email:
+  get:
+    summary: Confirmar email del negocio
+    description: Verifica el token y email recibidos por query params y actualiza el estado de verificación del email a true en la tabla business
+    tags:
+      - Emails Buss
+    parameters:
+      - in: query
+        name: token
+        required: true
+        schema:
+          type: string
+        description: Token de confirmación generado y enviado al email del negocio
+        example: "7d62f0d007237c2c7738eb61c03cb9ab"
+      - in: query
+        name: email
+        required: true
+        schema:
+          type: string
+          format: email
+        description: Email del negocio a confirmar
+        example: "negocio@example.com"
+    responses:
+      200:
+        description: Email confirmado exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Email confirmed successfully"
+      400:
+        description: Token o email inválidos o faltantes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Invalid token or email"
+      500:
+        description: Error interno del servidor
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error updating email verification status"

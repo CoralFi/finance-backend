@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
 import { saveCustomerToDB } from '@/services/bussiness/signUp';
+import bcrypt from 'bcrypt';
+import { verifyUser } from '@/services/userService';
+import { ApiResponse } from "@/services/types/request.types";
+
 
 export const createCustomerController = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -39,6 +43,26 @@ export const createCustomerController = async (req: Request, res: Response): Pro
         ]
       });
     }
+
+    //hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Validate country is a 2-letter country code, not a currency code
+    // if (country.length !== 2 || !/^[A-Z]{2}$/i.test(country)) {
+    //   return res.status(400).json({
+    //     success: false,
+    //     message: 'El campo "country" debe ser un código de país de 2 letras (ej: US, CA, MX), no un código de moneda',
+    //   });
+    // }
+    // Verify if the user already exists
+
+    const userExists = await verifyUser(email);
+    console.log("userExists", userExists);
+    if (userExists !== undefined) {
+      throw new Error("USER_EXISTS");
+    }
+
+
     const conduitResponse = await conduitFinancial.createCustomer(req.body);
     const conduitCustomerId = conduitResponse?.id;
     if (!conduitCustomerId) {
@@ -54,7 +78,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
       isDirectSetup,
       email,
       phone,
-      password,
+      hashedPassword,
       userId,
       recordType,
       businessInformation,
@@ -68,7 +92,17 @@ export const createCustomerController = async (req: Request, res: Response): Pro
       },
     });
   } catch (error: any) {
-    console.error('Error creating customer:', error);
+    if (error.message === "USER_EXISTS") {
+      return res.status(409).json({
+        success: false,
+        message: "El usuario ya existe.",
+        error: "USER_EXISTS"
+      } as ApiResponse);
+
+    }
+
+
+    console.error('Error creating customer:', error.response?.data);
     return res.status(500).json({
       success: false,
       message: 'Error al crear cliente',

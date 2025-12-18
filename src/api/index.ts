@@ -11,6 +11,16 @@ import quotesRoutes from "./quotes/index";
 import businessRoutes from "./bussiness/auth/index";
 import customersBussRoutes from "./bussiness/customers/index";
 import bankAccountRoutes from "./bussiness/bankAccount/index";
+import accountsRoutes from "./bussiness/accounts/index";
+import transactionsBussRoutes from "./bussiness/transactions/index"
+import webhooksRoutes from "./webhooks/index";
+import balancesBussRoutes from "./bussiness/balances/index";
+import documentsBussRoutes from "./bussiness/documents/index";
+import simulatorBussRoutes from "./bussiness/simulator/index";
+import paymentMethodsRoutes from "./bussiness/paymentMethods/index";
+import businessQuoteRoutes from "./bussiness/quote/index";
+import emailBussRoutes from "./bussiness/emails/index";
+import otpBussRoutes from "./bussiness/otp/index";
 const router = Router();
 
 // /api/test
@@ -33,5 +43,25 @@ router.use("/email", emailRoutes);
 router.use("/quotes", quotesRoutes);
 router.use("/auth/business", businessRoutes);
 router.use("/business/customers", customersBussRoutes);
+// /api/business/counterparties
 router.use("/business/counterparties", bankAccountRoutes);
+router.use("/business/accounts", accountsRoutes);
+//transactions conduit 
+router.use("/business/transactions", transactionsBussRoutes);
+// /api/webhooks
+router.use("/webhooks", webhooksRoutes);
+// /api/balances
+router.use("/business/balances", balancesBussRoutes);
+// /api/business/documents
+router.use("/business/documents", documentsBussRoutes);
+// /api/business/simulator
+router.use("/business/simulator", simulatorBussRoutes);
+// Payment Methods routes - nested under /api
+router.use("/", paymentMethodsRoutes);
+// /api/business/quote
+router.use("/business/quote", businessQuoteRoutes);
+// emails para buss
+router.use("/business/email", emailBussRoutes);
+// otp para buss
+router.use("/business/otp", otpBussRoutes);
 export default router;

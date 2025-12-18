@@ -1,0 +1,151 @@
+/api/quotes/conduit:
+  post:
+    tags:
+      - Quotes (Conduit)
+    summary: Crear cotización en Conduit
+    description: >
+      Crea una cotización entre un activo de origen y destino.  
+      Si el activo es una criptomoneda (USDT, USDC, RLUSD), debe incluir una red (network).  
+      Si es fiat (USD, MXN, BRL, etc.), **no debe incluir network**.
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - source
+              - target
+            properties:
+              conduit_id:
+                type: string
+                description: ID del cliente o negocio en Conduit (opcional)
+                example: "cus_34nPOhgCsRj7YSWiTowI8cTRKOZ"
+              source:
+                type: object
+                required:
+                  - amount
+                  - asset
+                properties:
+                  asset:
+                    type: string
+                    enum:
+                      [
+                        USD,
+                        MXN,
+                        BRL,
+                        COP,
+                        EUR,
+                        NGN,
+                        ARS,
+                        GBP,
+                        USDT,
+                        USDC,
+                        RLUSD,
+                      ]
+                    description: >
+                      Identificador del activo (moneda o token estable).  
+                      - Fiat: USD, MXN, BRL, COP, EUR, NGN, ARS, GBP  
+                      - Cripto: USDT, USDC, RLUSD
+                    example: USD
+                  amount:
+                    type: string
+                    example: "1400.00"
+                    description: Monto a convertir, debe ser decimal positivo.
+                  network:
+                    type: string
+                    enum: [ethereum, tron, solana, polygon, base, xrpl]
+                    description: >
+                      Red blockchain. Obligatoria si `asset` es cripto, omitida si es fiat.
+              target:
+                type: object
+                required:
+                  - asset
+                properties:
+                  asset:
+                    type: string
+                    enum:
+                      [
+                        USD,
+                        MXN,
+                        BRL,
+                        COP,
+                        EUR,
+                        NGN,
+                        ARS,
+                        GBP,
+                        USDT,
+                        USDC,
+                        RLUSD,
+                      ]
+                    description: Activo destino.
+                    example: USDT
+                  network:
+                    type: string
+                    enum: [ethereum, tron, solana, polygon, base, xrpl]
+                    description: Red blockchain si el activo destino es cripto.
+    responses:
+      "201":
+        description: Cotización creada correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Cotización creada correctamente en Conduit
+                data:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: ID único de la cotización
+                      example: "quote_34yaHotWZcxOAmz7GvcJ8Hef78W"
+                    source:
+                      type: object
+                      properties:
+                        asset:
+                          type: string
+                          example: "USD"
+                        amount:
+                          type: string
+                          example: "10.00"
+                    target:
+                      type: object
+                      properties:
+                        asset:
+                          type: string
+                          example: "USDT"
+                        network:
+                          type: string
+                          example: "ethereum"
+                        amount:
+                          type: string
+                          example: "9.998678"
+                    expiresAt:
+                      type: string
+                      format: date-time
+                      example: "2025-11-03T16:46:00.757Z"
+                    createdAt:
+                      type: string
+                      format: date-time
+                      example: "2025-11-03T16:43:00.757Z"
+      "400":
+        description: Error de validación
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: El asset USDT requiere especificar la red (network)
+      "500":
+        description: Error interno del servidor

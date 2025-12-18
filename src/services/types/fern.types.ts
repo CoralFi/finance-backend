@@ -183,14 +183,26 @@ export interface QuoteRequestData {
 
 export interface FernQuoteResponse {
   quoteId: string;
-  customerId: string;
-  source: QuoteSource;
-  destination: QuoteDestination;
-  developerFee?: DeveloperFee;
-  exchangeRate?: string;
-  estimatedFees?: any;
-  expiresAt?: string;
-  [key: string]: any;
+  expiresAt: string;
+  estimatedExchangeRate: string;
+  destinationAmount: string;
+  fees: {
+    feeCurrency: {
+      label: string;
+      chain?: string;
+      contractAddress?: string;
+      currencyDecimals?: number;
+    },
+    fernFee: {
+      feeAmount: string;
+      feeUSDAmount: string;
+    },
+    developerFee: {
+      feeAmount: string;
+      feeUSDAmount: string;
+    }
+  }
+
 }
 
 // Transaction Types
@@ -202,10 +214,43 @@ export interface FernTransactionResponse {
   transactionId: string;
   quoteId: string;
   customerId: string;
-  status: string;
-  source?: QuoteSource;
-  destination?: QuoteDestination;
-  createdAt?: string;
-  updatedAt?: string;
+  transactionStatus: string;
+  source?: {
+    sourceCurrency: {
+      label: string;
+    },
+    sourcePaymentMethod: string,
+    sourceAmount: string,
+    sourcePaymentAccountId: string,
+  };
+  destination?: {
+    destinationCurrency: {
+      label: string;
+    },
+    destinationPaymentMethod: string,
+    destinationAmount: string,
+    destinationPaymentAccountId: string,
+    exchangeRate: string,
+  };
+  fees?: {
+    feeCurrency: {
+      label: string;
+    },
+    fernFee: {
+      feeAmount: string,
+      feeUSDAmount: string,
+    },
+    developerFee: {
+      feeAmount: string,
+      feeUSDAmount: string,
+    }
+  },
+  createdAt: string,
+  updatedAt: string,
+  correlationId: string,
+  expiresAt: string,
   [key: string]: any;
 }
+
+
+

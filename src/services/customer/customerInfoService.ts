@@ -86,6 +86,201 @@ const transformCustomerData = (customerData: RawCustomerData[]): CustomerTotalIn
  * @throws Error if customerId is invalid
  * @throws Error if database query fails
  */
+/**
+ * Data structure for updating customer info
+ */
+export interface UpdateCustomerInfoData {
+  birth_date: string;
+  phone_number: string;
+  employment_status: number;
+  recent_occupation: number;
+  account_purpose: number;
+  funds_origin: number;
+  expected_amount: number;
+  country: string;
+  state_region_province: string;
+  city: string;
+  postal_code: string;
+  address_line_1: string;
+  address_line_2: string | null;
+  tax_number: string;
+}
+
+/**
+ * Update or insert customer information
+ * 
+ * @param customerId - Customer UUID
+ * @param data - Customer info data to update
+ * @returns Promise with the updated customer data
+ * 
+ * @throws Error if customerId is invalid
+ * @throws Error if user not found
+ * @throws Error if database operation fails
+ */
+export const updateCustomerInfo = async (
+  customerId: string,
+  data: UpdateCustomerInfoData
+): Promise<any> => {
+  // Validate customer ID
+  if (!customerId || typeof customerId !== 'string' || customerId.trim() === '') {
+    throw new Error('CUSTOMER_ID_REQUIRED: customerId is required');
+  }
+
+  if (!isValidUUID(customerId)) {
+    throw new Error('INVALID_CUSTOMER_ID: customerId must be a valid UUID');
+  }
+
+  try {
+    if (isDevelopment) {
+      console.log(`🔄 Updating customer info for: ${customerId}`);
+    }
+
+    // Verify if user exists in usuarios table
+    const { data: userExists, error: userCheckError } = await supabase
+      .from('usuarios')
+      .select('user_id')
+      .eq('customer_id', customerId)
+      .single();
+
+    if (userCheckError) {
+      console.error('❌ Error verifying user:', userCheckError);
+      throw new Error('USER_NOT_FOUND: User not found');
+    }
+
+    // Check if user_info record already exists
+    const { data: existingInfo, error: infoCheckError } = await supabase
+      .from('user_info')
+      .select('user_id')
+      .eq('user_id', userExists.user_id)
+      .single();
+
+    let result;
+
+    if (infoCheckError && infoCheckError.code === 'PGRST116') {
+      // No record exists, create a new one
+      if (isDevelopment) {
+        console.log(`📝 Creating new user_info record for user ${customerId}`);
+      }
+
+      const { data: insertResult, error: insertError } = await supabase
+        .from('user_info')
+        .insert({
+          user_id: userExists.user_id,
+          birthdate: data.birth_date,
+          phone_number: data.phone_number,
+          employment_situation_id: data.employment_status,
+          occupation_id: data.recent_occupation,
+          account_purposes_id: data.account_purpose,
+          source_fund_id: data.funds_origin,
+          amount_to_moved_id: data.expected_amount,
+          country: data.country,
+          state_region_province: data.state_region_province,
+          city: data.city,
+          postal_code: data.postal_code,
+          address_line_1: data.address_line_1,
+          address_line_2: data.address_line_2,
+        })
+        .select();
+
+      if (insertError) {
+        console.error('❌ Error inserting user_info:', insertError);
+        throw new Error(`DATABASE_ERROR: ${insertError.message}`);
+      }
+
+      result = insertResult;
+      if (isDevelopment) {
+        console.log('✅ Record created successfully:', insertResult);
+      }
+
+    } else if (infoCheckError) {
+      // Unexpected error
+      console.error('❌ Error checking existing user_info:', infoCheckError);
+      throw new Error(`DATABASE_ERROR: ${infoCheckError.message}`);
+
+    } else {
+      // Record exists, update using RPC
+      if (isDevelopment) {
+        console.log(`📝 Updating existing record for user ${customerId}`);
+      }
+
+      const { data: existingInfo, error: infoCheckError } = await supabase
+        .from('usuarios')
+        .select('user_id')
+        .eq('customer_id', customerId)
+        .single();
+
+      if (infoCheckError) {
+        console.error('❌ Error checking existing user_info:', infoCheckError);
+        throw new Error(`DATABASE_ERROR: ${infoCheckError.message}`);
+      }
+
+
+      // Update user_info table
+
+      const { data: rpcResult, error: rpcError } = await supabase
+        .from('user_info')
+        .update({
+          birthdate: data.birth_date,
+          phone_number: data.phone_number,
+          employment_situation_id: data.employment_status,
+          occupation_id: data.recent_occupation,
+          account_purposes_id: data.account_purpose,
+          source_fund_id: data.funds_origin,
+          amount_to_moved_id: data.expected_amount,
+          country: data.country,
+          state_region_province: data.state_region_province,
+          city: data.city,
+          postal_code: data.postal_code,
+          address_line_1: data.address_line_1,
+          address_line_2: data.address_line_2,
+          tax_number: data.tax_number,
+        })
+        .eq('user_id', existingInfo.user_id)
+        .select();
+
+      if (rpcError) {
+        console.error('❌ Error in RPC update:', rpcError);
+        throw new Error(`DATABASE_ERROR: ${rpcError.message}`);
+      }
+
+      result = rpcResult;
+      if (isDevelopment) {
+        console.log('✅ RPC update result:', rpcResult);
+      }
+    }
+
+    // Verify the operation was successful by fetching updated data
+    const { data: verificationData, error: verifyError } = await supabase
+      .rpc('get_user_info_by_customer_id', {
+        p_customer_id: customerId
+      });
+
+    if (verifyError) {
+      console.warn('⚠️ Could not verify update:', verifyError);
+    } else if (isDevelopment) {
+      console.log('✅ Verification successful - updated data:', verificationData?.[0]);
+    }
+
+    return verificationData?.[0] || result;
+
+  } catch (error: any) {
+    if (isDevelopment) {
+      console.error(`❌ Error updating customer info:`, error.message);
+      console.error(error.stack);
+    }
+    throw error;
+  }
+};
+
+/**
+ * Get complete customer information by customer ID
+ * 
+ * @param customerId - Customer UUID
+ * @returns Promise with customer total information
+ * 
+ * @throws Error if customerId is invalid
+ * @throws Error if database query fails
+ */
 export const getCustomerTotalInfo = async (
   customerId: string
 ): Promise<CustomerTotalInfo> => {

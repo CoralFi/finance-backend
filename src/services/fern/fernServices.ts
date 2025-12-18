@@ -2,7 +2,8 @@ import { FERN_API_BASE_URL, getAuthHeaders } from "@/config/fern/config";
 import supabase from "@/db/supabase";
 import axios from "axios";
 import { PaymentAccount } from "@/services/types/fern.types";
-import { DeleteResponse } from "@/services/types/request.types";
+import { DeleteResponse, FernKycUpdateResponse } from "@/services/types/request.types";
+import currenciesAllows from "./helpers/currenciesAllows";
 
 export const FernKycStatus = async (fernCustomerId: any, userId: any) => {
   try {
@@ -110,15 +111,31 @@ export const createFernPaymentAccount = async (payload: any) => {
         timeout: 10000
       }
     );
-    return response;
+    return { success: true, data: response.data };
   } catch (error: any) {
-    console.error('Error en createFernPaymentAccount', {
+    console.error('❌ Error en createFernPaymentAccount:', {
       error: error.message,
       status: error.response?.status || 'unknown',
-      data: error.response?.data
+      data: error.response?.data,
+      details: JSON.stringify(error.response?.data?.details, null, 2)
     });
 
-    return null;
+    // Log full error details if available
+    if (error.response?.data?.details) {
+      console.error('Validation details:', JSON.stringify(error.response.data.details, null, 2));
+    }
+
+    // Return error details instead of null
+    return {
+      success: false,
+      error: {
+        message: error.message,
+        status: error.response?.status,
+        code: error.response?.data?.code,
+        details: error.response?.data?.details,
+        data: error.response?.data
+      }
+    };
   }
 }
 
@@ -193,9 +210,12 @@ export const listFernBankAccounts = async (
     }
 
     if (currency) {
+      if (!currenciesAllows(currency)) {
+        throw new Error(`La moneda ${currency} no es permitida.`);
+      }
       accounts = accounts.filter(
         (acc) =>
-          acc.externalBankAccount?.bankAccountCurrency?.label === currency.toUpperCase() 
+          acc.externalBankAccount?.bankAccountCurrency?.label === currency.toUpperCase()
       );
     }
 
@@ -285,3 +305,132 @@ export const handleDeleteBankAccount = async (
   }
 };
 
+export interface KycData {
+  [key: string]: any;
+}
+
+
+export const FernKycUpdate = async (
+  fernCustomerId: string,
+  kycData: KycData,
+  userId: number | string | null = null
+): Promise<FernKycUpdateResponse> => {
+  let requestBody = { kycData };
+
+  try {
+    if (!fernCustomerId) {
+      throw new Error("Se requiere un ID de cliente Fern válido");
+    }
+
+    if (!kycData || Object.keys(kycData).length === 0) {
+      throw new Error("Se requieren datos KYC para actualizar");
+    }
+
+    console.log("Enviando solicitud a Fern API...");
+
+    const response = await fetch(`${FERN_API_BASE_URL}/customers/${fernCustomerId}`, {
+      method: "PATCH",
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ ...requestBody }),
+    });
+
+    console.log(
+      `Estado de la respuesta HTTP: ${response.status} ${response.statusText}`
+    );
+
+    const responseText = await response.text();
+    console.log("Respuesta completa de Fern (texto):", responseText);
+
+    let parsedResponse: any;
+    try {
+      parsedResponse = responseText ? JSON.parse(responseText) : null;
+      console.log("Respuesta de Fern (JSON):", parsedResponse);
+    } catch (err) {
+      console.error("Error al parsear JSON:", err);
+    }
+
+    if (!response.ok) {
+      const err: any = new Error(parsedResponse?.message || "Error en Fern API");
+      err.status = parsedResponse?.code || response.status;
+      err.statusText = response.statusText;
+      err.data = responseText;
+      throw err;
+    }
+
+    const updatedCustomer = parsedResponse;
+
+    const kycStatus =
+      updatedCustomer?.customerStatus === "ACTIVE"
+        ? "APPROVED"
+        : updatedCustomer?.customerStatus;
+
+    const kycLink = updatedCustomer?.kycLink || null;
+
+    // ---- ACTUALIZAR BD ---- //
+    let dbResult: any = null;
+
+    if (userId) {
+      const { data: existing } = await supabase
+        .from("fern")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      const upsertData = {
+        user_id: userId,
+        fernCustomerId,
+        Kyc: kycStatus,
+        KycLink: kycLink,
+      };
+
+      if (existing) {
+        const { data, error } = await supabase
+          .from("fern")
+          .update({ Kyc: kycStatus, KycLink: kycLink })
+          .eq("user_id", userId)
+          .select();
+
+        dbResult = { data, error };
+      } else {
+        const { data, error } = await supabase
+          .from("fern")
+          .insert(upsertData)
+          .select();
+
+        dbResult = { data, error };
+      }
+    }
+
+    console.log("DB result:", dbResult);
+
+    return {
+      success: true,
+      customer: updatedCustomer,
+      kycStatus,
+      kycLink,
+      dbResult,
+      responseText,
+    };
+  } catch (error: any) {
+    console.error("Error en FernKycUpdate:", {
+      message: error.message,
+      status: error.status,
+      statusText: error.statusText,
+      data: error.data,
+      customerId: fernCustomerId,
+      userId,
+    });
+
+    return {
+      success: false,
+      error: {
+        message: error.message,
+        status: error.status ?? "unknown",
+        details: error.data ?? null,
+        kycData: requestBody,
+        fullError: error.toString(),
+        stack: error.stack,
+      },
+    };
+  }
+};

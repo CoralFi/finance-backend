@@ -46,9 +46,15 @@ export const createPaymentAccountController = async (
         };
 
         const apiResponse = await createFernPaymentAccount(accountData);
-        if (!apiResponse) {
-          return res.status(500).json({
-            error: "Error al crear billetera externa",
+        if (!apiResponse.success && apiResponse.error) {
+          await supabase.rpc("rollback");
+          return res.status(apiResponse.error.status || 500).json({
+            success: false,
+            error: "Error al crear cuenta bancaria externa",
+            message: apiResponse.error.data?.message || apiResponse.error.message,
+            code: apiResponse.error.code,
+            details: apiResponse.error.details,
+            fullError: apiResponse.error.data
           });
         }
         await supabase.rpc("commit");
@@ -91,12 +97,21 @@ export const createPaymentAccountController = async (
         };
 
         const response = await createFernPaymentAccount(walletData);
-        if (!response) {
-          return res.status(500).json({
+        if (!response.success && response.error) {
+          return res.status(response.error.status || 500).json({
+            success: false,
             error: "Error al crear billetera externa",
+            message: response.error.data?.message || response.error.message,
+            code: response.error.code,
+            details: response.error.details,
+            fullError: response.error.data
           });
         }
-        return res.status(200).json(response.data);
+        return res.status(200).json({
+          success: true,
+          message: "Billetera externa creada exitosamente",
+          data: response.data,
+        });
       } catch (error: any) {
         return res.status(500).json({
           error: "Error al crear billetera externa",

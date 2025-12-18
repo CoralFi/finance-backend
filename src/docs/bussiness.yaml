@@ -133,3 +133,651 @@
                 error:
                   type: string
                   example: Error creating customer: Request failed with status code 400
+
+/api/business/customers:
+  get:
+    summary: Obtener todos los clientes de negocio
+    tags:
+      - Business Customers
+    responses:
+      "200":
+        description: Clientes obtenidos exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Customers retrieved successfully
+                data:
+                  type: array
+                  description: Lista de clientes de Conduit
+                  items:
+                    type: object
+      "500":
+        description: Error al obtener clientes
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve customers
+                error:
+                  type: string
+
+/api/business/customers/{id}:
+  get:
+    summary: Obtener un cliente de negocio por ID
+    tags:
+      - Business Customers
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID del cliente en Conduit
+    responses:
+      "200":
+        description: Cliente obtenido exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Customer retrieved successfully
+                data:
+                  type: object
+                  description: Información del cliente de Conduit
+      "500":
+        description: Error al obtener el cliente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve customer
+                error:
+                  type: string
+
+/api/business/counterparties/create:
+  post:
+    summary: Crear una cuenta bancaria externa (counterparty)
+    tags:
+      - Business Counterparties
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - type
+              - businessName
+              - website
+              - address
+              - email
+              - phone
+              - identificationType
+              - identificationNumber
+              - customerId
+              - paymentMethods
+            properties:
+              type:
+                type: string
+                example: business
+              businessName:
+                type: string
+                example: Acme Corp
+              website:
+                type: string
+                example: https://acme.com
+              address:
+                type: object
+                required:
+                  - streetLine1
+                  - city
+                  - state
+                  - postalCode
+                  - country
+                properties:
+                  streetLine1:
+                    type: string
+                    example: 123 Business St
+                  city:
+                    type: string
+                    example: New York
+                  state:
+                    type: string
+                    example: NY
+                  postalCode:
+                    type: string
+                    example: 10001
+                  country:
+                    type: string
+                    example: USA
+              email:
+                type: string
+                example: contact@acme.com
+              phone:
+                type: string
+                example: +1234567890
+              identificationType:
+                type: string
+                example: tin
+              identificationNumber:
+                type: string
+                example: 123456789
+              customerId:
+                type: string
+                example: cust_123abc
+              paymentMethods:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - type
+                    - accountOwnerName
+                    - bankName
+                    - currency
+                    - rail
+                    - routingNumber
+                    - accountNumber
+                    - accountType
+                    - address
+                  properties:
+                    type:
+                      type: string
+                      example: bank
+                    accountOwnerName:
+                      type: string
+                      example: Acme Corp
+                    bankName:
+                      type: string
+                      example: Chase Bank
+                    currency:
+                      type: string
+                      example: USD
+                    rail:
+                      type: array
+                      items:
+                        type: string
+                      example: [ach]
+                    routingNumber:
+                      type: string
+                      example: 021000021
+                    accountNumber:
+                      type: string
+                      example: 1234567890
+                    accountType:
+                      type: string
+                      example: checking
+                    address:
+                      type: object
+                      required:
+                        - country
+                      properties:
+                        country:
+                          type: string
+                          example: USA
+    responses:
+      "201":
+        description: Cuenta bancaria externa registrada correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Cuenta bancaria externa registrada correctamente
+                data:
+                  type: object
+                  description: Respuesta de Conduit
+      "400":
+        description: Faltan campos obligatorios
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Faltan campos obligatorios en el cuerpo de la solicitud.
+      "500":
+        description: Error al registrar cuenta bancaria externa
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error al registrar cuenta bancaria externa
+                error:
+                  type: string
+
+/api/business/counterparties/{customerId}/list/{currency}:
+  get:
+    summary: Obtener las cuentas bancarias externas de un cliente, opcionalmente filtradas por moneda
+    tags:
+      - Business Counterparties
+    parameters:
+      - in: path
+        name: customerId
+        required: true
+        schema:
+          type: string
+        description: ID del cliente en Conduit
+      - in: path
+        name: currency
+        required: false
+        schema:
+          type: string
+          example: all
+        description: Código de moneda (por ejemplo USD, PEN, CLP) para filtrar las cuentas bancarias
+    responses:
+      "200":
+        description: Cuentas bancarias obtenidas exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Bank accounts filtered by customerId and currency
+                data:
+                  type: array
+                  description: Lista de cuentas bancarias del cliente
+                  items:
+                    type: object
+      "400":
+        description: customerId es requerido
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: customerId es requerido en el path
+      "500":
+        description: Error al obtener cuentas bancarias
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve bank accounts
+                error:
+                  type: string
+
+/api/business/counterparties/{id}/info:
+  get:
+    summary: Obtener información de una cuenta bancaria externa por ID
+    tags:
+      - Business Counterparties
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID de la cuenta bancaria en Conduit
+    responses:
+      "200":
+        description: Cuenta bancaria obtenida exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Bank accounts filtered by id
+                data:
+                  type: object
+                  description: Información de la cuenta bancaria
+      "400":
+        description: id es requerido
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: id es requerido en el path
+      "500":
+        description: Error al obtener la cuenta bancaria
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve bank accounts
+                error:
+                  type: string
+
+/api/business/counterparties/update/{id}:
+  patch:
+    summary: Actualizar una cuenta bancaria externa por ID
+    tags:
+      - Business Counterparties
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID de la cuenta bancaria en Conduit
+    responses:
+      "200":
+        description: Cuenta bancaria actualizada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Bank accounts filtered by id
+                data:
+                  type: object
+                  description: Información de la cuenta bancaria actualizada
+      "400":
+        description: id es requerido
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: id es requerido en el path
+      "500":
+        description: Error al actualizar la cuenta bancaria
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Failed to retrieve bank accounts
+                error:
+                  type: string
+
+/api/auth/business/reset-password:
+  post:
+    summary: Restablecer contraseña de un usuario (Business)
+    description: Permite restablecer la contraseña usando un token previamente enviado al correo.
+    tags:
+      - Auth Business
+
+    parameters:
+      - in: query
+        name: token
+        required: true
+        schema:
+          type: string
+        description: Token de restablecimiento enviado al email.
+        example: "4f9b1c94e2ab1fe0239ad889"
+
+      - in: query
+        name: email
+        required: true
+        schema:
+          type: string
+          format: email
+        description: Email del usuario que solicita el cambio de contraseña.
+        example: "user@example.com"
+
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - newPassword
+            properties:
+              newPassword:
+                type: string
+                description: Nueva contraseña del usuario.
+                example: "NuevaContraseñaSegura123!"
+
+    responses:
+      "200":
+        description: Contraseña restablecida correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Password reset successfully"
+
+      "400":
+        description: Error de validación (token incorrecto, email inválido, password igual a la anterior, etc.)
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Token inválido o correo electrónico"
+
+      "500":
+        description: Error interno al actualizar la contraseña
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error updating password"
+/api/auth/business/change-password:
+  post:
+    summary: Cambiar contraseña del usuario (Business)
+    description: Permite cambiar la contraseña proporcionando la contraseña actual y la nueva. Aplica límites de intentos (3 por hora).
+    tags:
+      - Auth Business
+
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - business_id
+              - currentPassword
+              - newPassword
+            properties:
+              business_id:
+                type: string
+                description: UUID del usuario/business.
+                example: "52b9c3ab-29c6-4e0c-a4ce-11f008b91f4d"
+              currentPassword:
+                type: string
+                description: Contraseña actual del usuario.
+                example: "MiContraseñaActual123"
+              newPassword:
+                type: string
+                description: Nueva contraseña a establecer.
+                example: "MiNuevaContraseñaSegura456"
+
+    responses:
+      "200":
+        description: Contraseña cambiada exitosamente.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: "Contraseña cambiada exitosamente."
+                data:
+                  type: object
+                  properties:
+                    business_id:
+                      type: string
+                      example: "52b9c3ab-29c6-4e0c-a4ce-11f008b91f4d"
+                    email:
+                      type: string
+                      format: email
+                      example: "user@example.com"
+                    updatedAt:
+                      type: string
+                      format: date-time
+                      example: "2025-01-19T20:12:45.500Z"
+
+      "400":
+        description: Campos faltantes, contraseña inválida o nueva contraseña igual a la anterior.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "business_id, contraseña actual y nueva contraseña son obligatorios."
+
+      "401":
+        description: Contraseña actual incorrecta.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "La contraseña actual es incorrecta."
+
+      "404":
+        description: Usuario no encontrado.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Usuario no encontrado."
+
+      "429":
+        description: Límite de intentos excedido (3 por hora).
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Demasiados intentos fallidos. Intenta nuevamente en 45 minutos."
+
+      "500":
+        description: Error interno del servidor al intentar cambiar la contraseña.
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: "Error interno del servidor."
+                error:
+                  type: string
+                  example: "Error al actualizar la contraseña en la base de datos."

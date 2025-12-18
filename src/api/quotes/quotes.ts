@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
 import { createFernQuote } from "@/services/fern/quotesService";
 import { QuoteRequestData } from "@/services/types/fern.types";
+import supabase from "@/db/supabase";
+
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 /**
  * Controller to create a new quote
@@ -45,10 +48,42 @@ export const createQuoteController = async (req: Request, res: Response): Promis
     // Create quote using service
     const quote = await createFernQuote(quoteData);
 
+    if (isDevelopment) {
+      console.log('Cotización creada en Fern:', quote);
+    }
+
+    // Save quote in database
+    const {data: savedQuote, error: saveError} = await supabase
+    .from('fern_quotes')
+    .insert({
+      quote_id: quote.quoteId,
+      fern_customer_id: quoteData.customerId,
+      estimated_exchange_rate: quote.estimatedExchangeRate,
+      destination_amount: quote.destinationAmount,
+      fee_currency: quote.fees?.feeCurrency.label || '',
+      fern_fee_amount: quote.fees?.fernFee.feeAmount || '0',
+      fern_fee_usd_amount: quote.fees?.fernFee.feeUSDAmount || '0',
+      developer_fee_amount: quote.fees?.developerFee.feeAmount || '0',
+      developer_fee_usd_amount: quote.fees?.developerFee.feeUSDAmount || '0',
+      expires_at: quote.expiresAt,
+      raw_response: quote
+    })
+    .select('id, quote_id, created_at')
+    .single();
+
+    if (isDevelopment) {
+      console.log('Cotización guardada en BD:', savedQuote);
+    }
+
+    if (saveError) {
+      console.error('Error al guardar cotización:', saveError);
+      // Don't throw - we still want to return the quote even if DB save fails
+    }
+
     // Return successful response
     res.status(200).json(quote);
 
-  } catch (error: any) {
+  } catch (error: any) {  
     console.error('Error al crear cotización en Fern:', error);
     
     // Handle specific error codes

@@ -1,6 +1,6 @@
 import { Resend } from 'resend';
 import getCodeEmailBody from '@/utils/sendCodeBody';
-// import getResetPasswordEmailBody from '../../utils/sendResetPasswordBody';
+import getResetPasswordEmailBody from '../../utils/sendResetPasswordBody';
 import getConfirmResetPasswordEmailBody from '@/utils/confirmResetPasswordBody';
 import getSendConfirmEmailBody from '@/utils/sendConfirmEmailBody';
 // import getSendConfirmedEmailBody from '../../utils/SendConfirmedEmailBody';
@@ -25,15 +25,15 @@ export default class ResendService {
     });
   }
 
-  // async sendResetPasswordEmail(email: string, name: string, subject: string, resetLink: string): Promise<void> {
-  //   const resend = new Resend(this.apiKey);
-  //   await resend.emails.send({
-  //     from: 'noreply@coralfinance.io',
-  //     to: email,
-  //     subject,
-  //     html: getResetPasswordEmailBody(name, resetLink),
-  //   });
-  // }
+  async sendResetPasswordEmail(email: string, name: string, subject: string, resetLink: string): Promise<void> {
+    const resend = new Resend(this.apiKey);
+    await resend.emails.send({
+      from: 'noreply@coralfinance.io',
+      to: email,
+      subject,
+      html: getResetPasswordEmailBody(name, resetLink),
+    });
+  }
 
   async sendConfirmResetPasswordEmail(email: string, name: string, subject: string): Promise<void> {
     const resend = new Resend(this.apiKey);

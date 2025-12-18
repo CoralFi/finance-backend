@@ -4,7 +4,7 @@
   "description": "CORAL BACKEND",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/server.ts",
+    "dev": "ts-node-dev --respawn --transpile-only --poll -r tsconfig-paths/register src/server.ts",
     "build": "tsc && tsc-alias && cp -r src/docs dist/docs",
     "start": "node dist/server.js"
   },
@@ -27,7 +27,9 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "form-data": "^4.0.0",
     "morgan": "^1.10.1",
+    "multer": "^1.4.5-lts.1",
     "otplib": "^12.0.1",
     "resend": "^6.2.1",
     "serverless-http": "^4.0.0",
@@ -38,6 +40,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "@types/morgan": "^1.9.10",
+    "@types/multer": "^1.4.11",
     "@types/node": "^24.9.1",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
