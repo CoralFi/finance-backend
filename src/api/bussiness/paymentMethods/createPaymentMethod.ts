@@ -36,9 +36,13 @@ export const createPaymentMethodController = async (
 
     // Validaciones específicas por tipo
     if (paymentMethodData.type === 'bank') {
-      const requiredFields = ['currency', 'rail', 'bankName', 'accountOwnerName', 'accountNumber', 'accountType'];
+      // Para EUR, accountNumber es opcional (se usa IBAN en su lugar)
+      const isEurCurrency = paymentMethodData.currency?.toLowerCase() === 'eur';
+      const requiredFields = isEurCurrency
+        ? ['currency', 'rail', 'bankName', 'accountOwnerName', 'accountType']
+        : ['currency', 'rail', 'bankName', 'accountOwnerName', 'accountNumber', 'accountType'];
       const missingFields = requiredFields.filter(field => !paymentMethodData[field as keyof typeof paymentMethodData]);
-      
+
       if (missingFields.length > 0) {
         return res.status(400).json({
           success: false,
