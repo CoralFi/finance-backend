@@ -21,7 +21,7 @@ export const CURRENCY_CONFIG = {
   },
   BRL: {
     requiredFields: ['pixCode'],
-    paymentMethod: null,
+    paymentMethod: 'BR_TED_DOC_PIX',
     errorMessage: 'pixCode es requerido para cuentas BRL'
   },
   CNY: {
@@ -171,7 +171,7 @@ export const buildExternalBankAccount = (currency, data) => {
         ...baseAccount,
         bankAccountType: bankAccountType || 'CHECKING',
         pixCode: externalBankAccount.pixCode,
-        bankAccountPaymentMethod: externalBankAccount.bankAccountPaymentMethod,
+        bankAccountPaymentMethod: 'BR_TED_DOC_PIX',
         taxNumber: externalBankAccount.taxNumber
       };
 
