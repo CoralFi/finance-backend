@@ -104,6 +104,51 @@ export const CURRENCY_CONFIG = {
     paymentMethod: 'SG_FAST_MEPS',
     errorMessage: 'accountNumber y bankCode son requeridos para cuentas SGD'
   },
+  PLN: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'PL_ELIXIR_BLUE_CASH',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas PLN'
+  },
+  CZK: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'CZ_CERTIS',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas CZK'
+  },
+  DKK: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'DK_NEMKONTO_FI',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas DKK'
+  },
+  NOK: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'NO_NICS',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas NOK'
+  },
+  RON: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'RO_RTGS',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas RON'
+  },
+  SEK: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'SE_BANKGIROT',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas SEK'
+  },
+  EGP: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'EG_RTGS_IPN',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas EGP'
+  },
+  SAR: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'SA_MADA',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas SAR'
+  },
+  AED: {
+    requiredFields: ['iban', 'bicSwift', 'bankCode'],
+    paymentMethod: 'AE_UAEFTS',
+    errorMessage: 'iban, bicSwift y bankCode son requeridos para cuentas AED'
+  },
 };
 
 export const validateCurrencyFields = (currency, externalBankAccount) => {
@@ -313,6 +358,79 @@ export const buildExternalBankAccount = (currency, data) => {
         accountNumber: externalBankAccount.accountNumber,
         bankCode: externalBankAccount.bankCode,
         bankAccountPaymentMethod: 'SG_FAST_MEPS'
+      };
+    case 'PLN':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'PL_ELIXIR_BLUE_CASH'
+      };
+    case 'CZK':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'CZ_CERTIS'
+      };
+    case 'DKK':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'DK_NEMKONTO_FI'
+      };
+    case 'NOK':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'NO_NICS'
+      };
+    case 'RON':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'RO_RTGS'
+      };
+    case 'SEK':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'SE_BANKGIROT'
+      };
+    case 'EGP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'EG_RTGS_IPN'
+      };
+    case 'SAR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'SA_MADA'
+      };
+    case 'AED':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankCode: externalBankAccount.bankCode,
+        bankAccountPaymentMethod: 'AE_UAEFTS'
       };
     default:
       throw new Error(`Moneda no soportada: ${currency}`);

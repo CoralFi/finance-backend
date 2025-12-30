@@ -28,8 +28,17 @@ Estas monedas ya cuentan con configuración y validación en el código base.
 | **DOP** | Peso Dominicano | Offramp Only |
 | **JPY** | Yen Japonés | Offramp Only |
 | **SGD** | Dólar de Singapur | Offramp Only |
+| **PLN** | Złoty Polaco | Offramp Only |
+| **CZK** | Corona Checa | Offramp Only |
+| **DKK** | Corona Danesa | Offramp Only |
+| **NOK** | Corona Noruega | Offramp Only |
+| **RON** | Leu Rumano | Offramp Only |
+| **SEK** | Corona Sueca | Offramp Only |
+| **EGP** | Libra Egipcia | Offramp Only |
+| **SAR** | Riyal Saudí | Offramp Only |
+| **AED** | Dirham EAU | Offramp Only |
 
-Total Implementadas: **21**
+Total Implementadas: **30**
 
 ---
 
@@ -57,17 +66,10 @@ Estas monedas aparecen en la documentación de FernHQ pero no tienen configuraci
 - **VND** (Vietnam)
 
 #### Europa
-- **CZK** (República Checa)
-- **DKK** (Dinamarca)
-- **NOK** (Noruega)
-- **PLN** (Polonia)
-- **RON** (Rumania)
-- **SEK** (Suecia)
+*Ninguna por el momento.*
 
 #### Medio Oriente
-- **EGP** (Egipto)
-- **SAR** (Arabia Saudita)
-- **AED** (Emiratos Árabes Unidos)
+*Ninguna por el momento.*
 
 #### Américas (Latam/Caribe)
 *Ninguna por el momento.*
