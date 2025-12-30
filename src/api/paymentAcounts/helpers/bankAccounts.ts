@@ -6,7 +6,7 @@ export const CURRENCY_CONFIG = {
   },
   USD: {
     requiredFields: ['accountNumber', 'routingNumber'],
-    paymentMethod: null,  
+    paymentMethod: null,
     errorMessage: 'accountNumber y routingNumber son requeridos para cuentas USD'
   },
   ARS: {
@@ -21,7 +21,7 @@ export const CURRENCY_CONFIG = {
   },
   BRL: {
     requiredFields: ['pixCode'],
-    paymentMethod: null,  
+    paymentMethod: null,
     errorMessage: 'pixCode es requerido para cuentas BRL'
   },
   CNY: {
@@ -69,8 +69,13 @@ export const CURRENCY_CONFIG = {
     paymentMethod: 'IL_ZAHAV',
     errorMessage: 'accountNumber y iban son requeridos para cuentas IL_ZAHAV'
   },
+  PHP: {
+    requiredFields: ['accountNumber', 'bankCode'],
+    paymentMethod: 'PH_INSTAPAY_PESONET',
+    errorMessage: 'accountNumber y bankCode son requeridos para cuentas PHP'
+  },
 };
- 
+
 export const validateCurrencyFields = (currency, externalBankAccount) => {
   const config = CURRENCY_CONFIG[currency];
   if (!config) {
@@ -83,7 +88,7 @@ export const validateCurrencyFields = (currency, externalBankAccount) => {
     }
   }
 };
- 
+
 export const buildExternalBankAccount = (currency, data) => {
   const { externalBankAccount } = data;
   const { bankName, bankAccountType, bankAddress, bankAccountOwner } = externalBankAccount;
@@ -137,7 +142,7 @@ export const buildExternalBankAccount = (currency, data) => {
         bankAccountType: bankAccountType || 'CHECKING',
         pixCode: externalBankAccount.pixCode,
         bankAccountPaymentMethod: externalBankAccount.bankAccountPaymentMethod,
-        taxNumber: externalBankAccount.taxNumber  
+        taxNumber: externalBankAccount.taxNumber
       };
 
     case 'CNY':
@@ -221,6 +226,14 @@ export const buildExternalBankAccount = (currency, data) => {
         accountNumber: externalBankAccount.accountNumber,
         iban: externalBankAccount.iban,
         bankAccountPaymentMethod: 'IL_ZAHAV'
+      };
+    case 'PHP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        bankAccountPaymentMethod: 'PH_INSTAPAY_PESONET'
       };
     default:
       throw new Error(`Moneda no soportada: ${currency}`);
