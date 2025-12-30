@@ -1,6 +1,6 @@
 
 const currenciesAllows = (currency: string) => {
-    const currencies = ['USD', 'EUR', 'BRL', 'ARS', 'MXN', 'CLP', 'PEN', 'HKD', 'IDR', 'ILS', 'CNY', 'CAD', 'GBP', 'AUD', 'PHP'];
+    const currencies = ['USD', 'EUR', 'BRL', 'ARS', 'MXN', 'CLP', 'PEN', 'HKD', 'IDR', 'ILS', 'CNY', 'CAD', 'GBP', 'AUD', 'PHP', 'BOB', 'CRC', 'COP', 'DOP', 'JPY', 'SGD'];
     return currencies.includes(currency);
 }
 

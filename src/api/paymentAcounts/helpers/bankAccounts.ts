@@ -74,6 +74,36 @@ export const CURRENCY_CONFIG = {
     paymentMethod: 'PH_INSTAPAY_PESONET',
     errorMessage: 'accountNumber y bankCode son requeridos para cuentas PHP'
   },
+  BOB: {
+    requiredFields: ['accountNumber', 'taxNumber'],
+    paymentMethod: 'BO_RTGS',
+    errorMessage: 'accountNumber y taxNumber son requeridos para cuentas BOB'
+  },
+  CRC: {
+    requiredFields: ['iban', 'bankCode'],
+    paymentMethod: 'CR_SINPE',
+    errorMessage: 'iban y bankCode son requeridos para cuentas CRC'
+  },
+  COP: {
+    requiredFields: ['accountNumber', 'taxNumber'],
+    paymentMethod: 'CO_ACH',
+    errorMessage: 'accountNumber y taxNumber son requeridos para cuentas COP'
+  },
+  DOP: {
+    requiredFields: ['iban', 'taxNumber'],
+    paymentMethod: 'DO_ACH',
+    errorMessage: 'iban y taxNumber son requeridos para cuentas DOP'
+  },
+  JPY: {
+    requiredFields: ['accountNumber', 'bankCode', 'branchCode'],
+    paymentMethod: 'JP_ZENGIN',
+    errorMessage: 'accountNumber, bankCode y branchCode son requeridos para cuentas JPY'
+  },
+  SGD: {
+    requiredFields: ['accountNumber', 'bankCode'],
+    paymentMethod: 'SG_FAST_MEPS',
+    errorMessage: 'accountNumber y bankCode son requeridos para cuentas SGD'
+  },
 };
 
 export const validateCurrencyFields = (currency, externalBankAccount) => {
@@ -234,6 +264,55 @@ export const buildExternalBankAccount = (currency, data) => {
         accountNumber: externalBankAccount.accountNumber,
         bankCode: externalBankAccount.bankCode,
         bankAccountPaymentMethod: 'PH_INSTAPAY_PESONET'
+      };
+    case 'BOB':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        taxNumber: externalBankAccount.taxNumber,
+        bankAccountPaymentMethod: 'BO_RTGS'
+      };
+    case 'CRC':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bankCode: externalBankAccount.bankCode,
+        bankAccountPaymentMethod: 'CR_SINPE'
+      };
+    case 'COP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        taxNumber: externalBankAccount.taxNumber,
+        bankAccountPaymentMethod: 'CO_ACH'
+      };
+    case 'DOP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        taxNumber: externalBankAccount.taxNumber,
+        bankAccountPaymentMethod: 'DO_ACH'
+      };
+    case 'JPY':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        branchCode: externalBankAccount.branchCode,
+        bankAccountPaymentMethod: 'JP_ZENGIN'
+      };
+    case 'SGD':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        bankAccountPaymentMethod: 'SG_FAST_MEPS'
       };
     default:
       throw new Error(`Moneda no soportada: ${currency}`);

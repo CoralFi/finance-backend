@@ -22,8 +22,14 @@ Estas monedas ya cuentan con configuración y validación en el código base.
 | **IDR** | Rupia Indonesia | Onramp & Offramp |
 | **ILS** | Nuevo séquel israelí | Offramp Only |
 | **PHP** | Peso Filipino | Onramp & Offramp |
+| **BOB** | Boliviano | Offramp Only |
+| **CRC** | Colón Costarricense | Offramp Only |
+| **COP** | Peso Colombiano | Offramp Only |
+| **DOP** | Peso Dominicano | Offramp Only |
+| **JPY** | Yen Japonés | Offramp Only |
+| **SGD** | Dólar de Singapur | Offramp Only |
 
-Total Implementadas: **15**
+Total Implementadas: **21**
 
 ---
 
@@ -44,10 +50,8 @@ Estas monedas aparecen en la documentación de FernHQ pero no tienen configuraci
 #### Asia / Pacífico
 - **BDT** (Bangladesh)
 - **INR** (India)
-- **JPY** (Japón)
 - **MYR** (Malasia)
 - **PKR** (Pakistán)
-- **SGD** (Singapur)
 - **THB** (Tailandia)
 - **TRY** (Turquía)
 - **VND** (Vietnam)
@@ -66,10 +70,7 @@ Estas monedas aparecen en la documentación de FernHQ pero no tienen configuraci
 - **AED** (Emiratos Árabes Unidos)
 
 #### Américas (Latam/Caribe)
-- **BOB** (Bolivia)
-- **COP** (Colombia)
-- **CRC** (Costa Rica)
-- **DOP** (República Dominicana)
+*Ninguna por el momento.*
 
 ### Otras Monedas (Soporte Limitado / Local Rail)
 - **GTQ** (Guatemala)
