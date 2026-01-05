@@ -54,6 +54,23 @@ export const deleteBankAccountController = async (
       });
     }
 
+    const { error: pmError } = await supabase
+      .from('conduit_payment_methods')
+      .update({
+        status: 'disabled',
+        active: false,
+        conduit_updated_at: new Date().toISOString(),
+      })
+      .eq('payment_method_id', paymentMethodId)
+
+    if (pmError) {
+      console.error('Error desactivando payment method:', pmError);
+      return res.status(500).json({
+        success: false,
+        message: 'Error al desactivar el payment method en base de datos',
+      });
+    }
+
     return res.status(200).json({
       success: true,
       message: 'Cuenta bancaria eliminada y sincronizada correctamente',
