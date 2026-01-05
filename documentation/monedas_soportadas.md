@@ -37,8 +37,13 @@ Estas monedas ya cuentan con configuración y validación en el código base.
 | **EGP** | Libra Egipcia | Offramp Only |
 | **SAR** | Riyal Saudí | Offramp Only |
 | **AED** | Dirham EAU | Offramp Only |
+| **GHS** | Cedi Ghanés | Offramp Only |
+| **KES** | Chelín Keniano | Offramp Only |
+| **NGN** | Naira Nigeriano | Offramp Only |
+| **ZAR** | Rand Sudafricano | Offramp Only |
+| **TZS** | Chelín Tanzano | Offramp Only |
 
-Total Implementadas: **30**
+Total Implementadas: **35**
 
 ---
 
@@ -50,11 +55,7 @@ Estas monedas aparecen en la documentación de FernHQ pero no tienen configuraci
 
 ### Monedas con Soporte Offramp Only (Pagos salientes)
 #### África
-- **GHS** (Ghana)
-- **KES** (Kenia)
-- **NGN** (Nigeria)
-- **ZAR** (Sudáfrica)
-- **TZS** (Tanzania)
+*Ninguna por el momento.*
 
 #### Asia / Pacífico
 - **BDT** (Bangladesh)

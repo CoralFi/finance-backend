@@ -149,6 +149,31 @@ export const CURRENCY_CONFIG = {
     paymentMethod: 'AE_UAEFTS',
     errorMessage: 'iban, bicSwift y bankCode son requeridos para cuentas AED'
   },
+  GHS: {
+    requiredFields: ['accountNumber', 'bicSwift'],
+    paymentMethod: 'GH_GHIPSS',
+    errorMessage: 'accountNumber y bicSwift son requeridos para cuentas GHS'
+  },
+  KES: {
+    requiredFields: ['accountNumber', 'bicSwift'],
+    paymentMethod: 'KE_KIBBS_PESALINK',
+    errorMessage: 'accountNumber y bicSwift son requeridos para cuentas KES'
+  },
+  NGN: {
+    requiredFields: ['accountNumber', 'nubanNumber'],
+    paymentMethod: 'NG_NIBSS_NEFT',
+    errorMessage: 'accountNumber y nubanNumber son requeridos para cuentas NGN'
+  },
+  ZAR: {
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'ZA_RTGS_EFT',
+    errorMessage: 'accountNumber es requerido para cuentas ZAR'
+  },
+  TZS: {
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'TZ_RTGS',
+    errorMessage: 'accountNumber es requerido para cuentas TZS'
+  },
 };
 
 export const validateCurrencyFields = (currency, externalBankAccount) => {
@@ -431,6 +456,47 @@ export const buildExternalBankAccount = (currency, data) => {
         bicSwift: externalBankAccount.bicSwift,
         bankCode: externalBankAccount.bankCode,
         bankAccountPaymentMethod: 'AE_UAEFTS'
+      };
+    case 'GHS':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'GH_GHIPSS'
+      };
+    case 'KES':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'KE_KIBBS_PESALINK'
+      };
+    case 'NGN':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        nubanNumber: externalBankAccount.nubanNumber,
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'NG_NIBSS_NEFT'
+      };
+    case 'ZAR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'ZA_RTGS_EFT'
+      };
+    case 'TZS':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'TZ_RTGS'
       };
     default:
       throw new Error(`Moneda no soportada: ${currency}`);
