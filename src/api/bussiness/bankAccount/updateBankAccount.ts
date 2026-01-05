@@ -84,7 +84,44 @@ export const updateBankAccountController = async (
         message: 'Error al sincronizar counterparty en base de datos',
       });
     }
+    const upsertPayload = paymentMethods.map((pm: any) => ({
+      payment_method_id: pm.id,
+      counterparty_id: accountUpdated.id,
+      customer_id: accountUpdated.customerId,
+      type: pm.type || null,
+      status: "enabled",
+      active: true,
+      bank_name: pm.bankName || null,
+      account_owner_name: pm.accountOwnerName || null,
+      account_number: pm.accountNumber || null,
+      account_type: pm.accountType || null,
+      routing_number: pm.routingNumber || null,
+      swift_code: pm.swiftCode || null,
+      iban: pm.iban || null,
+      branch_code: pm.branchCode || null,
+      bank_code: pm.bankCode || null,
+      sort_code: pm.sortCode || null,
+      pix_key: pm.pixKey || null,
+      wallet_address: pm.walletAddress || null,
+      wallet_label: pm.walletLabel || null,
+      rail: pm.rail || null,
+      currency: pm.currency || null,
+      address: pm.address || null,
+      entity_info: pm.entityInfo || null,
+      metadata: pm || null,
+      conduit_created_at: pm.createdAt || null,
+      conduit_updated_at: accountUpdated.updatedAt || null,
+    }));
 
+    const { error: errorPaymentMethods } = await supabase
+      .from('conduit_payment_methods')
+      .upsert(upsertPayload, {
+        onConflict: 'payment_method_id',
+      });
+
+    if (errorPaymentMethods) {
+      throw errorPaymentMethods;
+    }
 
     return res.status(200).json({
       success: true,
