@@ -127,6 +127,7 @@ export const updateBankAccountController = async (
       success: true,
       message: 'Cuenta bancaria actualizada correctamente',
       data: updatedCounterparty,
+      counterPartyData: accountUpdated
     });
   } catch (error: any) {
     console.error(
