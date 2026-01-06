@@ -174,6 +174,41 @@ export const CURRENCY_CONFIG = {
     paymentMethod: 'TZ_RTGS',
     errorMessage: 'accountNumber es requerido para cuentas TZS'
   },
+  BDT: {
+    requiredFields: ['accountNumber', 'bankCode'],
+    paymentMethod: 'BD_BEFTN',
+    errorMessage: 'accountNumber y bankCode son requeridos para cuentas BDT'
+  },
+  INR: {
+    requiredFields: ['accountNumber', 'ifscCode'],
+    paymentMethod: 'IN_NEFT_RTGS_IMPS',
+    errorMessage: 'accountNumber y ifscCode son requeridos para cuentas INR'
+  },
+  MYR: {
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'MY_IBG_RENTAS',
+    errorMessage: 'accountNumber es requerido para cuentas MYR'
+  },
+  PKR: {
+    requiredFields: ['iban'],
+    paymentMethod: 'PK_RAAST_IBFT',
+    errorMessage: 'iban es requerido para cuentas PKR'
+  },
+  THB: {
+    requiredFields: ['accountNumber', 'bankCode'],
+    paymentMethod: 'TH_BAHTNET_PROMPTPAY',
+    errorMessage: 'accountNumber y bankCode son requeridos para cuentas THB'
+  },
+  TRY: {
+    requiredFields: ['iban'],
+    paymentMethod: 'TR_FAST_EFT',
+    errorMessage: 'iban es requerido para cuentas TRY'
+  },
+  VND: {
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'VN_IBPS',
+    errorMessage: 'accountNumber es requerido para cuentas VND'
+  },
 };
 
 export const validateCurrencyFields = (currency, externalBankAccount) => {
@@ -497,6 +532,65 @@ export const buildExternalBankAccount = (currency, data) => {
         accountNumber: externalBankAccount.accountNumber,
         bicSwift: externalBankAccount?.bicSwift || undefined,
         bankAccountPaymentMethod: 'TZ_RTGS'
+      };
+    case 'BDT':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'BD_BEFTN'
+      };
+    case 'INR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        ifscCode: externalBankAccount.ifscCode,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'IN_NEFT_RTGS_IMPS'
+      };
+    case 'MYR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'MY_IBG_RENTAS'
+      };
+    case 'PKR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'PK_RAAST_IBFT'
+      };
+    case 'THB':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'TH_BAHTNET_PROMPTPAY'
+      };
+    case 'TRY':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'TR_FAST_EFT'
+      };
+    case 'VND':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'VN_IBPS'
       };
     default:
       throw new Error(`Moneda no soportada: ${currency}`);

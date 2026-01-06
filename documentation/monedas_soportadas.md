@@ -42,8 +42,15 @@ Estas monedas ya cuentan con configuración y validación en el código base.
 | **NGN** | Naira Nigeriano | Offramp Only |
 | **ZAR** | Rand Sudafricano | Offramp Only |
 | **TZS** | Chelín Tanzano | Offramp Only |
+| **BDT** | Taka Bangladesí | Offramp Only |
+| **INR** | Rupia India | Offramp Only |
+| **MYR** | Ringgit Malasio | Offramp Only |
+| **PKR** | Rupia Pakistaní | Offramp Only |
+| **THB** | Baht Tailandés | Offramp Only |
+| **TRY** | Lira Turca | Offramp Only |
+| **VND** | Dong Vietnamita | Offramp Only |
 
-Total Implementadas: **35**
+Total Implementadas: **42**
 
 ---
 
@@ -58,13 +65,7 @@ Estas monedas aparecen en la documentación de FernHQ pero no tienen configuraci
 *Ninguna por el momento.*
 
 #### Asia / Pacífico
-- **BDT** (Bangladesh)
-- **INR** (India)
-- **MYR** (Malasia)
-- **PKR** (Pakistán)
-- **THB** (Tailandia)
-- **TRY** (Turquía)
-- **VND** (Vietnam)
+*Ninguna por el momento.*
 
 #### Europa
 *Ninguna por el momento.*
