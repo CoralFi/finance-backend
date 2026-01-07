@@ -50,9 +50,9 @@ export const CURRENCY_CONFIG = {
     errorMessage: 'accountNumber y taxNumber son requeridos para cuentas PEN'
   },
   CLP: {
-    requiredFields: ['accountNumber'],
+    requiredFields: ['accountNumber', 'taxNumber'],
     paymentMethod: 'CL_TEF',
-    errorMessage: 'accountNumber es requerido para cuentas CLP'
+    errorMessage: 'accountNumber y taxNumber son requeridos para cuentas CLP'
   },
   HKD: {
     requiredFields: ['accountNumber', 'clearingCode'],
@@ -323,6 +323,9 @@ export const buildExternalBankAccount = (currency, data) => {
       };
 
     case 'PEN':
+      if (externalBankAccount.accountNumber && externalBankAccount.accountNumber.length < 20) {
+        throw new Error('El número de cuenta para PEN debe tener al menos 20 dígitos');
+      }
       return {
         ...baseAccount,
         bankAccountType: bankAccountType || 'CHECKING',
@@ -336,6 +339,7 @@ export const buildExternalBankAccount = (currency, data) => {
         ...baseAccount,
         bankAccountType: bankAccountType || 'CHECKING',
         accountNumber: externalBankAccount.accountNumber,
+        taxNumber: externalBankAccount.taxNumber,
         bankAccountPaymentMethod: 'CL_TEF'
       };
     case 'HKD':
