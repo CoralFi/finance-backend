@@ -8,4 +8,14 @@ servers:
     description: Servidor local (modo desarrollo)
   - url: http://localhost:5000
     description: Servidor local alternativo / entorno de pruebas
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+    refreshAuth:
+      type: apiKey
+      in: cookie
+      name: refresh_token
 paths: {}
