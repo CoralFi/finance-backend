@@ -18,6 +18,7 @@ export const FIAT_METHODS = [
     'AU_BECS', // Australia
     'PE_CCE', // Perú
     'IL_ZAHAV', // Israel
+    'CL_TEF', // Chile
 ] as const;
 
 export const CRYPTO_NETWORKS = [

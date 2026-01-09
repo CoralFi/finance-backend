@@ -56,7 +56,7 @@ export const createBankAccountController = async (req: Request, res: Response): 
     // Validaciones comunes
     if (
       !email || !phone ||
-      !identificationType || !identificationNumber || !customerId ||
+      !customerId ||
       !address || !paymentMethods || !Array.isArray(paymentMethods) || paymentMethods.length === 0
     ) {
       return res.status(400).json({
@@ -183,11 +183,11 @@ export const createBankAccountController = async (req: Request, res: Response): 
       data,
     });
   } catch (error: any) {
-    console.error('❌ Error al registrar cuenta bancaria externa:', error.response.data);
+    console.error('❌ Error al registrar cuenta bancaria externa:', error?.response?.data || error.message || error);
     return res.status(500).json({
       success: false,
       message: 'Error al registrar cuenta bancaria externa',
-      error: error.response.data || error.message || error,
+      error: error?.response?.data || error.message || error,
     });
   }
 };

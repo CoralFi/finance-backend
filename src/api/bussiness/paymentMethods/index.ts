@@ -5,6 +5,7 @@ import { getPaymentMethodController } from './getPaymentMethod';
 import { updatePaymentMethodController } from './updatePaymentMethod';
 import { deletePaymentMethodController } from './deletePaymentMethod';
 import { listWalletsAndCounterpartiesController } from './listWalletsAndCounterparties';
+import { deactivateController } from './deactivate';
 
 const paymentMethodsRouter = Router();
 
@@ -63,4 +64,16 @@ paymentMethodsRouter.delete(
   deletePaymentMethodController
 );
 
+/**
+ * @route   DELETE /api/deactivate/:type/:id
+ * @desc    Desactivar (soft delete) un payment method o counterparty
+ * @params  type: 'payment-method' | 'counterparty', id: ID del registro
+ * @access  Private
+ */
+paymentMethodsRouter.delete(
+  '/deactivate/:type/:id',
+  deactivateController
+);
+
 export default paymentMethodsRouter;
+

@@ -6,7 +6,7 @@ export const CURRENCY_CONFIG = {
   },
   USD: {
     requiredFields: ['accountNumber', 'routingNumber'],
-    paymentMethod: null,  
+    paymentMethod: null,
     errorMessage: 'accountNumber y routingNumber son requeridos para cuentas USD'
   },
   ARS: {
@@ -21,7 +21,7 @@ export const CURRENCY_CONFIG = {
   },
   BRL: {
     requiredFields: ['pixCode'],
-    paymentMethod: null,  
+    paymentMethod: 'BR_TED_DOC_PIX',
     errorMessage: 'pixCode es requerido para cuentas BRL'
   },
   CNY: {
@@ -50,9 +50,9 @@ export const CURRENCY_CONFIG = {
     errorMessage: 'accountNumber y taxNumber son requeridos para cuentas PEN'
   },
   CLP: {
-    requiredFields: ['accountNumber'],
+    requiredFields: ['accountNumber', 'taxNumber'],
     paymentMethod: 'CL_TEF',
-    errorMessage: 'accountNumber es requerido para cuentas CLP'
+    errorMessage: 'accountNumber y taxNumber son requeridos para cuentas CLP'
   },
   HKD: {
     requiredFields: ['accountNumber', 'clearingCode'],
@@ -69,8 +69,148 @@ export const CURRENCY_CONFIG = {
     paymentMethod: 'IL_ZAHAV',
     errorMessage: 'accountNumber y iban son requeridos para cuentas IL_ZAHAV'
   },
+  PHP: {
+    requiredFields: ['accountNumber', 'bankCode'],
+    paymentMethod: 'PH_INSTAPAY_PESONET',
+    errorMessage: 'accountNumber y bankCode son requeridos para cuentas PHP'
+  },
+  BOB: {
+    requiredFields: ['accountNumber', 'taxNumber'],
+    paymentMethod: 'BO_RTGS',
+    errorMessage: 'accountNumber y taxNumber son requeridos para cuentas BOB'
+  },
+  CRC: {
+    requiredFields: ['iban', 'bankCode'],
+    paymentMethod: 'CR_SINPE',
+    errorMessage: 'iban y bankCode son requeridos para cuentas CRC'
+  },
+  COP: {
+    requiredFields: ['accountNumber', 'taxNumber'],
+    paymentMethod: 'CO_ACH',
+    errorMessage: 'accountNumber y taxNumber son requeridos para cuentas COP'
+  },
+  DOP: {
+    requiredFields: ['iban', 'taxNumber'],
+    paymentMethod: 'DO_ACH',
+    errorMessage: 'iban y taxNumber son requeridos para cuentas DOP'
+  },
+  JPY: {
+    requiredFields: ['accountNumber', 'bankCode', 'branchCode'],
+    paymentMethod: 'JP_ZENGIN',
+    errorMessage: 'accountNumber, bankCode y branchCode son requeridos para cuentas JPY'
+  },
+  SGD: {
+    requiredFields: ['accountNumber', 'bankCode'],
+    paymentMethod: 'SG_FAST_MEPS',
+    errorMessage: 'accountNumber y bankCode son requeridos para cuentas SGD'
+  },
+  PLN: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'PL_ELIXIR_BLUE_CASH',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas PLN'
+  },
+  CZK: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'CZ_CERTIS',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas CZK'
+  },
+  DKK: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'DK_NEMKONTO_FI',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas DKK'
+  },
+  NOK: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'NO_NICS',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas NOK'
+  },
+  RON: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'RO_RTGS',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas RON'
+  },
+  SEK: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'SE_BANKGIROT',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas SEK'
+  },
+  EGP: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'EG_RTGS_IPN',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas EGP'
+  },
+  SAR: {
+    requiredFields: ['iban', 'bicSwift'],
+    paymentMethod: 'SA_MADA',
+    errorMessage: 'iban y bicSwift son requeridos para cuentas SAR'
+  },
+  AED: {
+    requiredFields: ['iban', 'bicSwift', 'bankCode'],
+    paymentMethod: 'AE_UAEFTS',
+    errorMessage: 'iban, bicSwift y bankCode son requeridos para cuentas AED'
+  },
+  GHS: {
+    requiredFields: ['accountNumber', 'bicSwift'],
+    paymentMethod: 'GH_GHIPSS',
+    errorMessage: 'accountNumber y bicSwift son requeridos para cuentas GHS'
+  },
+  KES: {
+    requiredFields: ['accountNumber', 'bicSwift'],
+    paymentMethod: 'KE_KIBBS_PESALINK',
+    errorMessage: 'accountNumber y bicSwift son requeridos para cuentas KES'
+  },
+  NGN: {
+    requiredFields: ['accountNumber', 'nubanNumber'],
+    paymentMethod: 'NG_NIBSS_NEFT',
+    errorMessage: 'accountNumber y nubanNumber son requeridos para cuentas NGN'
+  },
+  ZAR: {
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'ZA_RTGS_EFT',
+    errorMessage: 'accountNumber es requerido para cuentas ZAR'
+  },
+  TZS: {
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'TZ_RTGS',
+    errorMessage: 'accountNumber es requerido para cuentas TZS'
+  },
+  BDT: {
+    requiredFields: ['accountNumber', 'bankCode'],
+    paymentMethod: 'BD_BEFTN',
+    errorMessage: 'accountNumber y bankCode son requeridos para cuentas BDT'
+  },
+  INR: {
+    requiredFields: ['accountNumber', 'ifscCode'],
+    paymentMethod: 'IN_NEFT_RTGS_IMPS',
+    errorMessage: 'accountNumber y ifscCode son requeridos para cuentas INR'
+  },
+  MYR: {
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'MY_IBG_RENTAS',
+    errorMessage: 'accountNumber es requerido para cuentas MYR'
+  },
+  PKR: {
+    requiredFields: ['iban'],
+    paymentMethod: 'PK_RAAST_IBFT',
+    errorMessage: 'iban es requerido para cuentas PKR'
+  },
+  THB: {
+    requiredFields: ['accountNumber', 'bankCode'],
+    paymentMethod: 'TH_BAHTNET_PROMPTPAY',
+    errorMessage: 'accountNumber y bankCode son requeridos para cuentas THB'
+  },
+  TRY: {
+    requiredFields: ['iban'],
+    paymentMethod: 'TR_FAST_EFT',
+    errorMessage: 'iban es requerido para cuentas TRY'
+  },
+  VND: {
+    requiredFields: ['accountNumber'],
+    paymentMethod: 'VN_IBPS',
+    errorMessage: 'accountNumber es requerido para cuentas VND'
+  },
 };
- 
+
 export const validateCurrencyFields = (currency, externalBankAccount) => {
   const config = CURRENCY_CONFIG[currency];
   if (!config) {
@@ -83,7 +223,7 @@ export const validateCurrencyFields = (currency, externalBankAccount) => {
     }
   }
 };
- 
+
 export const buildExternalBankAccount = (currency, data) => {
   const { externalBankAccount } = data;
   const { bankName, bankAccountType, bankAddress, bankAccountOwner } = externalBankAccount;
@@ -136,8 +276,8 @@ export const buildExternalBankAccount = (currency, data) => {
         ...baseAccount,
         bankAccountType: bankAccountType || 'CHECKING',
         pixCode: externalBankAccount.pixCode,
-        bankAccountPaymentMethod: externalBankAccount.bankAccountPaymentMethod,
-        taxNumber: externalBankAccount.taxNumber  
+        bankAccountPaymentMethod: 'BR_TED_DOC_PIX',
+        taxNumber: externalBankAccount.taxNumber
       };
 
     case 'CNY':
@@ -183,6 +323,9 @@ export const buildExternalBankAccount = (currency, data) => {
       };
 
     case 'PEN':
+      if (externalBankAccount.accountNumber && externalBankAccount.accountNumber.length < 20) {
+        throw new Error('El número de cuenta para PEN debe tener al menos 20 dígitos');
+      }
       return {
         ...baseAccount,
         bankAccountType: bankAccountType || 'CHECKING',
@@ -196,6 +339,7 @@ export const buildExternalBankAccount = (currency, data) => {
         ...baseAccount,
         bankAccountType: bankAccountType || 'CHECKING',
         accountNumber: externalBankAccount.accountNumber,
+        taxNumber: externalBankAccount.taxNumber,
         bankAccountPaymentMethod: 'CL_TEF'
       };
     case 'HKD':
@@ -221,6 +365,236 @@ export const buildExternalBankAccount = (currency, data) => {
         accountNumber: externalBankAccount.accountNumber,
         iban: externalBankAccount.iban,
         bankAccountPaymentMethod: 'IL_ZAHAV'
+      };
+    case 'PHP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        bankAccountPaymentMethod: 'PH_INSTAPAY_PESONET'
+      };
+    case 'BOB':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        taxNumber: externalBankAccount.taxNumber,
+        bankAccountPaymentMethod: 'BO_RTGS'
+      };
+    case 'CRC':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bankCode: externalBankAccount.bankCode,
+        bankAccountPaymentMethod: 'CR_SINPE'
+      };
+    case 'COP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        taxNumber: externalBankAccount.taxNumber,
+        bankAccountPaymentMethod: 'CO_ACH'
+      };
+    case 'DOP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        taxNumber: externalBankAccount.taxNumber,
+        bankAccountPaymentMethod: 'DO_ACH'
+      };
+    case 'JPY':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        branchCode: externalBankAccount.branchCode,
+        bankAccountPaymentMethod: 'JP_ZENGIN'
+      };
+    case 'SGD':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        bankAccountPaymentMethod: 'SG_FAST_MEPS'
+      };
+    case 'PLN':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'PL_ELIXIR_BLUE_CASH'
+      };
+    case 'CZK':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'CZ_CERTIS'
+      };
+    case 'DKK':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'DK_NEMKONTO_FI'
+      };
+    case 'NOK':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'NO_NICS'
+      };
+    case 'RON':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'RO_RTGS'
+      };
+    case 'SEK':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'SE_BANKGIROT'
+      };
+    case 'EGP':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'EG_RTGS_IPN'
+      };
+    case 'SAR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'SA_MADA'
+      };
+    case 'AED':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount.bicSwift,
+        bankCode: externalBankAccount.bankCode,
+        bankAccountPaymentMethod: 'AE_UAEFTS'
+      };
+    case 'GHS':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'GH_GHIPSS'
+      };
+    case 'KES':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'KE_KIBBS_PESALINK'
+      };
+    case 'NGN':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        nubanNumber: externalBankAccount.nubanNumber,
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'NG_NIBSS_NEFT'
+      };
+    case 'ZAR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount.bicSwift,
+        bankAccountPaymentMethod: 'ZA_RTGS_EFT'
+      };
+    case 'TZS':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'TZ_RTGS'
+      };
+    case 'BDT':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'BD_BEFTN'
+      };
+    case 'INR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        ifscCode: externalBankAccount.ifscCode,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'IN_NEFT_RTGS_IMPS'
+      };
+    case 'MYR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'MY_IBG_RENTAS'
+      };
+    case 'PKR':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'PK_RAAST_IBFT'
+      };
+    case 'THB':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bankCode: externalBankAccount.bankCode,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'TH_BAHTNET_PROMPTPAY'
+      };
+    case 'TRY':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        iban: externalBankAccount.iban,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'TR_FAST_EFT'
+      };
+    case 'VND':
+      return {
+        ...baseAccount,
+        bankAccountType: bankAccountType || 'CHECKING',
+        accountNumber: externalBankAccount.accountNumber,
+        bicSwift: externalBankAccount?.bicSwift || undefined,
+        bankAccountPaymentMethod: 'VN_IBPS'
       };
     default:
       throw new Error(`Moneda no soportada: ${currency}`);

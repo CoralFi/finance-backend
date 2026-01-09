@@ -28,7 +28,8 @@ const getAllowedOrigins = () => {
         return [
             'https://staging.app.coralfinance.io',
             'https://app.coralfinance.io',
-            'https://www.coralfinance.io'
+            'https://www.coralfinance.io',
+            'http://localhost:5500',
         ];
     }
     return [];
@@ -37,18 +38,19 @@ const getAllowedOrigins = () => {
 const allowedOrigins = getAllowedOrigins();
 
 app.use(cors({
-    origin: (origin, callback) => {
-        // Permitir requests sin origin (como mobile apps o curl)
-        if (!origin) return callback(null, true);
-
-        if (allowedOrigins.indexOf(origin) !== -1) {
-            callback(null, true);
-        } else {
-            console.warn(`🚫 CORS blocked origin: ${origin}`);
-            console.warn(`✅ Allowed origins:`, allowedOrigins);
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: true, // ⚠️ Permitir todos los orígenes temporalmente para solucionar problemas de CORS
+    // origin: (origin, callback) => {
+    //     // Permitir requests sin origin (como mobile apps o curl)
+    //     if (!origin) return callback(null, true);
+    //
+    //     if (allowedOrigins.includes(origin)) {
+    //         callback(null, true);
+    //     } else {
+    //         console.warn(`🚫 CORS blocked origin: ${origin}`);
+    //         console.warn(`✅ Allowed origins:`, allowedOrigins);
+    //         callback(new Error('Not allowed by CORS'));
+    //     }
+    // },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: [

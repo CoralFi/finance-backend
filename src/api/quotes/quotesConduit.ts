@@ -23,6 +23,8 @@ interface CreateQuoteBody {
   source: SourceData;
   target: TargetData;
   conduit_id?: string;
+  /** Spread en basis points (1 bps = 0.01%). Ejemplo: 50 = 0.5%, 100 = 1% */
+  spreadBps?: number;
 }
 
 export const createQuoteControllerConduit = async (
@@ -154,14 +156,40 @@ export const createQuoteControllerConduit = async (
       });
     }
 
-    const payload = { source, target };
+    // Build payload with optional pricing overrides
+    const payload: Record<string, any> = { source, target };
+
+    // If spreadBps is provided, add pricing overrides for customer revenue
+    if (body.spreadBps !== undefined && body.spreadBps !== null) {
+      // Validate spreadBps range (0 to 10000 = 0% to 100%)
+      if (body.spreadBps < 0 || body.spreadBps > 10000) {
+        return res.status(400).json({
+          success: false,
+          message: 'spreadBps debe estar entre 0 y 10000 (0% a 100%)',
+        });
+      }
+
+      payload.pricing = {
+        overrides: {
+          customer: {
+            pricingModel: 'spread_on_rate',
+            spreadBps: body.spreadBps,
+          },
+        },
+      };
+    }
+
     const data = await conduitFinancial.createQuote(payload);
 
     if (isDevelopment) {
       console.log('Cotización creada en Conduit:', data);
     }
 
-    // Save quote in database
+    // Extract pricing data from response
+    const customerPricing = data.pricing?.customer;
+    const calculatedRevenue = customerPricing?.calculatedRevenue;
+
+    // Save quote in database with pricing information
     const { data: savedQuote, error: saveError } = await supabase
       .from('conduit_quotes')
       .insert({
@@ -175,6 +203,11 @@ export const createQuoteControllerConduit = async (
         expires_at: data.expiresAt,
         conduit_created_at: data.createdAt,
         raw_response: data,
+        // New pricing columns
+        spread_bps: customerPricing?.spreadBps || null,
+        pricing_model: customerPricing?.pricingModel || null,
+        calculated_revenue_amount: calculatedRevenue?.amount || null,
+        calculated_revenue_asset: calculatedRevenue?.asset || null,
       })
       .select('id, quote_id, created_at')
       .single();
