@@ -21,6 +21,8 @@ import paymentMethodsRoutes from "./bussiness/paymentMethods/index";
 import businessQuoteRoutes from "./bussiness/quote/index";
 import emailBussRoutes from "./bussiness/emails/index";
 import otpBussRoutes from "./bussiness/otp/index";
+//v2
+import authv2Routes from "./authv2/index";
 const router = Router();
 
 // /api/test
@@ -64,4 +66,8 @@ router.use("/business/quote", businessQuoteRoutes);
 router.use("/business/email", emailBussRoutes);
 // otp para buss
 router.use("/business/otp", otpBussRoutes);
+
+
+//v2
+router.use("/authv2", authv2Routes);
 export default router;
