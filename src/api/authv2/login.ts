@@ -66,10 +66,10 @@ export const loginController = async (req: Request, res: Response) => {
 
     if (isDeveloment) {
       console.log("Inicio de sesión exitoso:", user.email);
-      console.log("Conduit user:", conduitUser);
+      // console.log("Conduit user:", conduitUser);
 
     }
-    console.log("Conduit user:", user);
+    // console.log("Conduit user:", user);
     // 5. Generate JWT Tokens
     const accessToken = jwt.sign(
       {

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { getUserByCustomerId } from '../api/auth/helpers/authHelpers';
+import { getUserByCustomerId } from '../api/authv2/helpers/authHelpers';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secretTest123';
 
@@ -19,7 +19,7 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
         const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; role: string };
 
         const user = await getUserByCustomerId(decoded.userId);
-
+        console.log(user);
         if (!user) {
             return res.status(401).json({ message: "Usuario no encontrado o inválido." });
         }
