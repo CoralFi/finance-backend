@@ -72,7 +72,11 @@ const conduitFinancial = {
   async deleteBankAccount(id: string, paymentMethodId: string) {
     const { data } = await conduitAxios.delete(`/counterparties/${id}/payment-methods/${paymentMethodId}`);
     return data;
-  }, 
+  },
+  async deleteCounterparty(id: string) {
+    const { data } = await conduitAxios.delete(`counterparties/${id}`);
+    return data;
+  },
   async createQuote(payload: Record<string, any>) {
     const { data } = await conduitAxios.post(`/quotes`, payload);
     return data;

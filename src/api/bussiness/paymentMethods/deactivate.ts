@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { PaymentMethodService } from '@/services/paymentMethods/paymentMethodService';
 import { CounterpartyService } from '@/services/counterparties/counterpartyService';
-
+import conduitFinancial from '@/services/conduit/conduit-financial';
 /**
  * Controller para desactivar (soft delete) un payment method o counterparty
  * Cambia la columna 'active' a false en lugar de eliminar el registro
@@ -65,8 +65,8 @@ export const deactivateController = async (req: Request, res: Response): Promise
                 console.log(`✓ ${counterparty.payment_method_ids.length} payment methods asociados desactivados`);
             }
 
+            await conduitFinancial.deleteCounterparty(id);
             console.log(`✓ Counterparty desactivado: ${id}`);
-
             return res.status(200).json({
                 success: true,
                 message: 'Counterparty y sus payment methods desactivados exitosamente',
