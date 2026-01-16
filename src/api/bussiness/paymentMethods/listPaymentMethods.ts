@@ -2,17 +2,18 @@ import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
 import { PaymentMethodService } from '@/services/paymentMethods/paymentMethodService';
 import { ListPaymentMethodsResponse } from '@/types/payment-methods';
+import { AuthRequest } from "@/middleware/authMiddleware";
 
 /**
  * Controlador para listar métodos de pago de un customer
  * GET /api/customers/:customerId/payment-methods
  */
 export const listPaymentMethodsController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<Response> => {
   try {
-    const { customerId } = req.params;
+    const customerId = req.user?.conduit_id
     const { type, currency } = req.query;
 
 

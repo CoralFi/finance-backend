@@ -73,22 +73,22 @@ Rutas específicas para la gestión de empresas y operaciones B2B.
 | `POST` | `/api/auth/business/change-password` | Cambiar contraseña de negocio |
 
 ### 📈 Gestión de Negocio
-| Método | Ruta | Descripción |
+| Método | Ruta | Descripción | Nuevo
 | :--- | :--- | :--- |
-| `GET` | `/api/business/customers` | Listar empresas registradas |
-| `GET` | `/api/business/customers/:id` | Ver detalle de empresa |
-| `POST` | `/api/business/customers/accept-tos` | Aceptar Términos de Servicio |
-| `GET` | `/api/business/balances/:conduitId` | Ver balances en Conduit |
-| `GET` | `/api/business/balances/:conduitId/samename` | Balances de cuentas mismo nombre |
+| `GET` | `/api/business/customers` | Listar empresas registradas | no existe |
+| `GET` | `/api/business/customers/:id` | Ver detalle de empresa | `/api/business/customers` |
+| `POST` | `/api/business/customers/accept-tos` | Aceptar Términos de Servicio ||
+| `GET` | `/api/business/balances/:conduitId` | Ver balances en Conduit | `/api/business/balances`|
+| `GET` | `/api/business/balances/:conduitId/samename` | Balances de cuentas mismo nombre | `api/business/balances/samename`|
 
 ### 🏦 Cuentas y Contrapartes
-| Método | Ruta | Descripción |
+| Método | Ruta | Descripción | nuevo
 | :--- | :--- | :--- |
 | `GET` | `/api/business/accounts` | Listar cuentas del negocio |
-| `GET` | `/api/business/accounts/:id` | Ver detalle de cuenta |
+| `GET` | `/api/business/accounts/:id` | Ver detalle de cuenta | 
 | `GET` | `/api/business/accounts/deposit/:id` | Instrucciones de depósito |
 | `POST` | `/api/business/counterparties/create` | Crear cuenta bancaria externa (contraparte) |
-| `GET` | `/api/business/counterparties/:customerId/list/:currency` | Listar contrapartes por moneda |
+| `GET` | `/api/business/counterparties/:customerId/list/:currency` | Listar contrapartes por moneda | `/api/business/counterparties/list/usd`|
 | `PATCH` | `/api/business/counterparties/update/:id` | Actualizar contraparte |
 | `DELETE` | `/api/business/counterparties/delete/:id/:pmId` | Eliminar contraparte |
 

@@ -233,6 +233,7 @@ export class CounterpartyService {
         .from(this.TABLE_NAME)
         .update({
           active: false,
+          status: 'deleted',
           updated_at: new Date().toISOString()
         })
         .eq('counterparty_id', counterpartyId);

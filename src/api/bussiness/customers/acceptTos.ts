@@ -1,10 +1,13 @@
 import { acceptTos } from '@/services/supabase/business';
 import { Request, Response } from 'express';
+import { AuthRequest } from "@/middleware/authMiddleware";
 
-export const acceptTosController = async (req: Request, res: Response): Promise<Response> => {
+export const acceptTosController = async (req: AuthRequest, res: Response): Promise<Response> => {
     try {
-        const { business_id } = req.body;
-
+        // const { business_id } = req.body;
+        // console.log(req.user)
+        const business_id = req.user?.customer_id
+        console.log(business_id)
         if (!business_id) {
             return res.status(400).json({
                 success: false,

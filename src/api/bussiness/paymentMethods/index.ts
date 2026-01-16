@@ -6,7 +6,7 @@ import { updatePaymentMethodController } from './updatePaymentMethod';
 import { deletePaymentMethodController } from './deletePaymentMethod';
 import { listWalletsAndCounterpartiesController } from './listWalletsAndCounterparties';
 import { deactivateController } from './deactivate';
-
+import { authMiddleware } from "@/middleware/authMiddleware";
 const paymentMethodsRouter = Router();
 
 /**
@@ -15,7 +15,8 @@ const paymentMethodsRouter = Router();
  * @access  Private
  */
 paymentMethodsRouter.post(
-  '/business/:customerId/payment-methods',
+  '/business/payment-methods',
+  authMiddleware,
   createPaymentMethodController
 );
 
@@ -25,12 +26,14 @@ paymentMethodsRouter.post(
  * @access  Private
  */
 paymentMethodsRouter.get(
-  '/business/:customerId/payment-methods',
+  '/business/payment-methods',
+  authMiddleware,
   listPaymentMethodsController
 );
 
 paymentMethodsRouter.get(
-  '/customers/:customerId/wallets-and-counterparties',
+  '/customers/payment-methods/wallets-and-counterparties',
+  authMiddleware,
   listWalletsAndCounterpartiesController
 );
 
@@ -40,7 +43,8 @@ paymentMethodsRouter.get(
  * @access  Private
  */
 paymentMethodsRouter.get(
-  '/business/:customerId/payment-methods/:paymentMethodId',
+  '/business/payment-methods/:paymentMethodId',
+  authMiddleware,
   getPaymentMethodController
 );
 
@@ -50,7 +54,8 @@ paymentMethodsRouter.get(
  * @access  Private
  */
 paymentMethodsRouter.patch(
-  '/business/:customerId/payment-methods/:paymentMethodId',
+  '/business/payment-methods/:paymentMethodId',
+  authMiddleware,
   updatePaymentMethodController
 );
 
@@ -60,7 +65,8 @@ paymentMethodsRouter.patch(
  * @access  Private
  */
 paymentMethodsRouter.delete(
-  '/business/:customerId/payment-methods/:paymentMethodId',
+  '/business/payment-methods/:paymentMethodId',
+  authMiddleware,
   deletePaymentMethodController
 );
 
@@ -72,6 +78,7 @@ paymentMethodsRouter.delete(
  */
 paymentMethodsRouter.delete(
   '/deactivate/:type/:id',
+  authMiddleware,
   deactivateController
 );
 

@@ -1,10 +1,13 @@
 import { Request, Response } from "express";
 import conduitFinancial from "@/services/conduit/conduit-financial";
+import { AuthRequest } from "@/middleware/authMiddleware";
+
 export const getBankAccountsByCustomerIdController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<Response> => {
-  const { customerId, currency } = req.params;
+  const customerId = req.user?.conduit_id
+  const { currency } = req.params;
   if (!customerId) {
     return res.status(400).json({
       success: false,
