@@ -4,7 +4,9 @@ import { logoutController } from "./logout";
 import { refreshController } from "./refresh";
 import { getMeController } from "./me";
 import { authMiddleware } from "@/middleware/authMiddleware";
+import { registerUser } from "./signUp"
 const router = Router();
+router.post("/signup", registerUser);
 
 router.post("/login", loginController);
 // /api/auth/logout

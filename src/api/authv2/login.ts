@@ -91,12 +91,16 @@ export const loginController = async (req: Request, res: Response) => {
     );
 
     // 6. Set Cookies
+    // const cookieOptions = {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'none' as const,
+    // };
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none' as const,
+      secure: !isDeveloment,
+      sameSite: isDeveloment ? ("lax" as const) : ("none" as const),
     };
-
     res.cookie('access_token', accessToken, {
       ...cookieOptions,
       maxAge: 15 * 60 * 1000 // 15 minutes

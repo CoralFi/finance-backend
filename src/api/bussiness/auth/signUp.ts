@@ -5,6 +5,10 @@ import bcrypt from 'bcrypt';
 import { verifyUser } from '@/services/userService';
 import { ApiResponse } from "@/services/types/request.types";
 import supabase from "../../../db/supabase";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || 'secretTest123';
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 export const createCustomerController = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -127,6 +131,41 @@ export const createCustomerController = async (req: Request, res: Response): Pro
     } catch (err: any) {
       console.error("Excepción al guardar método de pago:", err.message);
     }
+    console.log(supabaseResponse[0].business_id)
+    const accessToken = jwt.sign(
+      {
+        userId: supabaseResponse[0].business_id, // o userId si ese es tu identificador principal
+        email,
+        role: 'business',
+      },
+      JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    const refreshToken = jwt.sign(
+      {
+        userId: supabaseResponse[0].business_id,
+        role: 'business',
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+    const cookieOptions = {
+      httpOnly: true,
+      secure: !isDevelopment,
+      sameSite: isDevelopment ? ("lax" as const) : ("none" as const),
+    };
+
+    res.cookie('access_token', accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000,
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      ...cookieOptions,
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
     return res.status(201).json({
       success: true,
       message: 'Cliente creado correctamente en Conduit y guardado en la base de datos',
