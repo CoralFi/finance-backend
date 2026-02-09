@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
-import { 
-    getCustomerAddresses, 
-    createCustomerAddress, 
+import {
+    getCustomerAddresses,
+    createCustomerAddress,
     deleteCustomerAddress,
     AddressData
 } from "@/services/customer/addressService";
+import { AuthRequest } from "../../middleware/authMiddleware";
 
 /**
  * GET /api/customers/:customerId/addresses - Get all addresses for a customer
@@ -12,12 +13,13 @@ import {
  * DELETE /api/customers/:customerId/addresses - Delete an address for a customer
  */
 export const customerAddressController = async (
-    req: Request,
+    req: AuthRequest,
     res: Response
 ): Promise<Response> => {
     try {
-        const { customerId } = req.params;
-
+        // const { customerId } = req.params;
+        const customerId = req.user?.customer_id
+        console.log("customerId:", customerId);
         // Validate customerId
         if (!customerId || isNaN(parseInt(customerId))) {
             return res.status(400).json({
@@ -30,7 +32,7 @@ export const customerAddressController = async (
         // Handle GET request - Fetch all addresses
         if (req.method === 'GET') {
             const addresses = await getCustomerAddresses(customerId);
-            
+
             return res.status(200).json({
                 success: true,
                 message: 'Direcciones obtenidas exitosamente',
@@ -40,22 +42,22 @@ export const customerAddressController = async (
 
         // Handle POST request - Create new address
         if (req.method === 'POST') {
-            const { 
-                street_line_1, 
-                street_line_2, 
-                city, 
-                state_region_province, 
-                postal_code, 
-                country, 
-                locale, 
-                tittle, 
-                first_name, 
-                last_name, 
-                email 
+            const {
+                street_line_1,
+                street_line_2,
+                city,
+                state_region_province,
+                postal_code,
+                country,
+                locale,
+                tittle,
+                first_name,
+                last_name,
+                email
             } = req.body;
 
             // Quick validation for required fields
-            if (!street_line_1?.trim() || !city?.trim() || !state_region_province?.trim() || 
+            if (!street_line_1?.trim() || !city?.trim() || !state_region_province?.trim() ||
                 !postal_code?.trim() || !country?.trim() || !locale?.trim() || !tittle?.trim() ||
                 !first_name?.trim() || !last_name?.trim() || !email?.trim()) {
                 return res.status(400).json({
@@ -80,7 +82,7 @@ export const customerAddressController = async (
             };
 
             const newAddress = await createCustomerAddress(customerId, addressData);
-            
+
             return res.status(201).json({
                 success: true,
                 message: 'Dirección creada exitosamente',
@@ -101,7 +103,7 @@ export const customerAddressController = async (
             }
 
             await deleteCustomerAddress(customerId, parseInt(addressId));
-            
+
             return res.status(200).json({
                 success: true,
                 message: 'Dirección eliminada exitosamente',

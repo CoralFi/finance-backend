@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { updateCustomerInfo } from "@/services/customer/customerInfoService";
+import { AuthRequest } from "../../middleware/authMiddleware";
 
 /**
  * Interface for the POST request body
@@ -43,11 +44,11 @@ const REQUIRED_FIELDS = [
  * Controller to handle POST request for updating customer info
  */
 export const postCustomerInfoController = async (
-    req: Request,
+    req: AuthRequest,
     res: Response
 ): Promise<Response> => {
     try {
-        const { customerId } = req.params;
+        const customerId = req.user?.customer_id
 
         // Validate customerId parameter
         if (!customerId || typeof customerId !== 'string' || customerId.trim() === '') {

@@ -20,6 +20,27 @@ const apiRain = {
     const { data } = await rainAxios.post(`/v1/issuing/applications/user`, payload);
     return data;
   },
+  async getLinkKyc(userId: string) {
+    // https://api-dev.raincards.xyz/v1/issuing/applications/user/{userId}
+    const { data } = await rainAxios.get(`/v1/issuing/applications/user/${userId}`);
+    return data;
+  },
+  async createCard(payload: Record<string, any>, userId: string) {
+    // https://api-dev.raincards.xyz/v1/issuing/users/{userId}/cards
+    const { data } = await rainAxios.post(`/v1/issuing/users/${userId}/cards`, payload);
+    return data;
+  },
+  async getCardById(cardId: string) {
+    // https://api-dev.raincards.xyz/v1/issuing/users/{userId}/cards
+    const { data } = await rainAxios.get(`/v1/issuing/cards/${cardId}`);
+    return data;
+  },
+  async getCardsByUserId(userId: string) {
+    //https://api-dev.raincards.xyz/v1/issuing/cards
+    const { data } = await rainAxios.get(`/v1/issuing/cards?limit=20&userId=${userId}`);
+    return data;
+  }
+
 };
 
 export default apiRain;
