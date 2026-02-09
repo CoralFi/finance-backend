@@ -98,8 +98,9 @@ export const getAllCustomerInfo = async (customerId: string) => {
 
     // If user found in usuarios, return mapped data
     if (userData && userData.length > 0) {
-        const fernWalletAddress = await getFernWalletCryptoInfo(userData[0].fern[0].fernWalletId);
         const u = userData[0] as any;
+        const fernWalletId = u.fern?.[0]?.fernWalletId;
+        const fernWalletAddress = fernWalletId ? await getFernWalletCryptoInfo(fernWalletId) : null;
         return {
             customer_id: u.customer_id,
             user_id: u.user_id,
@@ -112,9 +113,9 @@ export const getAllCustomerInfo = async (customerId: string) => {
             google_auth: u.google_auth,
             tos_coral: u.tos_coral,
             conduit_id: null,
-            fern_customer_id: u.fern[0].fernCustomerId ?? null,
-            fernWalletAddress: fernWalletAddress.fernCryptoWallet.address ?? null,
-            rain_id: u.rain_users[0].rain_user_id ?? null,
+            fern_customer_id: u.fern?.[0]?.fernCustomerId ?? null,
+            fernWalletAddress: fernWalletAddress?.fernCryptoWallet?.address ?? null,
+            rain_id: u.rain_users?.[0]?.rain_user_id ?? null,
         };
     }
 
