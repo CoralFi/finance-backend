@@ -66,7 +66,6 @@ export const deactivateController = async (req: Request, res: Response): Promise
             }
             await conduitFinancial.deleteCounterparty(id);
             console.log(`✓ Counterparty desactivado: ${id}`);
-
             return res.status(200).json({
                 success: true,
                 message: 'Counterparty y sus payment methods desactivados exitosamente',
