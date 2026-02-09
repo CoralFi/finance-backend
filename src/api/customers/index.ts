@@ -11,32 +11,33 @@ import { employmentSituationController } from "./utilities/employmentSituation";
 import { ocupationsController } from "./utilities/occupations";
 import { sourceFoundController } from "./utilities/sourceFound";
 import { FernKycUpdateController } from "./updateCustomerById";
+import { authMiddleware } from "@/middleware/authMiddleware";
 const router = Router();
 
-router.get("/", listCustomersController);
+// router.get("/", authMiddleware, listCustomersController);
 // /api/customers/account-purposes
-router.get("/account-purposes", listAccountPurposeController);
+router.get("/account-purposes", authMiddleware, listAccountPurposeController);
 // /api/customers/occupations
-router.get("/occupations", ocupationsController);
+router.get("/occupations", authMiddleware, ocupationsController);
 // /api/customers/amount-to-move
-router.get("/amount-to-move", amountToMoveController);
+router.get("/amount-to-move", authMiddleware, amountToMoveController);
 // /api/customers/source-found
-router.get("/source-found", sourceFoundController);
+router.get("/source-found", authMiddleware, sourceFoundController);
 // /api/customers/employment-situation
-router.get("/employment-situation", employmentSituationController);
+router.get("/employment-situation", authMiddleware, employmentSituationController);
 // /api/customers/kyc/:customerId/status
-router.get("/kyc/:customerId/status", getKycStatusController);
+router.get("/kyc/status", authMiddleware, getKycStatusController);
 // /api/customers/:customerId/info
-router.get("/:customerId/info", getCustomerTotalInfoController);
-router.post("/:customerId/info", postCustomerInfoController);
+router.get("/info", authMiddleware, getCustomerTotalInfoController);
+router.post("/info", authMiddleware, postCustomerInfoController);
 // /api/customers/:customerId/addresses
-router.get("/:customerId/addresses", customerAddressController);
-router.post("/:customerId/addresses", customerAddressController);
-router.delete("/:customerId/addresses", customerAddressController);
+router.get("/addresses", authMiddleware, customerAddressController);
+router.post("/addresses", authMiddleware, customerAddressController);
+router.delete("/addresses", authMiddleware, customerAddressController);
 // /api/customers/:customerId
-router.get("/:customerId", getCustomerInfo);
+router.get("/", authMiddleware, getCustomerInfo);
 
 // /api/customers/kyc/update
-router.post("/kyc/update", FernKycUpdateController);
+router.post("/kyc/update", authMiddleware, FernKycUpdateController);
 
 export default router;

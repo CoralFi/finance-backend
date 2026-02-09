@@ -1,13 +1,14 @@
 import { Request, Response } from "express";
 import { getCustomerTotalInfo } from "@/services/customer/customerInfoService";
+import { AuthRequest } from "../../middleware/authMiddleware";
 
 export const getCustomerTotalInfoController = async (
-    req: Request,
+    req: AuthRequest,
     res: Response
 ): Promise<Response> => {
     try {
-        const { customerId } = req.params;
-
+        // const { customerId } = req.params;
+        const customerId = req.user?.customer_id
         // Validate customerId parameter
         if (!customerId || typeof customerId !== 'string' || customerId.trim() === '') {
             return res.status(400).json({

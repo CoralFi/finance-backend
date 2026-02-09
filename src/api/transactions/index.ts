@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { listTransactionsController } from "./listTransactions";
 import { createTransactionController } from "./createTransaction";
-
+import { authMiddleware } from "@/middleware/authMiddleware";
 const router = Router();
 
 /**
@@ -9,13 +9,13 @@ const router = Router();
  * @description List all transactions
  * @access Private
  */
-router.get("/", listTransactionsController);
+router.get("/", authMiddleware, listTransactionsController);
 
 /**
  * @route POST /api/transactions
  * @description Create a new transaction from a quote
  * @access Private
  */
-router.post("/", createTransactionController);
+router.post("/", authMiddleware, createTransactionController);
 
 export default router;

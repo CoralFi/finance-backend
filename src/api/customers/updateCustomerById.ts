@@ -1,13 +1,15 @@
 import { Request, Response } from "express";
 import { FernKycUpdate } from "@/services/fern/fernServices";
 import supabase from "@/db/supabase";
+import { AuthRequest } from "../../middleware/authMiddleware";
 
 export const FernKycUpdateController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<Response> => {
   try {
-    const { kycData, userId } = req.body;
+    const { kycData } = req.body;
+    const userId = req.user?.customer_id
     const { data: fernData, error: fernError } = await supabase
       .from("fern")
       .select("fernCustomerId")
