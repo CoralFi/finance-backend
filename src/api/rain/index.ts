@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { createQuoteController } from "./quotes";
-import { createQuoteControllerConduit } from "./quotesConduit";
+import { createCustomer } from "./createCustomer";
 import { authMiddleware } from "@/middleware/authMiddleware";
 const router = Router();
 
@@ -9,6 +8,5 @@ const router = Router();
  * @description Create a new quote for a transaction
  * @access Private
  */
-router.post("/", authMiddleware, createQuoteController);
-router.post("/conduit", createQuoteControllerConduit);
+router.post("/createCustomer", authMiddleware, createCustomer);
 export default router;

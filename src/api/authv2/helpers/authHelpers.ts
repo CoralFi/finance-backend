@@ -46,9 +46,9 @@ export const getUserByCustomerId = async (customerId: string): Promise<UserInfo 
     .rpc("get_user_info_2", { p_customer_id: customerId })
     .single() as { data: UserInfo | null, error: any };
 
-  if (isDevelopment) {
-    console.log(`🔄 User info for ID ${customerId}: ${JSON.stringify(user)}`);
-  }
+  // if (isDevelopment) {
+  //   console.log(`🔄 User info for ID ${customerId}: ${JSON.stringify(user)}`);
+  // }
 
   if (userError || !user) {
     console.error("Error obteniendo datos del usuario por ID:", userError);

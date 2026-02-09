@@ -1,17 +1,19 @@
 import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
 import { PaymentMethodService } from '@/services/paymentMethods/paymentMethodService';
+import { AuthRequest } from "@/middleware/authMiddleware";
 
 /**
  * Controlador para eliminar un método de pago
  * DELETE /api/customers/:customerId/payment-methods/:paymentMethodId
  */
 export const deletePaymentMethodController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<Response> => {
   try {
-    const { customerId, paymentMethodId } = req.params;
+    const { paymentMethodId } = req.params;
+    const customerId = req.user?.conduit_id
 
     // Validar parámetros
     if (!customerId || !paymentMethodId) {
@@ -46,7 +48,7 @@ export const deletePaymentMethodController = async (
     // Manejar errores específicos de Conduit
     if (error.response) {
       const status = error.response.status || 500;
-      
+
       if (status === 404) {
         return res.status(404).json({
           success: false,

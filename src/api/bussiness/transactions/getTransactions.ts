@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 // import conduitFinancial from '@/services/conduit/conduit-financial';
 import supabase from '@/db/supabase';
-export const listTransactionsController = async (req: Request, res: Response): Promise<Response> => {
+import { AuthRequest } from '@/middleware/authMiddleware';
+export const listTransactionsController = async (req: AuthRequest, res: Response): Promise<Response> => {
   try {
 
-    const { customer_id } = req.params;
-
+    // const { customer_id } = req.params;
+    const customer_id = req.user?.conduit_id
     // this returned conduit transactions from conduit but there is a issue conduit dont send the conduit_id
     // to identify the customer
     // const data = await conduitFinancial.listTransactions();
@@ -22,8 +23,8 @@ export const listTransactionsController = async (req: Request, res: Response): P
 
     // we will return conduit transactions from our database
     const { data, error } = await supabase
-    .from('conduit_transactions')
-    .select(`
+      .from('conduit_transactions')
+      .select(`
       transaction_id,
       quote_id,
       transaction_type,
@@ -47,9 +48,9 @@ export const listTransactionsController = async (req: Request, res: Response): P
       conduit_id,
       wallet_address
     `)
-    .eq('conduit_id', customer_id)
-    .order('created_at', { ascending: false })
-    .limit(20);
+      .eq('conduit_id', customer_id)
+      .order('created_at', { ascending: false })
+      .limit(20);
 
     if (error) {
       throw error;

@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { createFernQuote } from "@/services/fern/quotesService";
 import { QuoteRequestData } from "@/services/types/fern.types";
 import supabase from "@/db/supabase";
+import { AuthRequest } from "../../middleware/authMiddleware";
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
@@ -9,12 +10,13 @@ const isDevelopment = process.env.NODE_ENV === 'development';
  * Controller to create a new quote
  * POST /api/quotes
  */
-export const createQuoteController = async (req: Request, res: Response): Promise<void> => {
+export const createQuoteController = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const quoteData: QuoteRequestData = req.body;
-
+    const customerId = req.user.fern_customer_id
+    console.log(customerId)
     // Validate required fields
-    if (!quoteData.customerId || !quoteData.source || !quoteData.destination) {
+    if (!customerId || !quoteData.source || !quoteData.destination) {
       res.status(400).json({
         error: 'Faltan campos requeridos: customerId, source, destination'
       });
@@ -53,23 +55,23 @@ export const createQuoteController = async (req: Request, res: Response): Promis
     }
 
     // Save quote in database
-    const {data: savedQuote, error: saveError} = await supabase
-    .from('fern_quotes')
-    .insert({
-      quote_id: quote.quoteId,
-      fern_customer_id: quoteData.customerId,
-      estimated_exchange_rate: quote.estimatedExchangeRate,
-      destination_amount: quote.destinationAmount,
-      fee_currency: quote.fees?.feeCurrency.label || '',
-      fern_fee_amount: quote.fees?.fernFee.feeAmount || '0',
-      fern_fee_usd_amount: quote.fees?.fernFee.feeUSDAmount || '0',
-      developer_fee_amount: quote.fees?.developerFee.feeAmount || '0',
-      developer_fee_usd_amount: quote.fees?.developerFee.feeUSDAmount || '0',
-      expires_at: quote.expiresAt,
-      raw_response: quote
-    })
-    .select('id, quote_id, created_at')
-    .single();
+    const { data: savedQuote, error: saveError } = await supabase
+      .from('fern_quotes')
+      .insert({
+        quote_id: quote.quoteId,
+        fern_customer_id: customerId,
+        estimated_exchange_rate: quote.estimatedExchangeRate,
+        destination_amount: quote.destinationAmount,
+        fee_currency: quote.fees?.feeCurrency.label || '',
+        fern_fee_amount: quote.fees?.fernFee.feeAmount || '0',
+        fern_fee_usd_amount: quote.fees?.fernFee.feeUSDAmount || '0',
+        developer_fee_amount: quote.fees?.developerFee.feeAmount || '0',
+        developer_fee_usd_amount: quote.fees?.developerFee.feeUSDAmount || '0',
+        expires_at: quote.expiresAt,
+        raw_response: quote
+      })
+      .select('id, quote_id, created_at')
+      .single();
 
     if (isDevelopment) {
       console.log('Cotización guardada en BD:', savedQuote);
@@ -83,12 +85,12 @@ export const createQuoteController = async (req: Request, res: Response): Promis
     // Return successful response
     res.status(200).json(quote);
 
-  } catch (error: any) {  
+  } catch (error: any) {
     console.error('Error al crear cotización en Fern:', error);
-    
+
     // Handle specific error codes
     const errorMessages: { [key: string]: string } = {
-      'CUSTOMER_ID_REQUIRED': 'El ID del cliente es requerido',
+
       'SOURCE_REQUIRED': 'Los datos de origen son requeridos',
       'DESTINATION_REQUIRED': 'Los datos de destino son requeridos',
       'SOURCE_PAYMENT_ACCOUNT_ID_REQUIRED': 'El ID de cuenta de pago de origen es requerido',

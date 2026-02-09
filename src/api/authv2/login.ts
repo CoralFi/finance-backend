@@ -1,9 +1,13 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import supabase from "../../db/supabase";
 import { getUserByEmail } from './helpers/authHelpers';
 import { getFernData, fetchFernRelatedData } from './helpers/fernHelpers';
 import conduitFinancial from "@/services/conduit/conduit-financial";
+
+const JWT_SECRET = process.env.JWT_SECRET || 'secretTest123';
+
 export const loginController = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -62,11 +66,52 @@ export const loginController = async (req: Request, res: Response) => {
 
     if (isDeveloment) {
       console.log("Inicio de sesión exitoso:", user.email);
-      console.log("Conduit user:", conduitUser);
+      // console.log("Conduit user:", conduitUser);
 
     }
-    console.log("Conduit user:", user);
-    // 5. Return success response
+    // console.log("Conduit user:", user);
+    // 5. Generate JWT Tokens
+    const accessToken = jwt.sign(
+      {
+        userId: user.customer_id,
+        email: user.email,
+        role: user.user_type
+      },
+      JWT_SECRET,
+      { expiresIn: '15m' }
+    );
+
+    const refreshToken = jwt.sign(
+      {
+        userId: user.customer_id,
+        role: user.user_type
+      },
+      JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    // 6. Set Cookies
+    // const cookieOptions = {
+    //   httpOnly: true,
+    //   secure: process.env.NODE_ENV === 'production',
+    //   sameSite: 'none' as const,
+    // };
+    const cookieOptions = {
+      httpOnly: true,
+      secure: !isDeveloment,
+      sameSite: isDeveloment ? ("lax" as const) : ("none" as const),
+    };
+    res.cookie('access_token', accessToken, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000 // 15 minutes
+    });
+
+    res.cookie('refresh_token', refreshToken, {
+      ...cookieOptions,
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
+
+    // 7. Return success response
     return res.status(200).json({
       message: "Inicio de sesión exitoso.",
       user: {
