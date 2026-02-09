@@ -42,6 +42,7 @@
 import { Request, Response } from "express";
 import conduitFinancial from "@/services/conduit/conduit-financial";
 import { AuthRequest } from "@/middleware/authMiddleware";
+import supabase from "@/db/supabase";
 
 export const getBankAccountsByCustomerIdController = async (
   req: AuthRequest,
