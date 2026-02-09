@@ -91,13 +91,14 @@ export const createBankAccountController = async (req: Request, res: Response): 
           rail,
           routingNumber,
           accountNumber,
+          iban,
           accountType,
           address: bankAddress,
         } = method;
 
         if (
           !accountOwnerName || !bankName || !currency || !rail ||
-          !accountNumber || !accountType || !bankAddress
+          !accountType || !bankAddress
         ) {
           return res.status(400).json({
             success: false,
