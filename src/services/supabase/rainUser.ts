@@ -14,11 +14,24 @@ export * from "@/services/types/rainUser.types";
 /**
  * Create a new Rain user
  */
-export const createRainUser = async (input: CreateRainUserInput): Promise<RainUser> => {
+export const createRainUser = async (
+    input: CreateRainUserInput
+): Promise<RainUser> => {
     if (!input.rain_user_id || !input.customer_id) {
         throw new Error("rain_user_id and customer_id are required");
     }
-
+    const { data: existing, error: findError } = await supabase
+        .from('rain_users')
+        .select('*')
+        .eq('customer_id', input.customer_id)
+        .maybeSingle();
+    if (findError) {
+        console.error('Error checking existing rain user:', findError);
+        throw new Error(`DATABASE_ERROR: ${findError.message}`);
+    }
+    if (existing) {
+        return existing;
+    }
     const { data, error } = await supabase
         .from('rain_users')
         .insert(input)
@@ -32,6 +45,7 @@ export const createRainUser = async (input: CreateRainUserInput): Promise<RainUs
 
     return data;
 };
+
 
 // ==================== READ ====================
 
