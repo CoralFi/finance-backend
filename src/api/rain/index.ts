@@ -5,6 +5,8 @@ import { createCard } from "./createCard";
 import { authMiddleware } from "@/middleware/authMiddleware";
 import { getCardById } from "./getCardById";
 import { getCards } from "./getCards";
+import { rainWebhook } from "./webhook";
+
 
 const router = Router();
 
@@ -18,5 +20,5 @@ router.get("/kyc", authMiddleware, kycStatus)
 router.post("/card", authMiddleware, createCard)
 router.get("/card/:cardId", authMiddleware, getCardById)
 router.get("/cards", authMiddleware, getCards)
-
+router.post("/webhook",  rainWebhook)
 export default router;
