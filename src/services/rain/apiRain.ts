@@ -39,7 +39,26 @@ const apiRain = {
     //https://api-dev.raincards.xyz/v1/issuing/cards
     const { data } = await rainAxios.get(`/v1/issuing/cards?limit=20&userId=${userId}`);
     return data;
-  }
+  },
+  async getCardSecrets(cardId: string, sessionId: string) {
+    if (!sessionId) {
+      throw new Error("SessionId is required to get card secrets");
+    }
+    const { data } = await axios.get(
+      `${RAIN_BASE_URL}/v1/issuing/cards/${cardId}/secrets`,
+      {
+        headers: {
+          'api-key': RAIN_API_KEY!,
+          Authorization: `Bearer ${RAIN_API_KEY}`,
+          SessionId: sessionId,
+          Accept: "application/json",
+        },
+        timeout: 10_000,
+      }
+    );
+
+    return data;
+  },
 
 };
 

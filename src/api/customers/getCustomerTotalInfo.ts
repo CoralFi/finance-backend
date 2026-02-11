@@ -26,7 +26,7 @@ export const getCustomerTotalInfoController = async (
             message: "Customer information retrieved successfully",
             data: customerTotalInfo
         });
-    } catch (error: any) {
+    } catch (error: any) { 
         console.error("❌ Error getting customer total info:", error);
 
         // Handle specific error types
