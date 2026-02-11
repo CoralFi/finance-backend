@@ -15,13 +15,14 @@ export const getCardSecrets = async (req: Request, res: Response) => {
     }
     const { sessionId, secretKey } = generateSessionId();
     const response = await apiRain.getCardSecrets(cardId, sessionId);
-    
+
     // const pan = decryptSecret(response.encryptedPan.data, response.encryptedPan.iv, secretKey);
     // const cvv = decryptSecret(response.encryptedCvc.data, response.encryptedCvc.iv, secretKey);
 
     return res.status(200).json({
       success: true,
-      response
+      response,
+      secretKey
     });
   } catch (error: any) {
     console.error("Error getCardSecrets:", error);
