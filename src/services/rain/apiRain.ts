@@ -40,6 +40,11 @@ const apiRain = {
     const { data } = await rainAxios.get(`/v1/issuing/cards?limit=20&userId=${userId}`);
     return data;
   },
+  async getBalanceByUserId(userId: string) {
+    //https://api-dev.raincards.xyz/v1/issuing/cards
+    const { data } = await rainAxios.get(`/v1/issuing/users/${userId}/balances`);
+    return data;
+  },
   async getCardSecrets(cardId: string, sessionId: string) {
     if (!sessionId) {
       throw new Error("SessionId is required to get card secrets");
@@ -59,7 +64,6 @@ const apiRain = {
 
     return data;
   },
-
 };
 
 export default apiRain;
