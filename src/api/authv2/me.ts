@@ -2,6 +2,7 @@ import { Response } from "express";
 import { AuthRequest } from "../../middleware/authMiddleware";
 import { getAllCustomerInfo } from "@/services/supabase/customersb";
 import { getRainUserByCustomerId } from "@/services/supabase/rainUser";
+import { getCustomerTotalInfo } from "@/services/customer/customerInfoService";
 export const getMeController = async (req: AuthRequest, res: Response) => {
 
     const user = req.user;
@@ -15,9 +16,11 @@ export const getMeController = async (req: AuthRequest, res: Response) => {
     if (user.user_type === 'persona') {
         const userInfo = await getAllCustomerInfo(user.customer_id)
         const rainUser = await getRainUserByCustomerId(user.customer_id)
+         const customerTotalInfo = await getCustomerTotalInfo(user.customer_id);
         data = {
             ...userInfo,
-            applicationStatus: rainUser?.application_status ?? null
+            applicationStatus: rainUser?.application_status ?? null,
+            user_info: customerTotalInfo?.user_info ?? null
         }
     }
     return res.status(200).json({
