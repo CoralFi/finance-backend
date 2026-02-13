@@ -28,7 +28,9 @@ export const getMeController = async (req: AuthRequest, res: Response) => {
         data = {
             ...userInfo,
             applicationStatus: rainUser?.application_status ?? null,
-            user_info: customerTotalInfo?.user_info ?? null
+            user_info: customerTotalInfo?.user_info ?? null,
+            fernWalletId: customerTotalInfo?.fern?.fernWalletId ?? null,
+
         }
     }
     return res.status(200).json({
