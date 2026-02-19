@@ -43,6 +43,9 @@ address JSONB,
 -- Phone information from Rain
 phone_country_code TEXT, phone_number TEXT,
 
+-- Wallet address for deposits (e.g. 0x...)
+deposit_address TEXT,
+
 -- Application status
 application_status rain_application_status DEFAULT 'needsVerification',
 

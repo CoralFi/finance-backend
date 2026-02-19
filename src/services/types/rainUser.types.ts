@@ -31,6 +31,7 @@ export interface RainUser {
     address: RainUserAddress | null;
     phone_country_code: string | null;
     phone_number: string | null;
+    deposit_address: string | null;
     application_status: RainApplicationStatus;
     application_external_verification_link: RainUserLink | null;
     application_completion_link: RainUserLink | null;
@@ -47,6 +48,7 @@ export interface CreateRainUserInput {
     address?: RainUserAddress;
     phone_country_code?: string;
     phone_number?: string;
+    deposit_address?: string;
     application_status?: RainApplicationStatus;
     application_external_verification_link?: RainUserLink;
     application_completion_link?: RainUserLink;
@@ -59,6 +61,7 @@ export interface UpdateRainUserInput {
     address?: RainUserAddress;
     phone_country_code?: string;
     phone_number?: string;
+    deposit_address?: string;
     application_status?: RainApplicationStatus;
     application_external_verification_link?: RainUserLink;
     application_completion_link?: RainUserLink;
