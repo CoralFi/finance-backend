@@ -12,7 +12,7 @@ export const refreshController = async (req: Request, res: Response) => {
 
     try {
         const decoded = jwt.verify(refreshToken, JWT_SECRET) as { userId: string; email: string, role: string };
-
+        const isDevelopment = process.env.NODE_ENV !== 'production';
 
         const accessToken = jwt.sign(
             {
@@ -26,8 +26,8 @@ export const refreshController = async (req: Request, res: Response) => {
 
         res.cookie('access_token', accessToken, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            secure: !isDevelopment,
+            sameSite: isDevelopment ? ("lax" as const) : ("none" as const),
             maxAge: 15 * 60 * 1000
         });
 
