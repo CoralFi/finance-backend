@@ -64,6 +64,11 @@ const apiRain = {
 
     return data;
   },
+  async getContract(userId: string) {
+    //https://api-dev.raincards.xyz/v1/issuing/users/{userId}/contracts
+    const { data } = await rainAxios.get(`/v1/issuing/users/${userId}/contracts`);
+    return data;
+  },
 };
 
 export default apiRain;
