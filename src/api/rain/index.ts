@@ -8,6 +8,9 @@ import { getCards } from "./getCards";
 import { rainWebhook } from "./webhook";
 import { getCardSecrets } from "./cardSecrets";
 import { getBalances } from "./getBalances";
+import { getOccupations } from "./ocupations";
+import { getContract } from "./getContract";
+
 
 
 const router = Router();
@@ -22,8 +25,10 @@ router.get("/kyc", authMiddleware, kycStatus)
 router.post("/card", authMiddleware, createCard)
 router.get("/card/:cardId", authMiddleware, getCardById)
 router.get("/cards", authMiddleware, getCards)
+router.get("/contract", authMiddleware, getContract)
 router.post("/webhook", rainWebhook)
 router.get("/card/:cardId/secrets", authMiddleware, getCardSecrets)
 router.get("/balances", authMiddleware, getBalances)
+router.get("/ocupations", getOccupations)
 
 export default router;

@@ -84,6 +84,7 @@ export const loginController = async (req: Request, res: Response) => {
     const refreshToken = jwt.sign(
       {
         userId: user.customer_id,
+        email: user.email,
         role: user.user_type
       },
       JWT_SECRET,
