@@ -8,6 +8,7 @@ import { getCards } from "./getCards";
 import { rainWebhook } from "./webhook";
 import { getCardSecrets } from "./cardSecrets";
 import { getBalances } from "./getBalances";
+import { getOccupations } from "./ocupations";
 
 
 const router = Router();
@@ -25,5 +26,6 @@ router.get("/cards", authMiddleware, getCards)
 router.post("/webhook", rainWebhook)
 router.get("/card/:cardId/secrets", authMiddleware, getCardSecrets)
 router.get("/balances", authMiddleware, getBalances)
+router.get("/ocupations", getOccupations)
 
 export default router;
