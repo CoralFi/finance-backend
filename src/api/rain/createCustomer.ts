@@ -3,6 +3,8 @@ import apiRain from "@/services/rain/apiRain"
 import { AuthRequest } from "../../middleware/authMiddleware";
 import { OCCUPATION_CODES } from "./constants/occupationCodes"
 import { createRainUser } from "@/services/supabase/rainUser"
+import crossmintApi from '@/services/crossmint/crossmint';
+
 const isEmpty = (value: any): boolean => {
     if (value === null || value === undefined) return true;
     if (typeof value === 'string' && value.trim() === '') return true;
@@ -24,7 +26,7 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
             "email",
             "phoneCountryCode",
             "phoneNumber",
-            "walletAddress",
+            
             "occupation",
             "annualSalary",
             "accountPurpose",
@@ -96,13 +98,38 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
             });
             return;
         }
-        if (!/^0x[a-fA-F0-9]{40}$/.test(data.walletAddress)) {
-            res.status(400).json({
-                error: "INVALID_WALLET",
-                message: "Wallet address inválida",
-                example: "0x1570815c3d0dc2017079d39fe044bb3743a1d268"
-            });
-            return;
+        // Handle walletAddress (optional now)
+        if (isEmpty(data.walletAddress)) {
+            const email = req.user?.email;  
+            if (!email) {
+                res.status(400).json({
+                    error: "MISSING_EMAIL",
+                    message: "No se pudo obtener el email del usuario autenticado"
+                });
+                return;
+            }
+            try {
+                const wallet = await crossmintApi.createWallet("evm", email);
+                data.walletAddress = wallet.address;
+                console.log("Wallet creada:", wallet.address);
+            } catch (walletError) {
+                console.error("Error creando wallet en Crossmint:", walletError);
+                res.status(500).json({
+                    error: "WALLET_CREATION_FAILED",
+                    message: "No se pudo crear la wallet automáticamente"
+                });
+                return;
+            }
+
+        } else {
+            if (!/^0x[a-fA-F0-9]{40}$/.test(data.walletAddress)) {
+                res.status(400).json({
+                    error: "INVALID_WALLET",
+                    message: "Wallet address inválida",
+                    example: "0x1570815c3d0dc2017079d39fe044bb3743a1d268"
+                });
+                return;
+            }
         }
         if (!OCCUPATION_CODES.has(data.occupation)) {
             res.status(400).json({

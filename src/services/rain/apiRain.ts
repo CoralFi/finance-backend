@@ -25,6 +25,11 @@ const apiRain = {
     const { data } = await rainAxios.get(`/v1/issuing/applications/user/${userId}`);
     return data;
   },
+  async getInfo(userId: string) {
+    // https://api-dev.raincards.xyz/v1/issuing/users/{userId}
+    const { data } = await rainAxios.get(`/v1/issuing/users/${userId}`);
+    return data;
+  },
   async createCard(payload: Record<string, any>, userId: string) {
     // https://api-dev.raincards.xyz/v1/issuing/users/{userId}/cards
     const { data } = await rainAxios.post(`/v1/issuing/users/${userId}/cards`, payload);
