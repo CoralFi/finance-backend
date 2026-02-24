@@ -24,6 +24,8 @@ import otpBussRoutes from "./bussiness/otp/index";
 import rainRoutes from "./rain/index";
 //v2
 import authv2Routes from "./authv2/index";
+// crosmint 
+import crossmintRoutes from "./crossmint/index";
 const router = Router();
 
 // /api/test
@@ -72,4 +74,7 @@ router.use("/rain", rainRoutes);
 
 //v2
 router.use("/authv2", authv2Routes);
+
+// crossmint
+router.use("/crossmint", crossmintRoutes);
 export default router;

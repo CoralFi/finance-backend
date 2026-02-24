@@ -5,6 +5,8 @@ import { verifyUser, createUser } from "../../services/userService";
 import { createFernCustomer } from "@/services/fern/customer";
 import { SignUpRequestBody, ApiResponse } from "@/services/types/request.types";
 import jwt from "jsonwebtoken";
+import crossmintApi from '@/services/crossmint/crossmint';
+
 const JWT_SECRET = process.env.JWT_SECRET || 'secretTest123';
 
 
@@ -180,11 +182,13 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
       }
 
       // Create customer in Fern
-      const fernCustomer = await createFernCustomer(newUser);
-      if (!fernCustomer) {
-        throw new Error("FERN_CUSTOMER_CREATION_FAILED");
-      }
+      let fernCustomer: any = null;
 
+      try {
+        fernCustomer = await createFernCustomer(newUser);
+      } catch (error) {
+        console.warn("Fern customer creation failed, continuing without Fern...");
+      }
       return { newUser, fernCustomer };
     });
     const accessToken = jwt.sign(
@@ -231,10 +235,10 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         lastName: result.newUser.apellido,
         email: result.newUser.email,
         userType: result.newUser.user_type,
-        fernCustomerId: result.fernCustomer.fernCustomerId,
-        fernWalletId: result.fernCustomer.fernWalletAddress,
-        kycFern: result.fernCustomer.Kyc,
-        kycLinkFern: result.fernCustomer.KycLink,
+        fernCustomerId: result.fernCustomer?.fernCustomerId ?? null,
+        fernWalletId: result.fernCustomer?.fernWalletAddress ?? null,
+        kycFern: result.fernCustomer?.Kyc ?? null,
+        kycLinkFern: result.fernCustomer?.KycLink ?? null,
         tosCoral: result.newUser.tos_coral,
       }
     } as ApiResponse);
