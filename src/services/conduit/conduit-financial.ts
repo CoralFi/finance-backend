@@ -169,6 +169,10 @@ const conduitFinancial = {
     const { data } = await conduitAxios.delete(`/customers/${customerId}/payment-methods/${paymentMethodId}`);
     return data;
   },
+  async getLinkKyb(customerId: string) {
+    const { data } = await conduitAxios.post(`customers/${customerId}/kyb-link`);
+    return data;
+  },
 
 };
 
