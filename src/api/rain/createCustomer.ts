@@ -4,6 +4,9 @@ import { AuthRequest } from "../../middleware/authMiddleware";
 import { OCCUPATION_CODES } from "./constants/occupationCodes"
 import { createRainUser } from "@/services/supabase/rainUser"
 import crossmintApi from '@/services/crossmint/crossmint';
+import { ethers } from "ethers";
+
+
 
 const isEmpty = (value: any): boolean => {
     if (value === null || value === undefined) return true;
@@ -26,7 +29,6 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
             "email",
             "phoneCountryCode",
             "phoneNumber",
-            
             "occupation",
             "annualSalary",
             "accountPurpose",
@@ -98,39 +100,45 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
             });
             return;
         }
-        // Handle walletAddress (optional now)
-        if (isEmpty(data.walletAddress)) {
-            const email = req.user?.email;  
-            if (!email) {
-                res.status(400).json({
-                    error: "MISSING_EMAIL",
-                    message: "No se pudo obtener el email del usuario autenticado"
-                });
-                return;
-            }
-            try {
-                const wallet = await crossmintApi.createWallet("evm", email);
-                data.walletAddress = wallet.address;
-                console.log("Wallet creada:", wallet.address);
-            } catch (walletError) {
-                console.error("Error creando wallet en Crossmint:", walletError);
-                res.status(500).json({
-                    error: "WALLET_CREATION_FAILED",
-                    message: "No se pudo crear la wallet automáticamente"
-                });
-                return;
-            }
+        const wallet = ethers.Wallet.createRandom();
 
-        } else {
-            if (!/^0x[a-fA-F0-9]{40}$/.test(data.walletAddress)) {
-                res.status(400).json({
-                    error: "INVALID_WALLET",
-                    message: "Wallet address inválida",
-                    example: "0x1570815c3d0dc2017079d39fe044bb3743a1d268"
-                });
-                return;
-            }
-        }
+        const address = wallet.address;
+        data.walletAddress = address;
+        const privateKey = wallet.privateKey;
+
+        // // Handle walletAddress (optional now)
+        // if (isEmpty(data.walletAddress)) {
+        //     const email = req.user?.email;  
+        //     if (!email) {
+        //         res.status(400).json({
+        //             error: "MISSING_EMAIL",
+        //             message: "No se pudo obtener el email del usuario autenticado"
+        //         });
+        //         return;
+        //     }
+        //     try {
+        //         const wallet = await crossmintApi.createWallet("evm", email);
+        //         data.walletAddress = wallet.address;
+        //         console.log("Wallet creada:", wallet.address);
+        //     } catch (walletError) {
+        //         console.error("Error creando wallet en Crossmint:", walletError);
+        //         res.status(500).json({
+        //             error: "WALLET_CREATION_FAILED",
+        //             message: "No se pudo crear la wallet automáticamente"
+        //         });
+        //         return;
+        //     }
+
+        // } else {
+        //     if (!/^0x[a-fA-F0-9]{40}$/.test(data.walletAddress)) {
+        //         res.status(400).json({
+        //             error: "INVALID_WALLET",
+        //             message: "Wallet address inválida",
+        //             example: "0x1570815c3d0dc2017079d39fe044bb3743a1d268"
+        //         });
+        //         return;
+        //     }
+        // }
         if (!OCCUPATION_CODES.has(data.occupation)) {
             res.status(400).json({
                 error: "INVALID_OCCUPATION",
@@ -160,11 +168,11 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
         }
         const customer = await apiRain.createCustomer(data)
         const rainCustomerDbPayload = {
-            rain_user_id: customer.id, // Rain user ID
-            customer_id: customerId,       // TU user/customer interno (importantísimo)
+            rain_user_id: customer.id,
+            customer_id: customerId,
             is_active: customer.isActive,
             is_terms_of_service_accepted: customer.isTermsOfServiceAccepted,
-            address: customer.address, // JSONB directo
+            address: customer.address,
             phone_country_code: customer.phoneCountryCode,
             phone_number: customer.phoneNumber,
             application_status: customer.applicationStatus,
@@ -177,6 +185,8 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
                     ? customer.applicationCompletionLink.url
                     : null,
             application_reason: customer.applicationReason || null,
+            wallet_address: address,
+            private_key: privateKey,
             updated_at: new Date().toISOString(),
         };
         await createRainUser(rainCustomerDbPayload)
