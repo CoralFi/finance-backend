@@ -11,7 +11,8 @@ import { getBalances } from "./getBalances";
 import { getOccupations } from "./ocupations";
 import { getContract } from "./getContract";
 import { getInfo } from "./getInfo";
-
+import { withdrawalController } from "./withdrawal";
+import { generateWalletController } from "./generateWalletEvm";
 const router = Router();
 
 /**
@@ -30,5 +31,6 @@ router.get("/card/:cardId/secrets", authMiddleware, getCardSecrets)
 router.get("/balances", authMiddleware, getBalances)
 router.get("/ocupations", getOccupations)
 router.get("/user", authMiddleware,getInfo)
-
+router.post("/withdrawal", authMiddleware,withdrawalController)
+router.post("/wallet", generateWalletController)
 export default router;
