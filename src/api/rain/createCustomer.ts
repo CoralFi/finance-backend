@@ -106,8 +106,8 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
         const privateKey = evmWallet.privateKey;
         const solanaAddress = solanaWallet.address;
         const solanaKey = solanaWallet.privateKey;
-
-        // data.walletAddress = address;
+        data.chainId = "80002"
+        data.walletAddress = address;
         data.solanaAddress = solanaAddress;
 
         // // Handle walletAddress (optional now)
