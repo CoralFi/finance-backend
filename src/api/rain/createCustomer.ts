@@ -1,10 +1,9 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import apiRain from "@/services/rain/apiRain"
 import { AuthRequest } from "../../middleware/authMiddleware";
 import { OCCUPATION_CODES } from "./constants/occupationCodes"
 import { createRainUser } from "@/services/supabase/rainUser"
-import crossmintApi from '@/services/crossmint/crossmint';
-import { ethers } from "ethers";
+import { generateWallet } from "@/services/wallet/walletGenerator";
 
 
 
@@ -100,11 +99,16 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
             });
             return;
         }
-        const wallet = ethers.Wallet.createRandom();
+        const evmWallet = generateWallet("evm");
+        const solanaWallet = generateWallet("solana");
 
-        const address = wallet.address;
-        data.walletAddress = address;
-        const privateKey = wallet.privateKey;
+        const address = evmWallet.address;
+        const privateKey = evmWallet.privateKey;
+        const solanaAddress = solanaWallet.address;
+        const solanaKey = solanaWallet.privateKey;
+
+        // data.walletAddress = address;
+        data.solanaAddress = solanaAddress;
 
         // // Handle walletAddress (optional now)
         // if (isEmpty(data.walletAddress)) {
@@ -187,6 +191,8 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
             application_reason: customer.applicationReason || null,
             wallet_address: address,
             private_key: privateKey,
+            solana_address: solanaAddress,
+            solana_key: solanaKey,
             updated_at: new Date().toISOString(),
         };
         await createRainUser(rainCustomerDbPayload)

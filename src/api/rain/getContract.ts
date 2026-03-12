@@ -25,6 +25,7 @@ export const getContract = async (req: AuthRequest, res: Response): Promise<void
 
 
     const contract = await apiRain.getContract(rainUser.rain_user_id);
+    console.log("Contract data from Rain API:", contract);
     const environment =
       process.env.NODE_ENV === "production" ? "production" : "development";
 

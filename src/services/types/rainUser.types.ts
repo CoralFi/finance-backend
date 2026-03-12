@@ -37,6 +37,7 @@ export interface RainUser {
     application_completion_link: RainUserLink | null;
     application_reason: string | null;
     private_key: string; // Agregado para almacenar la clave privada del usuario de Rain (encriptada o sin encriptar según tu implementación)
+    solana_key: string;
     created_at: string;
     updated_at: string;
 }

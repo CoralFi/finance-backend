@@ -78,6 +78,7 @@ const apiRain = {
   async getContract(userId: string) {
     //https://api-dev.raincards.xyz/v1/issuing/users/{userId}/contracts
     const { data } = await rainAxios.get(`/v1/issuing/users/${userId}/contracts`);
+    console.log("Contract data from Rain API:", data);
     return data;
   },
 };

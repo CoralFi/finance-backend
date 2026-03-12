@@ -85,6 +85,14 @@ export const RAIN_CHAINS: Record<
         usdc: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d",
       },
     },
+    solana: {
+      chainId: 901,
+      rpc: "https://api.devnet.solana.com",
+      tokens: {
+        usdc: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+        rusd: "CcuoBwMZJgupcdx81m3vYqBongw2PhhZ4yiYA2jo3K5",
+      }
+    },
 
     plasma: {
       chainId: 9746,

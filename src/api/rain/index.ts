@@ -13,6 +13,7 @@ import { getContract } from "./getContract";
 import { getInfo } from "./getInfo";
 import { withdrawalController } from "./withdrawal";
 import { generateWalletController } from "./generateWalletEvm";
+import { withdrawalSolanaController } from "./solanaWithdrawal";
 const router = Router();
 
 /**
@@ -32,5 +33,6 @@ router.get("/balances", authMiddleware, getBalances)
 router.get("/ocupations", getOccupations)
 router.get("/user", authMiddleware,getInfo)
 router.post("/withdrawal", authMiddleware,withdrawalController)
+router.post("/solana", authMiddleware,withdrawalSolanaController)
 router.post("/wallet", generateWalletController)
 export default router;
