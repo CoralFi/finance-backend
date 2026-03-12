@@ -106,7 +106,7 @@ export const createCustomer = async (req: AuthRequest, res: Response): Promise<v
         const privateKey = evmWallet.privateKey;
         const solanaAddress = solanaWallet.address;
         const solanaKey = solanaWallet.privateKey;
-        data.chainId = "80002"
+        data.chainId = "80002" //CAMBIAR ESTA CHAIN ID POR LA QUE CORRESPONDA A POLYGON EN PROD
         data.walletAddress = address;
         data.solanaAddress = solanaAddress;
 
