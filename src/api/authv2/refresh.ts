@@ -21,7 +21,7 @@ export const refreshController = async (req: Request, res: Response) => {
                 role: decoded.role
             },
             JWT_SECRET,
-            { expiresIn: '15m' }
+            { expiresIn: '10s' }
         );
 
         res.cookie('access_token', accessToken, {

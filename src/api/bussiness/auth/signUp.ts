@@ -139,7 +139,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
         role: 'business',
       },
       JWT_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: '10s' }
     );
 
     const refreshToken = jwt.sign(
@@ -148,7 +148,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
         role: 'business',
       },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '7d' }
     );
     const cookieOptions = {
       httpOnly: true,

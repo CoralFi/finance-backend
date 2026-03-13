@@ -78,7 +78,7 @@ export const loginController = async (req: Request, res: Response) => {
         role: user.user_type
       },
       JWT_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: '10s' }
     );
 
     const refreshToken = jwt.sign(
@@ -88,7 +88,7 @@ export const loginController = async (req: Request, res: Response) => {
         role: user.user_type
       },
       JWT_SECRET,
-      { expiresIn: '24h' }
+      { expiresIn: '7d' }
     );
 
     // 6. Set Cookies
