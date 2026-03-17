@@ -86,6 +86,11 @@ const apiRain = {
     const { data: response } = await rainAxios.post(`/v1/automations`, data);
     return response;
   },
+  async getTransationsByUserId(userId: string) {
+    //"https://api.raincards.xyz/v1/issuing/transactions?userId=USER_ID&type=collateral&type=payment" 
+    const { data } = await rainAxios.get(`/v1/issuing/transactions?userId=${userId}`);
+    return data;
+  }
 };
 
 export default apiRain;
