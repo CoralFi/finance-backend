@@ -18,6 +18,17 @@ export type SolanaWithdrawalContext = {
   tokenAddress: string;
 };
 
+const normalizeChainId = (value: unknown): number | null => {
+  const asString = String(value ?? "").trim();
+  if (!asString) return null;
+
+  const direct = Number(asString);
+  if (Number.isFinite(direct)) return direct;
+
+  const match = asString.match(/(\d+)$/);
+  return match ? Number(match[1]) : null;
+};
+
 export async function resolveSolanaWithdrawalContext(
   input: SolanaWithdrawalContextInput
 ): Promise<SolanaWithdrawalContext> {
@@ -37,14 +48,19 @@ export async function resolveSolanaWithdrawalContext(
   );
 
   const contracts = await apiRain.getContract(rainUserId);
-  const contract = contracts?.[0];
+  const environment =
+    process.env.NODE_ENV === "production" ? "production" : "development";
+
+  const solanaChain = RAIN_CHAINS[environment].solana;
+  const contract = contracts?.find(
+    (item: any) => normalizeChainId(item?.chainId) === solanaChain.chainId
+  );
+
   if (!contract) {
-    throw new Error("No se encontro contrato de Rain para el usuario");
+    throw new Error("No se encontro contrato de Solana para el usuario");
   }
 
   const chainId = String(contract.chainId);
-  const environment =
-    process.env.NODE_ENV === "production" ? "production" : "development";
 
   const selectedChain = Object.values(RAIN_CHAINS[environment]).find(
     (chain) => chain.chainId === Number(chainId)

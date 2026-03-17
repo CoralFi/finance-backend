@@ -10,6 +10,26 @@ import { getAdminSignature } from "./utils/adminSignature";
 import { CollateralInterface } from "@/lib/utils/abis/v2/Collateral";
 import { CoordinatorInterface } from "@/lib/utils/abis/v2/Coordinator";
 import { getRainUserByRainId } from "@/services/supabase/rainUser"
+
+const normalizeChainId = (value: unknown): number | null => {
+  const asString = String(value ?? "").trim();
+  if (!asString) return null;
+
+  const direct = Number(asString);
+  if (Number.isFinite(direct)) return direct;
+
+  const match = asString.match(/(\d+)$/);
+  return match ? Number(match[1]) : null;
+};
+
+function toCents(value: string | number): string {
+  const normalized = Number(value);
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    throw new Error("Monto invalido");
+  }
+  return Math.round(normalized * 100).toString();
+}
+
 export const withdrawalController = async (
   req: AuthRequest,
   res: Response
@@ -44,11 +64,25 @@ export const withdrawalController = async (
       });
       return;
     }
-    const contract = await apiRain.getContract(customerId);
-    const chainId = contract[0].chainId;
+    const contracts = await apiRain.getContract(customerId);
 
     const environment =
       process.env.NODE_ENV === "production" ? "production" : "development";
+
+    const polygonChain = RAIN_CHAINS[environment].polygon;
+    const contract = contracts.find(
+      (item: any) => normalizeChainId(item?.chainId) === polygonChain.chainId
+    );
+
+    if (!contract) {
+      res.status(400).json({
+        success: false,
+        message: "No se encontro contrato de Polygon para el usuario",
+      });
+      return;
+    }
+
+    const chainId = String(contract.chainId);
 
     const selectedChain = Object.values(RAIN_CHAINS[environment]).find(
       (chain) => chain.chainId === Number(chainId)
@@ -85,10 +119,12 @@ export const withdrawalController = async (
 
     console.log("Admin signer:", signer.address);
 
+    const amountInCentsParam = toCents(amount);
+
     const params: Record<string, string> = {
       chainId,
       token: tokenAddress,
-      amount,
+      amount: amountInCentsParam,
       adminAddress: signer.address,
       recipientAddress,
     };
@@ -115,7 +151,7 @@ export const withdrawalController = async (
 
 
     const coordinatorContract = new ethers.Contract(
-      contract[0].controllerAddress,
+      contract.controllerAddress,
       CoordinatorInterface
     ).connect(signer);
 
