@@ -139,7 +139,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
         role: 'business',
       },
       JWT_SECRET,
-      { expiresIn: '10s' }
+      { expiresIn: '1h' }
     );
 
     const refreshToken = jwt.sign(
