@@ -52,7 +52,7 @@ const apiRain = {
   },
   async getWithdrawalSignature(userId: string, params: Record<string, any>) {
     //https://api-dev.raincards.xyz/v1/issuing/users/{userId}/signatures/withdrawals
-    const { data } = await rainAxios.get(`/v1/issuing/users/${userId}/signatures/withdrawals`,  { params } );
+    const { data } = await rainAxios.get(`/v1/issuing/users/${userId}/signatures/withdrawals`, { params });
     console.log(data)
     return data;
   },
@@ -79,6 +79,12 @@ const apiRain = {
     //https://api-dev.raincards.xyz/v1/issuing/users/{userId}/contracts
     const { data } = await rainAxios.get(`/v1/issuing/users/${userId}/contracts`);
     return data;
+  },
+
+  async generateOnramp(data: Record<string, any>) {
+    //https://api-dev.raincards.xyz/v1/automations
+    const { data: response } = await rainAxios.post(`/v1/automations`, data);
+    return response;
   },
 };
 

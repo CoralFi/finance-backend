@@ -14,6 +14,7 @@ import { getInfo } from "./getInfo";
 import { withdrawalController } from "./withdrawal";
 import { generateWalletController } from "./generateWalletEvm";
 import { withdrawalSolanaController } from "./solanaWithdrawal";
+import { automationsController } from "./automations";
 const router = Router();
 
 /**
@@ -35,4 +36,5 @@ router.get("/user", authMiddleware,getInfo)
 router.post("/withdrawal", authMiddleware,withdrawalController)
 router.post("/solana", authMiddleware,withdrawalSolanaController)
 router.post("/wallet", generateWalletController)
+router.post("/automations", authMiddleware,automationsController)
 export default router;
