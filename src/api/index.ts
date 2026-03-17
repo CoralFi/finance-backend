@@ -26,6 +26,8 @@ import rainRoutes from "./rain/index";
 import authv2Routes from "./authv2/index";
 // crosmint 
 import crossmintRoutes from "./crossmint/index";
+// rain routers negocios
+import rainBussRoutes from "./bussiness/rain/index";
 const router = Router();
 
 // /api/test
@@ -77,4 +79,7 @@ router.use("/authv2", authv2Routes);
 
 // crossmint
 router.use("/crossmint", crossmintRoutes);
+
+//rain for business 
+router.use("/business/rain", rainBussRoutes);
 export default router;
