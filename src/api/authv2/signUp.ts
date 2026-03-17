@@ -198,7 +198,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         role: result.newUser.user_type,
       },
       JWT_SECRET,
-      { expiresIn: '10s' }
+      { expiresIn: '1h' }
     );
 
     const refreshToken = jwt.sign(
