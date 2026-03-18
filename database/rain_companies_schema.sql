@@ -9,9 +9,6 @@
 CREATE TABLE IF NOT EXISTS public.rain_companies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-  -- Relación opcional con usuario interno (si aplica en tu flujo)
-  customer_id UUID REFERENCES public.usuarios(customer_id) ON DELETE SET NULL,
-
   -- Identificador remoto en Rain (cuando exista)
   rain_company_id TEXT UNIQUE,
 
@@ -51,6 +48,8 @@ CREATE TABLE IF NOT EXISTS public.rain_companies (
   initial_user_wallet_address TEXT,
   initial_user_solana_address TEXT,
   initial_user_chain_id TEXT,
+  private_key TEXT,
+  solana_key TEXT,
 
   -- Para trazabilidad/debug
   registration_payload JSONB,
@@ -60,6 +59,26 @@ CREATE TABLE IF NOT EXISTS public.rain_companies (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Compatibilidad para bases ya creadas
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'rain_companies'
+      AND column_name = 'customer_id'
+  ) THEN
+    ALTER TABLE public.rain_companies DROP COLUMN customer_id;
+  END IF;
+END $$;
+
+ALTER TABLE public.rain_companies
+  ADD COLUMN IF NOT EXISTS private_key TEXT;
+
+ALTER TABLE public.rain_companies
+  ADD COLUMN IF NOT EXISTS solana_key TEXT;
 
 COMMENT ON TABLE public.rain_companies IS 'Registro de empresas para onboarding en Rain';
 COMMENT ON COLUMN public.rain_companies.address IS 'Dirección de empresa en formato JSONB';
@@ -111,9 +130,6 @@ COMMENT ON TABLE public.rain_company_ubos IS 'Ultimate Beneficial Owners de empr
 -- =====================================================
 -- Índices
 -- =====================================================
-CREATE INDEX IF NOT EXISTS idx_rain_companies_customer_id
-  ON public.rain_companies(customer_id);
-
 CREATE INDEX IF NOT EXISTS idx_rain_companies_rain_company_id
   ON public.rain_companies(rain_company_id);
 
