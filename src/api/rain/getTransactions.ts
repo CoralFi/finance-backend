@@ -16,14 +16,16 @@ export const getTransactions = async (req: AuthRequest, res: Response): Promise<
 
     const transactionsWithMovement = Array.isArray(transactions)
       ? transactions.map((transaction: any) => {
-          const amount = Number(transaction?.collateral?.amount);
-          const movement = Number.isFinite(amount) && amount >= 0 ? "deposito" : "retiro";
+          const rawAmount = Number(transaction?.collateral?.amount);
+          const normalizedAmount = Number.isFinite(rawAmount) ? rawAmount / 100 : transaction?.collateral?.amount;
+          const movement = Number.isFinite(rawAmount) && rawAmount >= 0 ? "deposito" : "retiro";
 
           return {
             ...transaction,
             collateral: transaction?.collateral
               ? {
                   ...transaction.collateral,
+                  amount: normalizedAmount,
                   movement,
                 }
               : transaction?.collateral,
