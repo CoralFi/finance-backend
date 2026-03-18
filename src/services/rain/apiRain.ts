@@ -92,7 +92,18 @@ const apiRain = {
     return data;
   },
   async createAccountCompany(payload: Record<string, any>) {
+    //https://api-dev.raincards.xyz/v1/issuing/applications/company
     const { data } = await rainAxios.post(`/v1/issuing/applications/company`, payload);
+    return data;
+  },
+  async getCompanyLinkKyc(companyId: string) {
+    //https://api-dev.raincards.xyz/v1/issuing/applications/company/{companyId}
+    const { data } = await rainAxios.get(`/v1/issuing/applications/company/${companyId}`);
+    return data;
+  },
+  async getCompanyContracts(companyId: string) {
+    //https://api-dev.raincards.xyz/v1/issuing/companies/{companyId}/contracts
+    const { data } = await rainAxios.get(`/v1/issuing/companies/${companyId}/contracts`);
     return data;
   },
 };

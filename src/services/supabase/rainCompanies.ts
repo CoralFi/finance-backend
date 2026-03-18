@@ -64,6 +64,29 @@ export const getRainCompanyByCustomerId = async (
     return data;
 };
 
+export const getRainCompanyByBusinessId = async (
+    businessId: string
+): Promise<RainCompany | null> => {
+    if (!businessId) {
+        throw new Error("businessId is required");
+    }
+
+    const { data, error } = await supabase
+        .from(RAIN_COMPANIES_TABLE)
+        .select("*")
+        .eq("business_id", businessId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (error) {
+        console.error("Error fetching rain company by business_id:", error);
+        throw new Error(`DATABASE_ERROR: ${error.message}`);
+    }
+
+    return data;
+};
+
 export const createRainCompanyWithContacts = async (
     input: CreateRainCompanyWithContactsInput
 ): Promise<RainCompanyFullRecord> => {
@@ -341,6 +364,7 @@ export const getRainCompanyFullById = async (
     };
 };
 
+ 
 // ==================== UPDATE ====================
 
 export const updateRainCompany = async (

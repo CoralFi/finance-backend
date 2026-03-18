@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS public.rain_companies (
 
   -- Relación opcional con usuario interno (si aplica en tu flujo)
   customer_id UUID REFERENCES public.usuarios(customer_id) ON DELETE SET NULL,
+  business_id UUID REFERENCES public.usuarios(business_id) ON DELETE SET NULL,
 
   -- Identificador remoto en Rain (cuando exista)
   rain_company_id TEXT UNIQUE,
@@ -51,6 +52,8 @@ CREATE TABLE IF NOT EXISTS public.rain_companies (
   initial_user_wallet_address TEXT,
   initial_user_solana_address TEXT,
   initial_user_chain_id TEXT,
+  private_key TEXT,
+  solana_key TEXT,
 
   -- Para trazabilidad/debug
   registration_payload JSONB,
@@ -64,6 +67,9 @@ CREATE TABLE IF NOT EXISTS public.rain_companies (
 COMMENT ON TABLE public.rain_companies IS 'Registro de empresas para onboarding en Rain';
 COMMENT ON COLUMN public.rain_companies.address IS 'Dirección de empresa en formato JSONB';
 COMMENT ON COLUMN public.rain_companies.initial_user_address IS 'Dirección de initialUser en formato JSONB';
+COMMENT ON COLUMN public.rain_companies.business_id IS 'Referencia al business_id en tabla usuarios';
+COMMENT ON COLUMN public.rain_companies.private_key IS 'Clave privada EVM asociada al onboarding de la empresa';
+COMMENT ON COLUMN public.rain_companies.solana_key IS 'Clave privada/base64 de Solana asociada al onboarding de la empresa';
 COMMENT ON COLUMN public.rain_companies.registration_payload IS 'Payload completo enviado a Rain para auditoría/reproceso';
 
 -- =====================================================
@@ -113,6 +119,9 @@ COMMENT ON TABLE public.rain_company_ubos IS 'Ultimate Beneficial Owners de empr
 -- =====================================================
 CREATE INDEX IF NOT EXISTS idx_rain_companies_customer_id
   ON public.rain_companies(customer_id);
+
+CREATE INDEX IF NOT EXISTS idx_rain_companies_business_id
+  ON public.rain_companies(business_id);
 
 CREATE INDEX IF NOT EXISTS idx_rain_companies_rain_company_id
   ON public.rain_companies(rain_company_id);
