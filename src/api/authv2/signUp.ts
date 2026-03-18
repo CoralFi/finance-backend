@@ -198,7 +198,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         role: result.newUser.user_type,
       },
       JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '15m' }
     );
 
     const refreshToken = jwt.sign(
@@ -207,7 +207,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         role: result.newUser.user_type,
       },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '24h' }
     );
     const cookieOptions = {
       httpOnly: true,
