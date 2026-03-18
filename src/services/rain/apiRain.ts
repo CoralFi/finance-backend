@@ -90,7 +90,11 @@ const apiRain = {
     //"https://api.raincards.xyz/v1/issuing/transactions?userId=USER_ID&type=collateral&type=payment" 
     const { data } = await rainAxios.get(`/v1/issuing/transactions?userId=${userId}`);
     return data;
-  }
+  },
+  async createAccountCompany(payload: Record<string, any>) {
+    const { data } = await rainAxios.post(`/v1/issuing/applications/company`, payload);
+    return data;
+  },
 };
 
 export default apiRain;
