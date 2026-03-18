@@ -1,6 +1,6 @@
 import supabase from "@/db/supabase";
 import { getFernWalletCryptoInfo } from "../fern/fernServices";
-
+import {getRainCompanyByBusinessId} from "./rainCompanies";
 export const getCustomerInfo = async (customerId: string) => {
     const { data, error } = await supabase
         .from('usuarios')
@@ -94,7 +94,6 @@ export const getAllCustomerInfo = async (customerId: string) => {
         throw userError;
     }
 
-    console.log(userData[0]);
 
     // If user found in usuarios, return mapped data
     if (userData && userData.length > 0) {
@@ -139,6 +138,8 @@ export const getAllCustomerInfo = async (customerId: string) => {
         throw businessError;
     }
 
+    const rainCompany = await getRainCompanyByBusinessId(customerId);
+
     if (businessData && businessData.length > 0) {
         const bs = businessData[0] as any;
         return {
@@ -154,7 +155,7 @@ export const getAllCustomerInfo = async (customerId: string) => {
             tos_coral: bs.tos_coral,
             conduit_id: bs.conduit_id,
             fern_customer_id: null,
-            rain_id: null,
+            rain_id: rainCompany?.rain_company_id ?? null,
         };
     }
 

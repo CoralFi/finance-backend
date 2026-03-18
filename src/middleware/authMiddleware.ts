@@ -26,7 +26,7 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
         if (user.user_type !== decoded.role) {
             return res.status(403).json({ message: "Acceso denegado. Rol no coincide." });
         }
-
+    
         req.user = user;
         next();
     } catch (error: any) {
