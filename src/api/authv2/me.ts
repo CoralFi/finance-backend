@@ -13,46 +13,8 @@ export const getMeController = async (req: AuthRequest, res: Response) => {
     }
     let data = {} as any
     if (user.user_type === 'business') {
-        try {
-            let linkKyb: string | null = null;
-            const userData = await conduitFinancial.getCustomer(user.conduit_id);
 
-            linkKyb = userData.kybLink ?? null;
-            console.log('userData', userData.kybLinkExpiration);
-            if (
-                userData.status === 'created' ||
-                userData.status === 'kyb_in_progress'
-            ) {
-                if (userData.kybLinkExpiration) {
-                    const expirationDate = new Date(userData.kybLinkExpiration);
-                    const now = new Date();
-                    console.log('Expiration:', expirationDate);
-                    console.log('Now:', now);
-                    console.log('Expired?:', expirationDate.getTime() < now.getTime());
-                    if (expirationDate.getTime() < now.getTime()) {
-                        const kybLinkData = await conduitFinancial.getLinkKyb(user.conduit_id);
-                        linkKyb = kybLinkData.verification_url ?? null;
-                    }
-                }
-            }
-            data = {
-                ...user,
-                conduit_kyb_link: linkKyb,
-                conduit_kyb_status: userData.status ?? null,
-                kybLinkExpiration: userData.kybLinkExpiration ?? null
-            };
-
-        } catch (error) {
-            console.error("Error obteniendo datos del cliente:", error);
-
-            data = {
-                ...user,
-                conduit_kyb_link: null,
-                conduit_kyb_status: null,
-                kybLinkExpiration: null
-
-            };
-        }
+        data = { ...user, }
     }
     if (user.user_type === 'persona') {
         const userInfo = await getAllCustomerInfo(user.customer_id)
@@ -61,8 +23,8 @@ export const getMeController = async (req: AuthRequest, res: Response) => {
         data = {
             ...userInfo,
             applicationStatus: rainUser?.application_status ?? null,
-            user_info: customerTotalInfo?.user_info ?? null,
-            fernWalletId: customerTotalInfo?.fern?.fernWalletId ?? null,
+            //user_info: customerTotalInfo?.user_info ?? null,
+            // fernWalletId: customerTotalInfo?.fern?.fernWalletId ?? null,
 
         }
     }

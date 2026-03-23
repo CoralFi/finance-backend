@@ -65,17 +65,19 @@ export const createCustomerController = async (req: Request, res: Response): Pro
     if (userExists !== undefined) {
       throw new Error("USER_EXISTS");
     }
+    // Temporalmente desactivado: creación de customer en Conduit.
+    // const conduitResponse = await conduitFinancial.createCustomer(req.body);
+    // console.log("conduitResponse", conduitResponse);
+    // const conduitCustomerId = conduitResponse?.id;
+    // if (!conduitCustomerId) {
+    //   return res.status(500).json({
+    //     success: false,
+    //     message: 'No se recibió un customerId válido de Conduit',
+    //   });
+    // }
 
-
-    const conduitResponse = await conduitFinancial.createCustomer(req.body);
-    console.log("conduitResponse", conduitResponse);
-    const conduitCustomerId = conduitResponse?.id;
-    if (!conduitCustomerId) {
-      return res.status(500).json({
-        success: false,
-        message: 'No se recibió un customerId válido de Conduit',
-      });
-    }
+    const conduitResponse = null;
+    const conduitCustomerId = `id-${Date.now()}`;
 
 
     const supabaseResponse = await saveCustomerToDB({
@@ -90,47 +92,50 @@ export const createCustomerController = async (req: Request, res: Response): Pro
       recordType,
       businessInformation,
     });
-    const account = await conduitFinancial.getCustomer(conduitCustomerId);
-    const sameName = account?.paymentMethods[0]
-    const sameNameAccount = {
-      payment_method_id: sameName?.id,
-      customer_id: conduitCustomerId,
-      type: sameName?.type,
-      status: sameName?.status,
-      bank_name: sameName?.bankName,
-      account_owner_name: sameName?.accountOwnerName,
-      account_number: sameName?.accountNumber,
-      account_type: sameName?.accountType,
-      routing_number: sameName?.routingNumber,
-      swift_code: sameName?.swiftCode,
-      iban: sameName?.iban,
-      branch_code: sameName?.branchCode,
-      bank_code: sameName?.bankCode,
-      sort_code: sameName?.sortCode,
-      pix_key: sameName?.pixKey,
-      wallet_address: null,
-      wallet_label: null,
-      rail: sameName?.rail,
-      currency: sameName?.currency,
-      address: null,
-      entity_info: null,
-      metadata: null,
-      counterparty_id: null,
-      active: true
-    }
-    try {
-      if (sameName) {
-        const { error: insertError } = await supabase
-          .from("conduit_payment_methods")
-          .insert([sameNameAccount]);
+    // Temporalmente desactivado: lectura de Conduit + guardado de payment method.
+    // const account = await conduitFinancial.getCustomer(conduitCustomerId);
+    // const sameName = account?.paymentMethods[0];
+    // const sameNameAccount = {
+    //   payment_method_id: sameName?.id,
+    //   customer_id: conduitCustomerId,
+    //   type: sameName?.type,
+    //   status: sameName?.status,
+    //   bank_name: sameName?.bankName,
+    //   account_owner_name: sameName?.accountOwnerName,
+    //   account_number: sameName?.accountNumber,
+    //   account_type: sameName?.accountType,
+    //   routing_number: sameName?.routingNumber,
+    //   swift_code: sameName?.swiftCode,
+    //   iban: sameName?.iban,
+    //   branch_code: sameName?.branchCode,
+    //   bank_code: sameName?.bankCode,
+    //   sort_code: sameName?.sortCode,
+    //   pix_key: sameName?.pixKey,
+    //   wallet_address: null,
+    //   wallet_label: null,
+    //   rail: sameName?.rail,
+    //   currency: sameName?.currency,
+    //   address: null,
+    //   entity_info: null,
+    //   metadata: null,
+    //   counterparty_id: null,
+    //   active: true,
+    // };
+    // try {
+    //   if (sameName) {
+    //     const { error: insertError } = await supabase
+    //       .from("conduit_payment_methods")
+    //       .insert([sameNameAccount]);
+    //
+    //     if (insertError) {
+    //       console.error("Error insertando método de pago en Supabase:", insertError.message);
+    //     }
+    //   }
+    // } catch (err: any) {
+    //   console.error("Excepción al guardar método de pago:", err.message);
+    // }
 
-        if (insertError) {
-          console.error("Error insertando método de pago en Supabase:", insertError.message);
-        }
-      }
-    } catch (err: any) {
-      console.error("Excepción al guardar método de pago:", err.message);
-    }
+    const sameNameAccount = null;
     console.log(supabaseResponse[0].business_id)
     const accessToken = jwt.sign(
       {
@@ -139,7 +144,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
         role: 'business',
       },
       JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '15m' }
     );
 
     const refreshToken = jwt.sign(
@@ -148,7 +153,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
         role: 'business',
       },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '24h' }
     );
     const cookieOptions = {
       httpOnly: true,
@@ -168,7 +173,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
 
     return res.status(201).json({
       success: true,
-      message: 'Cliente creado correctamente en Conduit y guardado en la base de datos',
+      message: 'Cliente guardado en la base de datos (Conduit temporalmente desactivado)',
       data: {
         conduit: conduitResponse,
         db: supabaseResponse,

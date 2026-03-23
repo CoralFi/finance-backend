@@ -16,6 +16,8 @@ export type RainCompanyStatus =
 
 export interface RainCompany {
     id: string;
+    customer_id: string | null;
+    business_id: string | null;
     rain_company_id: string | null;
     name: string;
     address: RainAddress;
@@ -47,6 +49,8 @@ export interface RainCompany {
 }
 
 export interface CreateRainCompanyInput {
+    customer_id?: string | null;
+    business_id?: string | null;
     rain_company_id?: string | null;
     name: string;
     address: RainAddress;
@@ -126,6 +130,8 @@ export interface CreateRainCompanyUboInput {
 }
 
 export interface RainCompaniesFilters {
+    customer_id?: string;
+    business_id?: string;
     status?: RainCompanyStatus;
     rain_company_id?: string;
     limit?: number;
