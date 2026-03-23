@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import supabase from "../../db/supabase";
 import { verifyUser, createUser } from "../../services/userService";
-import { createFernCustomer } from "@/services/fern/customer";
 import { SignUpRequestBody, ApiResponse } from "@/services/types/request.types";
 import jwt from "jsonwebtoken";
 import crossmintApi from '@/services/crossmint/crossmint';
@@ -145,7 +144,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     const result = await executeInTransaction(async () => {
       // Verify if the user already exists
       const userExists = await verifyUser(body.email);
-      console.log("userExists", userExists);
+ 
       if (userExists !== undefined) {
         throw new Error("USER_EXISTS");
       }
@@ -181,15 +180,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         throw new Error("USER_CREATION_FAILED");
       }
 
-      // Create customer in Fern
-      let fernCustomer: any = null;
-
-      try {
-        fernCustomer = await createFernCustomer(newUser);
-      } catch (error) {
-        console.warn("Fern customer creation failed, continuing without Fern...");
-      }
-      return { newUser, fernCustomer };
+      return { newUser };
     });
     const accessToken = jwt.sign(
       {
@@ -235,10 +226,6 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         lastName: result.newUser.apellido,
         email: result.newUser.email,
         userType: result.newUser.user_type,
-        fernCustomerId: result.fernCustomer?.fernCustomerId ?? null,
-        fernWalletId: result.fernCustomer?.fernWalletAddress ?? null,
-        kycFern: result.fernCustomer?.Kyc ?? null,
-        kycLinkFern: result.fernCustomer?.KycLink ?? null,
         tosCoral: result.newUser.tos_coral,
       }
     } as ApiResponse);
@@ -261,15 +248,6 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         success: false,
         message: "Error al crear el usuario en la base de datos.",
         error: "USER_CREATION_FAILED"
-      } as ApiResponse);
-      return;
-    }
-
-    if (error.message === "FERN_CUSTOMER_CREATION_FAILED") {
-      res.status(500).json({
-        success: false,
-        message: "Error al crear el cliente en Fern.",
-        error: "FERN_CUSTOMER_CREATION_FAILED"
       } as ApiResponse);
       return;
     }
