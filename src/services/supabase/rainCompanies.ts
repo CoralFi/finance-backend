@@ -275,10 +275,6 @@ export const listRainCompanies = async (
         .select("*")
         .order("created_at", { ascending: false });
 
-    if (filters?.customer_id) {
-        query = query.eq("customer_id", filters.customer_id);
-    }
-
     if (filters?.status) {
         query = query.eq("status", filters.status);
     }

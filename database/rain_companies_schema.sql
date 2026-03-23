@@ -64,6 +64,26 @@ CREATE TABLE IF NOT EXISTS public.rain_companies (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Compatibilidad para bases ya creadas
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema = 'public'
+      AND table_name = 'rain_companies'
+      AND column_name = 'customer_id'
+  ) THEN
+    ALTER TABLE public.rain_companies DROP COLUMN customer_id;
+  END IF;
+END $$;
+
+ALTER TABLE public.rain_companies
+  ADD COLUMN IF NOT EXISTS private_key TEXT;
+
+ALTER TABLE public.rain_companies
+  ADD COLUMN IF NOT EXISTS solana_key TEXT;
+
 COMMENT ON TABLE public.rain_companies IS 'Registro de empresas para onboarding en Rain';
 COMMENT ON COLUMN public.rain_companies.address IS 'Dirección de empresa en formato JSONB';
 COMMENT ON COLUMN public.rain_companies.initial_user_address IS 'Dirección de initialUser en formato JSONB';
