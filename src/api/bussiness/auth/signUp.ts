@@ -198,9 +198,9 @@ export const createCustomerController = async (req: Request, res: Response): Pro
       success: true,
       message: 'Cliente guardado en la base de datos (Conduit temporalmente desactivado)',
       data: {
-        conduit: conduitResponse,
-        db: supabaseResponse,
-        sameNameAccount
+        // conduit: conduitResponse,
+        ...supabaseResponse[0],
+        // sameNameAccount
       },
     });
   } catch (error: any) {

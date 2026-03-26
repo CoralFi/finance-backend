@@ -19,7 +19,8 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
         const decoded = jwt.verify(token, JWT_SECRET) as { userId: string; email: string; role: string };
 
         const user = await getAllCustomerInfo(decoded.userId);
-        // console.log(user);
+        console.log(user);
+        
         if (!user) {
             return res.status(401).json({ message: "Usuario no encontrado o inválido." });
         }
