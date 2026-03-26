@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import supabase from "../../db/supabase";
 import { getUserByEmail } from './helpers/authHelpers';
-import { getFernData, fetchFernRelatedData } from './helpers/fernHelpers';
+// import { getFernData, fetchFernRelatedData } from './helpers/fernHelpers';
 import conduitFinancial from "@/services/conduit/conduit-financial";
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secretTest123';
@@ -33,16 +33,16 @@ export const loginController = async (req: Request, res: Response) => {
 
     // 2.1. Verify if user is a business user
     const isBusinessUser = user.user_type === 'business';
-    let fernData;
-    if (!isBusinessUser) {
-      fernData = await getFernData(user.customer_id);
-      user.fern = fernData;
-    }
+    // let fernData;
+    // if (!isBusinessUser) {
+    //   fernData = await getFernData(user.customer_id);
+    //   user.fern = fernData;
+    // }
 
     // 4. Fetch additional data in parallel
-    const [fernRelatedData, userInfoExists, conduitUser] = await Promise.all([
+    const [userInfoExists, conduitUser] = await Promise.all([
       // Fetch Fern related data only for non-business users
-      isBusinessUser ? Promise.resolve(null) : fetchFernRelatedData(fernData!, user.user_id),
+      // isBusinessUser ? Promise.resolve(null) : fetchFernRelatedData(fernData!, user.user_id),
       supabase.rpc("user_info_exists", { p_user_id: user.user_id })
         .then(({ data, error }) => {
           if (error) {
@@ -78,7 +78,7 @@ export const loginController = async (req: Request, res: Response) => {
         role: user.user_type
       },
       JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: '15m' }
     );
 
     const refreshToken = jwt.sign(
@@ -88,7 +88,7 @@ export const loginController = async (req: Request, res: Response) => {
         role: user.user_type
       },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '24h' }
     );
 
     // 6. Set Cookies
@@ -124,12 +124,12 @@ export const loginController = async (req: Request, res: Response) => {
         google_auth: user.google_auth,
         tos: user.tos_coral,
         verificado_email: user?.verificado_email,
-        fernCustomerId: fernData?.fernCustomerId || null,
-        fernWalletId: fernData?.fernWalletId || null,
-        fernWalletAddress: fernRelatedData?.walletAddress || null,
-        KycFer: fernRelatedData?.kycStatus || null,
-        KycLinkFer: fernRelatedData?.kycLink || null,
-        fernBusinessName: fernData?.businessname || null,
+        // fernCustomerId: fernData?.fernCustomerId || null,
+        // fernWalletId: fernData?.fernWalletId || null,
+        // fernWalletAddress: fernRelatedData?.walletAddress || null,
+        // KycFer: fernRelatedData?.kycStatus || null,
+        // KycLinkFer: fernRelatedData?.kycLink || null,
+        // fernBusinessName: fernData?.businessname || null,
         user_info: userInfoExists,
         conduit_id: user?.conduit_id,
         conduit_kyb_status: conduitUser?.status,
