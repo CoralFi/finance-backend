@@ -9,13 +9,58 @@ ALTER TABLE public.usuarios
 ADD CONSTRAINT usuarios_customer_id_unique UNIQUE (customer_id);
 
 -- Create enum for application status
-CREATE TYPE rain_application_status AS ENUM (
+ALTER TYPE rain_application_status  (
     'needsVerification',
     'pending',
     'approved',
-    'rejected',
-    'inReview'
+    'denied',
+    'manualReview',
+    'locked',
+    'canceled',
+    'needsInformation',
+    'notStarted',
+    'exempt'
 );
+
+select * from pg_enum where enumtypid = 'rain_application_status'::regtype;
+
+DO $$ 
+BEGIN
+    -- Agregar 'denied' si no existe
+    IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'denied' AND enumtypid = 'rain_application_status'::regtype) THEN
+        ALTER TYPE rain_application_status ADD VALUE 'denied';
+    END IF;
+ 
+    -- Agregar 'manualReview' si no existe
+    IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'manualReview' AND enumtypid = 'rain_application_status'::regtype) THEN
+        ALTER TYPE rain_application_status ADD VALUE 'manualReview';
+    END IF;
+ 
+    -- Agregar 'locked' si no existe
+    IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'locked' AND enumtypid = 'rain_application_status'::regtype) THEN
+        ALTER TYPE rain_application_status ADD VALUE 'locked';
+    END IF;
+ 
+    -- Agregar 'canceled' si no existe
+    IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'canceled' AND enumtypid = 'rain_application_status'::regtype) THEN
+        ALTER TYPE rain_application_status ADD VALUE 'canceled';
+    END IF;
+ 
+    -- Agregar 'needsInformation' si no existe
+    IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'needsInformation' AND enumtypid = 'rain_application_status'::regtype) THEN
+        ALTER TYPE rain_application_status ADD VALUE 'needsInformation';
+    END IF;
+ 
+    -- Agregar 'notStarted' si no existe
+    IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'notStarted' AND enumtypid = 'rain_application_status'::regtype) THEN
+        ALTER TYPE rain_application_status ADD VALUE 'notStarted';
+    END IF;
+ 
+    -- Agregar 'exempt' si no existe
+    IF NOT EXISTS (SELECT 1 FROM pg_enum WHERE enumlabel = 'exempt' AND enumtypid = 'rain_application_status'::regtype) THEN
+        ALTER TYPE rain_application_status ADD VALUE 'exempt';
+    END IF;
+END $$;
 
 -- Create rain_users table
 CREATE TABLE IF NOT EXISTS public.rain_users (
