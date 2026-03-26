@@ -13,7 +13,7 @@ import { getContract } from "./getContract";
 import { getInfo } from "./getInfo";
 import { withdrawalController } from "./withdrawal";
 import { generateWalletController } from "./generateWalletEvm";
-import { withdrawalSolanaController } from "./solanaWithdrawal";
+import { withdrawalSolanaController } from "./withdrawal1";
 import { automationsController } from "./automations";
 import { getTransactions } from "./getTransactions";
 const router = Router();
