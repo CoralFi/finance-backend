@@ -5,9 +5,11 @@ import { refreshController } from "./refresh";
 import { getMeController } from "./me";
 import { authMiddleware } from "@/middleware/authMiddleware";
 import { registerUser } from "./signUp"
+import { verifyReferralCodeController } from "./verifyReferralCode";
+
 const router = Router();
 router.post("/signup", registerUser);
-
+router.post("/verify-referral-code", verifyReferralCodeController);
 router.post("/login", loginController);
 // /api/auth/logout
 router.post("/logout", logoutController);

@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
 import { saveCustomerToDB } from '@/services/bussiness/signUp';
 import bcrypt from 'bcrypt';
-import { verifyUser } from '@/services/userService';
+import { verifyUser, verifyReferralCode } from '@/services/userService';
 import { ApiResponse } from "@/services/types/request.types";
 import supabase from "../../../db/supabase";
 import jwt from "jsonwebtoken";
@@ -21,7 +21,8 @@ export const createCustomerController = async (req: Request, res: Response): Pro
       password,
       userId,
       recordType,
-      businessInformation
+      businessInformation,
+      referal_code
     } = req.body;
     if (
       !businessLegalName ||
@@ -65,6 +66,27 @@ export const createCustomerController = async (req: Request, res: Response): Pro
     if (userExists !== undefined) {
       throw new Error("USER_EXISTS");
     }
+
+    const referalCode = typeof referal_code === 'string' ? referal_code.trim() : '';
+    if (referalCode) {
+      const referralExists = await verifyReferralCode(referalCode);
+
+      if (referralExists === null) {
+        return res.status(500).json({
+          success: false,
+          message: "Error interno al validar el código de referido.",
+          error: "REFERRAL_VALIDATION_ERROR"
+        } as ApiResponse);
+      }
+
+      if (referralExists !== true) {
+        return res.status(400).json({
+          success: false,
+          message: "El código de referido no existe.",
+          error: "INVALID_REFERRAL_CODE"
+        } as ApiResponse);
+      }
+    }
     // Temporalmente desactivado: creación de customer en Conduit.
     // const conduitResponse = await conduitFinancial.createCustomer(req.body);
     // console.log("conduitResponse", conduitResponse);
@@ -91,6 +113,7 @@ export const createCustomerController = async (req: Request, res: Response): Pro
       userId,
       recordType,
       businessInformation,
+      referredByCode: referalCode || null,
     });
     // Temporalmente desactivado: lectura de Conduit + guardado de payment method.
     // const account = await conduitFinancial.getCustomer(conduitCustomerId);
