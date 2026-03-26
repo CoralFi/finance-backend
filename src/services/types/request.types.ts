@@ -20,6 +20,7 @@ export interface SignUpRequestBody {
   stateRegionProvince?: string;
   postalCode?: string;
   recordType: number;
+  referal_code?: string;
 }
 
 export interface ApiResponse<T = any> {

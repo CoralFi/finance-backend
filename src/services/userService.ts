@@ -40,6 +40,7 @@ export const createUser = async (params: CreateUserParams): Promise<UserRecord |
       p_city: params.city ?? null,
       p_state_region_province: params.stateRegionProvince ?? null,
       p_postal_code: params.postalCode ?? null,
+      p_referred_by_code: params.referredByCode ?? null,
     })
     .select()
     .single();
@@ -50,6 +51,21 @@ export const createUser = async (params: CreateUserParams): Promise<UserRecord |
     return null;
   } catch (err) {
     console.error("⚠️ Error al crear usuario:", err);
+    return null;
+  }
+};
+
+export const verifyReferralCode = async (referralCode: string): Promise<any> => {
+  try {
+    const { data, error } = await supabase.rpc("referral_code_exists", { p_referral_code: referralCode });
+    if (error) {
+      console.error("Error en RPC verificar referral code:", error.message);
+      return null;
+    } 
+    const result = data;
+    return result;
+  } catch (err) {
+    console.error("Error al verificar código de referido:", err);
     return null;
   }
 };

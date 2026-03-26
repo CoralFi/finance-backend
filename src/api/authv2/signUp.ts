@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import supabase from "../../db/supabase";
-import { verifyUser, createUser } from "../../services/userService";
+import { verifyUser, createUser, verifyReferralCode } from "../../services/userService";
 import { SignUpRequestBody, ApiResponse } from "@/services/types/request.types";
 import jwt from "jsonwebtoken";
 import crossmintApi from '@/services/crossmint/crossmint';
@@ -95,6 +95,7 @@ const executeInTransaction = async <T>(
 
 export const registerUser = async (req: Request, res: Response): Promise<void> => {
   const body = req.body as SignUpRequestBody;
+  const referalCode = body.referal_code?.trim();
 
   // Validate recordType is required
   if (body.recordType === undefined || body.recordType === null) {
@@ -139,6 +140,28 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     return;
   }
 
+  if (referalCode) {
+    const referralExists = await verifyReferralCode(referalCode);
+
+    if (referralExists === null) {
+      res.status(500).json({
+        success: false,
+        message: "Error interno al validar el código de referido.",
+        error: "REFERRAL_VALIDATION_ERROR"
+      } as ApiResponse);
+      return;
+    }
+
+    if (referralExists !== true) {
+      res.status(400).json({
+        success: false,
+        message: "El código de referido no existe.",
+        error: "INVALID_REFERRAL_CODE"
+      } as ApiResponse);
+      return;
+    }
+  }
+
   try {
     // Execute everything inside a transaction
     const result = await executeInTransaction(async () => {
@@ -151,7 +174,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
       // Hash password
       const hashedPassword = body.password ? await bcrypt.hash(body.password, 10) : '';
-
+      console.log(referalCode)
       // Create user in the database
       const newUser = await createUser({
         email: body.email,
@@ -174,6 +197,7 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
         city: body.city,
         stateRegionProvince: body.stateRegionProvince,
         postalCode: body.postalCode,
+        referredByCode: referalCode ?? null,
       });
 
       if (!newUser) {
