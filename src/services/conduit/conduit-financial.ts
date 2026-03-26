@@ -69,6 +69,14 @@ const conduitFinancial = {
     const { data } = await conduitAxios.patch(`/counterparties/${id}`, payload);
     return data;
   },
+  async deleteBankAccount(id: string, paymentMethodId: string) {
+    const { data } = await conduitAxios.delete(`/counterparties/${id}/payment-methods/${paymentMethodId}`);
+    return data;
+  },
+  async deleteCounterparty(id: string) {
+    const { data } = await conduitAxios.delete(`counterparties/${id}`);
+    return data;
+  },
   async createQuote(payload: Record<string, any>) {
     const { data } = await conduitAxios.post(`/quotes`, payload);
     return data;
@@ -85,7 +93,7 @@ const conduitFinancial = {
     const { data } = await conduitAxios.get(`/accounts/${id}/deposit-instructions`);
     return data;
   },
-  //
+  // sdfs
   async listTransactions() {
     const { data } = await conduitAxios.get(`/transactions`);
     return data;
@@ -159,6 +167,10 @@ const conduitFinancial = {
 
   async deletePaymentMethod(customerId: string, paymentMethodId: string) {
     const { data } = await conduitAxios.delete(`/customers/${customerId}/payment-methods/${paymentMethodId}`);
+    return data;
+  },
+  async getLinkKyb(customerId: string) {
+    const { data } = await conduitAxios.post(`customers/${customerId}/kyb-link`);
     return data;
   },
 

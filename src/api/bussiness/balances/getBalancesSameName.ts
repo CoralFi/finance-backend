@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 import conduitFinancial from '@/services/conduit/conduit-financial';
+import { AuthRequest } from "@/middleware/authMiddleware";
 
-export const getBalancesSameController = async (req: Request, res: Response): Promise<Response> => {
+export const getBalancesSameController = async (req: AuthRequest, res: Response): Promise<Response> => {
   try {
-    const { conduitId } = req.params;
+    // const { conduitId } = req.params;
+    const conduitId = req.user?.conduit_id
     if (!conduitId) {
       return res.status(400).json({ success: false, message: 'conduitId es requerido en el path' });
     }

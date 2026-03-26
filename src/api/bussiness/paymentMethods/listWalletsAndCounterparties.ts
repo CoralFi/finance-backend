@@ -6,6 +6,7 @@ import {
   CounterpartyFilters,
   CounterpartyResponse,
 } from '@/types/counterparties';
+import { AuthRequest } from "@/middleware/authMiddleware";
 
 type CounterpartyListItem = CounterpartyResponse & {
   kind: 'counterparty';
@@ -13,11 +14,12 @@ type CounterpartyListItem = CounterpartyResponse & {
 };
 
 export const listWalletsAndCounterpartiesController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<Response> => {
   try {
-    const { customerId } = req.params;
+    // const { customerId } = req.params;
+    const customerId = req.user?.conduit_id
     const { currency, network } = req.query as {
       currency?: string;
       network?: string;
@@ -38,8 +40,8 @@ export const listWalletsAndCounterpartiesController = async (
     const walletOnly = normalizedNetwork
       ? true
       : normalizedCurrency
-      ? !isFiatCurrency
-      : true;
+        ? !isFiatCurrency
+        : true;
 
     if (!customerId) {
       return res.status(400).json({

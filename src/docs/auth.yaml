@@ -3,10 +3,10 @@
     summary: Iniciar sesión de usuario
     description: |
       Autentica a un usuario (persona o negocio) mediante email y contraseña. 
-      
+
       Para usuarios tipo "persona", retorna información de Fern (KYC, wallet, etc.).
       Para usuarios tipo "business", retorna información de Conduit (KYB, status, etc.).
-      
+
       El endpoint valida las credenciales y retorna datos completos del usuario incluyendo:
       - Información básica del perfil
       - Estado de verificación (KYC/KYB)
@@ -227,7 +227,6 @@
                   type: string
                   example: Database connection failed
 
-
 /api/auth/reset-password:
   post:
     summary: Restablecer contraseña de un usuario (Business)
@@ -308,3 +307,72 @@
                 message:
                   type: string
                   example: "Error updating password"
+
+/api/auth/logout:
+  post:
+    summary: Cerrar sesión
+    description: Limpia la cookie de autenticación.
+    tags:
+      - Authentication
+    responses:
+      "200":
+        description: Sesión cerrada correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: Sesión cerrada exitosamente.
+
+/api/auth/me:
+  get:
+    summary: Obtener usuario actual
+    description: Retorna la información del usuario autenticado mediante la cookie.
+    tags:
+      - Authentication
+    security:
+      - cookieAuth: []
+    responses:
+      "200":
+        description: Usuario obtenido correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                user:
+                  type: object
+                  properties:
+                    customer_id:
+                      type: string
+                    email:
+                      type: string
+                    firstName:
+                      type: string
+                    lastName:
+                      type: string
+                    userType:
+                      type: string
+      "401":
+        description: No autorizado
+
+/api/auth/refresh:
+  post:
+    summary: Renovar Access Token
+    description: Utiliza el refresh_token de la cookie para generar un nuevo access_token.
+    tags:
+      - Authentication
+    security:
+      - refreshAuth: []
+    responses:
+      "200":
+        description: Token renovado exitosamente
+      "401":
+        description: No hay token de actualización
+      "403":
+        description: Token inválido o expirado

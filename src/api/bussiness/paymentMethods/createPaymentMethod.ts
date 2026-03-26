@@ -5,17 +5,19 @@ import {
   CreatePaymentMethodRequest,
   CreatePaymentMethodResponse,
 } from '@/types/payment-methods';
+import { AuthRequest } from "@/middleware/authMiddleware";
 
 /**
  * Controlador para crear un método de pago para un customer
  * POST /api/customers/:customerId/payment-methods
  */
 export const createPaymentMethodController = async (
-  req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<Response> => {
   try {
-    const { customerId } = req.params;
+    // const { customerId } = req.params;
+    const customerId = req.user?.conduit_id
     const paymentMethodData: CreatePaymentMethodRequest = req.body;
 
     // Validar que el customerId esté presente

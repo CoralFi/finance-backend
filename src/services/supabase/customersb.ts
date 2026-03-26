@@ -1,6 +1,6 @@
 import supabase from "@/db/supabase";
-
-
+import { getFernWalletCryptoInfo } from "../fern/fernServices";
+import {getRainCompanyByBusinessId} from "./rainCompanies";
 export const getCustomerInfo = async (customerId: string) => {
     const { data, error } = await supabase
         .from('usuarios')
@@ -67,4 +67,97 @@ export const getAllCustomerIDMappings = async (): Promise<Map<string, string>> =
     }
 
     return mappings;
+}
+
+export const getAllCustomerInfo = async (customerId: string) => {
+    // First, try to get data from usuarios with LEFT JOINs to fern and rain_users
+    const { data: userData, error: userError } = await supabase
+        .from('usuarios')
+        .select(`
+            customer_id,
+            user_id,
+            email,
+            password,
+            nombre,
+            apellido,
+            user_type,
+            verificado_email,
+            google_auth,
+            tos_coral,
+            fern(fernCustomerId, fernWalletId),
+            rain_users(rain_user_id)
+        `)
+        .eq('customer_id', customerId);
+
+    if (userError) {
+        console.error('Error fetching user info:', userError);
+        throw userError;
+    }
+
+
+    // If user found in usuarios, return mapped data
+    if (userData && userData.length > 0) {
+        const u = userData[0] as any;
+        const fernWalletId = u.fern?.[0]?.fernWalletId;
+        const fernWalletAddress = fernWalletId ? await getFernWalletCryptoInfo(fernWalletId) : null;
+        return {
+            customer_id: u.customer_id,
+            user_id: u.user_id,
+            email: u.email,
+            password: u.password,
+            nombre: u.nombre,
+            apellido: u.apellido,
+            user_type: u.user_type,
+            verificado_email: u.verificado_email,
+            google_auth: u.google_auth,
+            tos_coral: u.tos_coral,
+            conduit_id: null,
+            fern_customer_id: u.fern?.[0]?.fernCustomerId ?? null,
+            fernWalletAddress: fernWalletAddress?.fernCryptoWallet?.address ?? null,
+            rain_id: u.rain_users?.[0]?.rain_user_id ?? null,
+        };
+    }
+
+    // If not found in usuarios, search in business
+    const { data: businessData, error: businessError } = await supabase
+        .from('business')
+        .select(`
+            business_id,
+            business_email,
+            password,
+            business_name,
+            verificado_email,
+            google_auth,
+            tos_coral,
+            conduit_id
+        `)
+        .eq('business_id', customerId);
+
+    if (businessError) {
+        console.error('Error fetching business info:', businessError);
+        throw businessError;
+    }
+
+    const rainCompany = await getRainCompanyByBusinessId(customerId);
+
+    if (businessData && businessData.length > 0) {
+        const bs = businessData[0] as any;
+        return {
+            customer_id: bs.business_id,
+            user_id: null,
+            email: bs.business_email,
+            password: bs.password,
+            nombre: bs.business_name,
+            apellido: null,
+            user_type: 'business',
+            verificado_email: bs.verificado_email,
+            google_auth: bs.google_auth,
+            tos_coral: bs.tos_coral,
+            conduit_id: bs.conduit_id,
+            fern_customer_id: null,
+            rain_id: rainCompany?.rain_company_id ?? null,
+        };
+    }
+
+    return null;
 }

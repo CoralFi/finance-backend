@@ -14,5 +14,4 @@ router.post("/change-password", changePasswordController);
 // api/bussiness/auth/signup
 router.post("/reset-password", resetPasswordHandler);
 
-
 export default router;

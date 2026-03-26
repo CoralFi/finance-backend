@@ -1,4 +1,4 @@
-node_modules
 .git
-*.log
-.DS_Store
+node_modules
+.next
+# NO pongas aquí tu carpeta "secreta"

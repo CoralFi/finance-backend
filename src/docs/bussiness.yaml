@@ -510,18 +510,154 @@
                 error:
                   type: string
 
-/api/business/counterparties/update/{id}:
+/api/business/counterparties/update/{counterpartyId}:
   patch:
-    summary: Actualizar una cuenta bancaria externa por ID
+    summary: Actualizar una cuenta bancaria externa (counterparty)
     tags:
       - Business Counterparties
+
     parameters:
       - in: path
-        name: id
+        name: counterpartyId
         required: true
         schema:
           type: string
-        description: ID de la cuenta bancaria en Conduit
+        description: ID del counterparty en Conduit
+
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - type
+              - businessName
+              - website
+              - address
+              - email
+              - phone
+              - identificationType
+              - identificationNumber
+              - customerId
+              - paymentMethods
+            properties:
+              
+               
+              type:
+                type: string
+                example: business
+
+              businessName:
+                type: string
+                example: Acme Corp
+
+              website:
+                type: string
+                example: https://acme.com
+
+              address:
+                type: object
+                required:
+                  - streetLine1
+                  - city
+                  - state
+                  - postalCode
+                  - country
+                properties:
+                  streetLine1:
+                    type: string
+                    example: 123 Business St
+                  city:
+                    type: string
+                    example: New York
+                  state:
+                    type: string
+                    example: NY
+                  postalCode:
+                    type: string
+                    example: 10001
+                  country:
+                    type: string
+                    example: USA
+
+              email:
+                type: string
+                example: contact@acme.com
+
+              phone:
+                type: string
+                example: +1234567890
+
+              identificationType:
+                type: string
+                example: tin
+
+              identificationNumber:
+                type: string
+                example: "123456789"
+
+              customerId:
+                type: string
+                example: cus_34kFmTggz2C7wIpJqdkMrGsaHLs
+
+              paymentMethods:
+                type: array
+                minItems: 1
+                items:
+                  type: object
+                  required:
+                    - id
+                    - type
+                    - accountOwnerName
+                    - bankName
+                    - currency
+                    - rail
+                    - routingNumber
+                    - accountNumber
+                    - accountType
+                    - address
+                  properties:
+                    id:
+                      type: string
+                      description: ID del payment method a actualizar
+                      example: bank_37Zq86xZWcsPylv2PiMgh523h
+
+                    type:
+                      type: string
+                      example: bank
+                    accountOwnerName:
+                      type: string
+                      example: Acme Corp
+                    bankName:
+                      type: string
+                      example: Chase Bank
+                    currency:
+                      type: string
+                      example: USD
+                    rail:
+                      type: array
+                      items:
+                        type: string
+                      example: [ach]
+                    routingNumber:
+                      type: string
+                      example: "021000021"
+                    accountNumber:
+                      type: string
+                      example: "1234567890"
+                    accountType:
+                      type: string
+                      example: checking
+                    address:
+                      type: object
+                      required:
+                        - country
+                      properties:
+                        country:
+                          type: string
+                          example: USA
+
     responses:
       "200":
         description: Cuenta bancaria actualizada exitosamente
@@ -535,12 +671,13 @@
                   example: true
                 message:
                   type: string
-                  example: Bank accounts filtered by id
+                  example: Cuenta bancaria actualizada correctamente
                 data:
                   type: object
-                  description: Información de la cuenta bancaria actualizada
+                  description: Respuesta de Conduit
+
       "400":
-        description: id es requerido
+        description: Datos inválidos
         content:
           application/json:
             schema:
@@ -551,7 +688,8 @@
                   example: false
                 message:
                   type: string
-                  example: id es requerido en el path
+                  example: Faltan campos obligatorios
+
       "500":
         description: Error al actualizar la cuenta bancaria
         content:
@@ -564,7 +702,77 @@
                   example: false
                 message:
                   type: string
-                  example: Failed to retrieve bank accounts
+                  example: Error al actualizar la cuenta bancaria
+                error:
+                  type: string
+/api/business/counterparties/delete/{id}/{paymentMethodId}:
+  delete:
+    summary: Eliminar una cuenta bancaria externa (payment method)
+    tags:
+      - Business Counterparties
+
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: ID del counterparty en Conduit
+        example: cp_34kFmTggz2C7wIpJqdkMrGsaHLs
+
+      - in: path
+        name: paymentMethodId
+        required: true
+        schema:
+          type: string
+        description: ID del payment method a eliminar
+        example: bank_37Zq86xZWcsPylv2PiMgh523h
+
+    responses:
+      "200":
+        description: Cuenta bancaria eliminada exitosamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: true
+                message:
+                  type: string
+                  example: Cuenta bancaria eliminada correctamente
+                data:
+                  type: object
+                  description: Respuesta de Conduit al eliminar la cuenta bancaria
+
+      "400":
+        description: Parámetros inválidos
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: El ID y paymentMethodId de la cuenta bancaria es obligatorio
+
+      "500":
+        description: Error al eliminar la cuenta bancaria
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                success:
+                  type: boolean
+                  example: false
+                message:
+                  type: string
+                  example: Error al actualizar cuenta bancaria
                 error:
                   type: string
 

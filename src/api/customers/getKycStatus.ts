@@ -1,18 +1,19 @@
 import { Request, Response } from "express";
 import supabase from "@/db/supabase";
 import { FernKycStatus } from "@/services/fern/fernServices";
+import { AuthRequest } from "../../middleware/authMiddleware";
 
 /**
  * Controller to get KYC status for a customer
  * GET /api/customers/kyc/:customerId/status
  */
 export const getKycStatusController = async (
-    req: Request,
+    req: AuthRequest,
     res: Response
 ): Promise<Response> => {
     try {
-        const { customerId } = req.params;
-
+        // const { customerId } = req.params;
+          const customerId = req.user?.customer_id
         // Validate customerId parameter
         if (!customerId || typeof customerId !== 'string' || customerId.trim() === '') {
             return res.status(400).json({
