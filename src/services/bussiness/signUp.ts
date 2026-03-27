@@ -10,7 +10,8 @@ export async function saveCustomerToDB({
   hashedPassword,
   userId = null,
   recordType = 0,
-  businessInformation = {}
+  businessInformation = {},
+  referredByCode = null
 }: {
   conduitCustomerId: string;
   businessLegalName: string;
@@ -22,6 +23,7 @@ export async function saveCustomerToDB({
   userId?: number | null;
   recordType?: number;
   businessInformation?: any;
+  referredByCode?: string | null;
 }) {
   const { data, error } = await supabase.rpc('create_business', {
     p_conduit_id: conduitCustomerId,
@@ -85,7 +87,8 @@ export async function saveCustomerToDB({
     p_expected_average_daily_balance: businessInformation.expectedAverageDailyBalance,
     p_has_advisor: businessInformation.hasAdvisor,
     p_business_description: businessInformation.businessDescription,
-    p_business_entity_type: businessInformation.businessEntityType
+    p_business_entity_type: businessInformation.businessEntityType,
+    p_referred_by_code: referredByCode
   });
 
   if (error) throw new Error(error.message);

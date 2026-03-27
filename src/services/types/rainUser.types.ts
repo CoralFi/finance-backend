@@ -26,6 +26,8 @@ export type RainApplicationStatus =
 export interface RainUser {
     rain_user_id: string;
     customer_id: string;
+    referral_code: string | null;
+    referred_by_code: string | null;
     is_active: boolean;
     is_terms_of_service_accepted: boolean;
     address: RainUserAddress | null;

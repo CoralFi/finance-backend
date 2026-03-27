@@ -19,6 +19,7 @@ export interface CreateUserParams {
   city?: string | null;
   stateRegionProvince?: string | null;
   postalCode?: string | null;
+  referredByCode?: string | null;
   [key: string]: any;
 }
 

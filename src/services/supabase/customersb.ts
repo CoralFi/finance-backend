@@ -82,10 +82,12 @@ export const getAllCustomerInfo = async (customerId: string) => {
             apellido,
             user_type,
             verificado_email,
-            google_auth,
+            google_auth, 
             tos_coral,
             fern(fernCustomerId, fernWalletId),
-            rain_users(rain_user_id)
+            rain_users(rain_user_id),
+            referral_code,
+            referred_by_code
         `)
         .eq('customer_id', customerId);
 
@@ -93,7 +95,7 @@ export const getAllCustomerInfo = async (customerId: string) => {
         console.error('Error fetching user info:', userError);
         throw userError;
     }
-
+    console.log(userData)
 
     // If user found in usuarios, return mapped data
     if (userData && userData.length > 0) {
@@ -115,6 +117,8 @@ export const getAllCustomerInfo = async (customerId: string) => {
             fern_customer_id: u.fern?.[0]?.fernCustomerId ?? null,
             fernWalletAddress: fernWalletAddress?.fernCryptoWallet?.address ?? null,
             rain_id: u.rain_users?.[0]?.rain_user_id ?? null,
+            referral_code: u.referral_code ?? null,
+            referred_by_code: u.referred_by_code ?? null,
         };
     }
 
@@ -129,7 +133,9 @@ export const getAllCustomerInfo = async (customerId: string) => {
             verificado_email,
             google_auth,
             tos_coral,
-            conduit_id
+            conduit_id,
+            referral_code,
+            referred_by_code
         `)
         .eq('business_id', customerId);
 
@@ -156,6 +162,8 @@ export const getAllCustomerInfo = async (customerId: string) => {
             conduit_id: bs.conduit_id,
             fern_customer_id: null,
             rain_id: rainCompany?.rain_company_id ?? null,
+            referral_code: bs.referral_code ?? null,
+            referred_by_code: bs.referred_by_code ?? null,
         };
     }
 

@@ -13,13 +13,14 @@ export const getMeController = async (req: AuthRequest, res: Response) => {
     }
     let data = {} as any
     if (user.user_type === 'business') {
-
+        
         data = { ...user, }
     }
     if (user.user_type === 'persona') {
         const userInfo = await getAllCustomerInfo(user.customer_id)
         const rainUser = await getRainUserByCustomerId(user.customer_id)
         const customerTotalInfo = await getCustomerTotalInfo(user.customer_id);
+
         data = {
             ...userInfo,
             applicationStatus: rainUser?.application_status ?? null,
