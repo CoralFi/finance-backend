@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
 
 export const logoutController = async (req: Request, res: Response) => {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+
     const cookieOptions = {
         httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none' as const
+        secure: !isDevelopment,
+        sameSite: isDevelopment ? ('lax' as const) : ('none' as const),
     };
 
     res.clearCookie('access_token', cookieOptions);
