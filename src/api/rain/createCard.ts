@@ -6,7 +6,8 @@ import { getRainUserByCustomerId } from "@/services/supabase/rainUser";
 export const createCard = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const customerId = req.user?.customer_id;
-        const data = req.body
+        const data = req.body;
+
         if (!customerId) {
             res.status(401).json({
                 success: false,
@@ -22,9 +23,20 @@ export const createCard = async (req: AuthRequest, res: Response): Promise<void>
             });
             return;
         }
+        // Platinum: 406
+        // Signature: 424
+        // Infinite: 428
+ 
+        const payload = {
+            ...data,
+            type: data?.type ?? "virtual",
+            configuration: {
+                ...(data?.configuration || {}),
+                productId: "406",
+            },
+        };
 
-
-        const card = await apiRain.createCard(data, rainUser.rain_user_id);
+        const card = await apiRain.createCard(payload, rainUser.rain_user_id);
         res.status(200).json({
             success: true,
             card,
